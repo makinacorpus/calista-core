@@ -49,12 +49,11 @@ class InputDefinition
         // Do a few consistency checks based upon the advertised capabilities
         $searchFields = $this->getSearchFields();
         if ($this->options['search_enable']) {
-            if (!$this->options['search_parse'] && !$searchFields) {
-                throw new \InvalidArgumentException("fulltext search is disabled and there is no search field set");
-            }
-            foreach ($searchFields as $name) {
-                if (!$this->isFilterAllowed($name)) {
-                    throw new \InvalidArgumentException(sprintf("'%s' search field is not an allowed filter", $name));
+            if ($searchFields) {
+                foreach ($searchFields as $name) {
+                    if (!$this->isFilterAllowed($name)) {
+                        throw new \InvalidArgumentException(sprintf("'%s' search field is not an allowed filter", $name));
+                    }
                 }
             }
         }
