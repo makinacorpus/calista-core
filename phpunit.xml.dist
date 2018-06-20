@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.0/phpunit.xsd"
+    backupGlobals="false"
+    colors="true"
+    bootstrap="vendor/autoload.php"
+    convertErrorsToExceptions="false"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+>
+    <php>
+        <ini name="error_reporting" value="-1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Calista Datasource">
+            <directory>./calista-query/tests/</directory>
+        </testsuite>
+        <testsuite name="Calista Query">
+            <directory>./calista-datasource/tests/</directory>
+        </testsuite>
+        <testsuite name="Calista View">
+            <directory>./calista-view/tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>./calista-datasource/src</directory>
+            <directory>./calista-query/src</directory>
+            <directory>./calista-view/src</directory>
+            <exclude>
+                <directory>./vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

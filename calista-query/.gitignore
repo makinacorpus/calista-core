@@ -1,0 +1,8 @@
+composer.lock
+coverage
+docs/_build
+node_modules
+phpunit.xml
+tests/Mock/cache
+tests/Mock/logs
+vendor

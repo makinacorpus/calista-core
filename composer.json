@@ -1,0 +1,74 @@
+{
+    "name": "makinacorpus/calista-core",
+    "description": "Backend agnostic API for building user interface or data exports",
+    "type": "library",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Lonny Loquesol",
+            "email": "lonny.loquesol@makina-corpus.com"
+        },
+        {
+            "name": "Pierre Rineau",
+            "email": "pierre.rineau@makina-corpus.com"
+        },
+        {
+            "name": "Régis Leroy",
+            "email": "regis.leroy@makina-corpus.com"
+        },
+        {
+            "name": "Sébastien Corbin",
+            "email": "sebastien.corbin@makina-corpus.com"
+        },
+        {
+            "name": "Yannick Chabbert",
+            "email": "yannick.chabbert@makina-corpus.com"
+        },
+        {
+            "name": "Makina Corpus",
+            "homepage": "http://makina-corpus.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "platform": {
+            "php": "7.0.20"
+        }
+    },
+    "require": {
+        "php": ">=7",
+        "symfony/http-foundation": "^3.1|^4",
+        "symfony/options-resolver": "^3.2|^4"
+    },
+    "require-dev": {
+        "box/spout": "^2.7",
+        "phpunit/phpunit": "^6",
+        "symfony/property-access": "^3.2|^4",
+        "symfony/property-info": "^3.2|^4"
+    },
+    "replace": {
+        "makinacorpus/calista-datasource": "self.version",
+        "makinacorpus/calista-query": "self.version",
+        "makinacorpus/calista-view": "self.version"
+    },
+    "suggests": {
+        "box/spout ^2.7": "For XLSX (Excel) stream view support",
+        "symfony/property-access": "For dynamic property access in view component",
+        "symfony/property-info": "For dynamic property introspection in view component"
+    },
+    "autoload": {
+        "psr-4": {
+            "MakinaCorpus\\Calista\\Datasource\\": "calista-datasource/src/",
+            "MakinaCorpus\\Calista\\Query\\": "calista-query/src/",
+            "MakinaCorpus\\Calista\\View\\": "calista-view/src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MakinaCorpus\\Calista\\Datasource\\Tests\\": "calista-datasource/tests/",
+            "MakinaCorpus\\Calista\\Query\\Tests\\": "calista-query/tests/",
+            "MakinaCorpus\\Calista\\View\\Tests\\": "calista-view/tests/"
+        }
+    }
+}
