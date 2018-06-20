@@ -1,6 +1,6 @@
 {
     "name": "makinacorpus/calista-core",
-    "description": "Backend agnostic API for building user interface or data exports",
+    "description": "Set of tools to build data set queries and attach them within http context",
     "type": "library",
     "license": "GPL-2.0-or-later",
     "authors": [
