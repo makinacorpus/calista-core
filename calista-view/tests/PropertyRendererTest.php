@@ -18,7 +18,7 @@ use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
  */
 class PropertyRendererTest extends TestCase 
 {
-    private function createPropertyRenderer(): PropertyRenderer
+    public static function createPropertyRenderer(): PropertyRenderer
     {
         return new PropertyRenderer(
             new PropertyAccessor(),
@@ -41,7 +41,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderString()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         $value = "This is some long enough string";
 
@@ -69,7 +69,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderBool()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         $values = [true, 1, 'something'];
         foreach ($values as $value) {
@@ -102,7 +102,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderFloat()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         $value = 12345678.1234567;
 
@@ -120,7 +120,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderDate()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         // TZ here forces PHP to just print the date without modification
         $date = \DateTime::createFromFormat('Y-m-d H:i', '1983-03-22 08:25', new \DateTimeZone('UTC'));
@@ -143,7 +143,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderInt()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         $value = 12345678.1234567;
 
@@ -161,7 +161,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderValueCollection()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
 
         $item = (object)['my_prop' => range(1, 5)];
         $type = new Type(Type::BUILTIN_TYPE_ARRAY, false, null, true, null, new Type(Type::BUILTIN_TYPE_INT));
@@ -197,7 +197,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRendererMethodWithDebug()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
         $propertyRenderer->addRenderer(new FooPropertyRenderer());
         $propertyRenderer->setDebug(true);
 
@@ -226,7 +226,7 @@ class PropertyRendererTest extends TestCase
 
     public function testRendererMethodWithoutDebug()
     {
-        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer = self::createPropertyRenderer();
         $propertyRenderer->addRenderer(new FooPropertyRenderer());
 
         $item = (object)['my_prop' => "123456789"];

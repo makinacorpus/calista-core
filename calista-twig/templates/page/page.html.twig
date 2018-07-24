@@ -1,0 +1,381 @@
+{#
+ # Please note that items variable items type will vary depending on what you
+ #  are currently displaying, this template hanles nodes.
+ #
+ #  Variables:
+ #    pageId: page uuid, for security and ajax queries
+ #    filters: Filter[]
+ #    filters.ID.title: string (title)
+ #    filters.ID.links: Link[]
+ #    visualFilters: Filter[]
+ #    visualFilters.ID.title: string (title)
+ #    visualFilters.ID.links: Link[]
+ #    displays: Link[]
+ #    input: InputDefinition
+ #    definition: ViewDefinition
+ #    query: Query
+ #    query.searchParam: string
+ #    query.rawSearchString: string (raw user input)
+ #    query.route: string (current internal route)
+ #    query.routeParameters: string[] (current get query)
+ #    query.sortField: string (current sort field)
+ #    query.sortOrder: string (current sort order)
+ #    hasPager: should we show pager or not
+ #    items: DatasourceResultInterface|mixed[] the items
+ #}
+
+{%- block display_mode_link -%}
+  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title }}" data-page-link>
+    <span class="glyphicon glyphicon-{{ link.icon }}" aria-hidden="true"></span>
+    <span class="sr-only">{{ link.title }}</span>
+  </a>
+{%- endblock -%}
+
+{%- block display_mode -%}
+  {% if 1 < displays|length %}
+    <div class="clearfix">
+      <div class="btn-group">
+        {% for link in displays %}
+          {{ block('display_mode_link') }}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{%- endblock -%}
+
+{%- block filter_link -%}
+  <div class="checkbox">
+    <label>
+      <a{% if link.isActive %} class="active"{% endif %} href="{{ path(link.route, link.routeParameters) }}" data-page-link="{{ filter.field }}">
+        <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}>
+        {{ link.title }} {% if link.count is defined %}<span class="badge">{{ link.count }}</span>{% endif %}
+      </a>
+    </label>
+  </div>
+{%- endblock -%}
+
+{%- block filter -%}
+  <strong>{{ filter.title }}</strong>
+  <ul class="list-unstyled">
+    {% for link in filter.links(query) %}
+      <li>{{ block('filter_link') }}</li>
+    {% else %}
+      <li>{{ "No values"|trans }}</li>
+    {% endfor %}
+  </ul>
+{%- endblock -%}
+
+{% block search_form %}
+  <form method="get" class="calista-search-form" accept-charset="UTF-8">
+    <div class="input-group">
+      {% if visualFilters %}
+        <div class="form-control calista-visual-search"
+          data-definition="{{ visualFilters|calista_filter_definition|e }}"
+          data-query="{{ visualFilters|calista_filter_query(query.all)|e }}">
+        </div>
+      {% else %}
+        <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
+          value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
+        />
+        {% for name, value in query.routeParameters %}
+          {% if name != query.searchParameter %}
+            <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <span class="input-group-btn">
+        <button type="submit" title="{{ "Search"|trans }}" class="btn btn-primary">
+          <span class="glyphicon glyphicon-search"></span>
+        </button>
+      </span>
+    </div>
+  </form>
+{% endblock %}
+
+{% block sort_link_active_asc %}
+  <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+{% endblock %}
+
+{% block sort_link_active_desc %}
+  <span class="glyphicon glyphicon-search-up" aria-hidden="true"></span>
+{% endblock %}
+
+{#
+ # A table-header style sort link - unused per default.
+ #
+ # Use this to implement clickable table sort headers, use it the
+ # following way:
+ #
+ # <th>
+ #   {% with {title: "Référence", field: 'h.timestamp'} %}
+ #     {{ block('sort_link_shortcut') }}
+ #   {% endwith %}
+ # </th>
+ #}
+{% block sort_link_shortcut %}
+    {# Order to use #}
+    {% if field == query.sortField %}
+      {% if 'asc' == query.sortOrder %}
+        {% set order = 'desc' %}
+      {% else %}
+        {% set order = 'asc' %}
+      {% endif %}
+    {% else %}
+      {% set order = query.sortOrder %}
+    {% endif %}
+  {# The rest #}
+  {% set param = query.sortOrderParameter %}
+  {% set link = sorts.getLink(field) %}
+  {% set suffix = '' %}
+  {% spaceless %}
+    {% if link.isActive %}
+      {% if 'asc' == query.sortOrder(query) %}
+        {% set href = path(link.route, link.routeParameters|merge({(param): 'desc'})) %}
+        {% set suffix = block('sort_link_active_asc') %}
+      {% else %}
+        {% set href = path(link.route, link.routeParameters|merge({(param): 'asc'})) %}
+        {% set suffix = block('sort_link_active_desc') %}
+      {% endif %}
+    {% else %}
+      {% set href = path(link.route, link.routeParameters) %}
+    {% endif %}
+    <a href="{{ href }}" data-page-link>{{ title }}</a>
+  {% endspaceless %}
+{% endblock %}
+
+{#
+ # A normal sort link
+ #}
+{% block sort_link %}
+  {% spaceless %}
+    {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): query.sortOrder} %}
+    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" {% if field == query.sortField %}class="active"{% endif %} data-page-link>
+      {{ label }}
+    </a>
+  {% endspaceless %}
+{% endblock %}
+
+{% block sort_links_field %}
+  {% set allowedSorts = input.allowedSorts %}
+  <span class="text-muted">{{ "Sort by:"|trans }}</span>
+  <a href="#" class="dropdown-toggle" title="{{ "Sort by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
+    {% spaceless %}
+      {% if query.hasSortField %}
+        {{ allowedSorts[(query.sortField)] }}
+      {% else %}
+        WTF
+      {% endif %}
+      &nbsp;<span class="caret"></span>
+    {% endspaceless %}
+  </a>
+  <ul class="dropdown-menu dropdown-menu-right">
+    {% for field, label in allowedSorts %}
+      <li>{{ block('sort_link') }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block sort_links_order %}
+  <a href="#" class="dropdown-toggle" title="{{ "Order by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
+   {% if 'asc' == query.sortOrder %}{{ "ascending"|trans }}{% else %}{{ "descending"|trans }}{% endif %}&nbsp;<span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li>
+      <a href="{{ path(query.route, query.routeParameters|merge({(input.sortOrderParameter): 'asc'})) }}" {% if 'asc' == query.sortOrder %}class="active"{% endif %} data-page-link>
+        {{ "ascending"|trans }}
+      </a>
+    </li>
+    <li>
+      <a href="{{ path(query.route, query.routeParameters|merge({(input.sortOrderParameter): 'desc'})) }}" {% if 'desc' == query.sortOrder %}class="active"{% endif %} data-page-link>
+        {{ "descending"|trans }}
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block sort_links %}
+  <div class="pull-right sort-links">
+    <span style="position: relative;">
+      {{ block('sort_links_field') }}
+    </span>
+    <span style="position: relative;">
+      {{ block('sort_links_order') }}
+    </span>
+  </div>
+{% endblock %}
+
+{#
+ # Place it or not into your custom templates, but never forget the
+ # data-page-checkbox="all" attribute on which the javascript will match.
+ #}
+{%- block item_checkbox_all -%}
+  <input type="checkbox" data-page-checkbox="all" title="{{ "(Un)check all"|trans }}"/>
+{%- endblock -%}
+
+{%- block item -%}
+  <tr>
+    {% for property in properties %}
+      <td>
+        {{ calista_item_property(item, property) }}
+      </td>
+    {% endfor %}
+  <td>
+    {# {{ calista_actions(item) }} #}
+  </td>
+</tr>
+{%- endblock -%}
+
+{% block item_list %}
+  <table class="table table-condensed">
+    <thead>
+      <tr>
+        {% if form is defined %}
+          <th>{{ block('item_checkbox_all') }}</th>
+        {% endif %}
+        {% for property in properties %}
+          <th class="property-{{ property.name }}">{{ property.label }}</th>
+        {% endfor %}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        {{ block('item') }}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{#
+ # Single pager link href
+ #}
+{%- block pager_href -%}
+  {% if index is defined %}
+    {% if index == 1 %}
+      {{ path(query.route, query.routeParameters|merge({(input.pagerParameter): index})) }}
+    {% else %}
+      {# @todo drop the page parameter completly #}
+      {{ path(query.route, query.routeParameters|merge({(input.pagerParameter): index})) }}
+    {% endif %}
+  {% else %}
+    #
+  {% endif %}
+{%- endblock -%}
+
+{#
+ # Single pager link
+ #}
+{%- block pager_link -%}
+  {% if index is defined %}
+    <a href="{{ block('pager_href') }}" data-page-link="">
+      {{ index }}
+    </a>
+  {% endif %}
+{%- endblock -%}
+
+{#
+ # Custom pager, built with Bootstrap component. We dissociated it from any
+ # framework because we need to have control on the links for AJAX page
+ # refresh.
+ #}
+{%- block pager -%}
+  {% if hasPager %}
+    {% set page = query.pageNumber %}
+    <nav aria-label="{{ "Navigation"|trans }}">
+      <ul class="pagination">
+        {% if 1 < page %}
+          <li>
+            <a href="{% with {index: (page - 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Previous"|trans }}" data-page-link>
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% endif %}
+        {% for index in items.getPageRange(page, query.limit) %}
+          <li>
+            {{ block('pager_link') }}
+          </li>
+        {% endfor %}
+        {% if page < items.pageCount(query.limit) %}
+          <li>
+            <a href="{% with {index: (page + 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Next"|trans }}" data-page-link>
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{%- endblock -%}
+
+{% block page_content %}
+  <div class="container-fluid">
+    {% if input.isSearchEnabled or visualFilters %}
+      <div class="row">
+        <div class="col-md-12" data-page-block="search_form">
+          {{ block('search_form') }}
+        </div>
+      </div>
+    {% endif %}
+    {% if sortsEnabled and 1 < input.allowedSorts|length %}
+      <div class="row">
+        <div class="col-md-12" data-page-block="sort_links">
+          {{ block('sort_links') }}
+        </div>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div class="col-md-12" data-page-block="item_list">
+        {{ block('item_list') }}
+      </div>
+    </div>
+    {% if pagerEnabled %}
+      <div class="row">
+        <div class="col-md-12" data-page-block="pager">
+          {% if query.limit < items.totalCount %}
+            {{ block('pager') }}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block filters %}
+  {% for filter in filters %}
+    {{ block('filter') }}
+  {% endfor %}
+{% endblock %}
+
+{% block page_layout %}
+  <div class="row">
+    {% if 1 < displays|length or filters %}
+      <div class="col-md-2">
+        {% if displays %}
+          <div data-page-block="display_mode">
+            {% if 1 < displays|length %}
+              {{ block('display_mode') }}
+            {% endif %}
+          </div>
+        {% endif %}
+        {% if filters %}
+          <div data-page-block="filters">
+            {{ block('filters') }}
+          </div>
+        {% endif %}
+      </div>
+      <div id="calista-results" class="col-md-10">
+        {{ block('page_content') }}
+      </div>
+    {% else %}
+      <div id="calista-results" class="col-md-12">
+        {{ block('page_content') }}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{%- block page -%}
+  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ query.route }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" data-refresh-url="{{ path('calista_ajax_refresh') }}" data-view-type="{{ definition.viewType }}" class="calista-page">
+    {{ block('page_layout') }}
+  </div>
+{%- endblock -%}

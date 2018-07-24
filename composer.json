@@ -38,14 +38,16 @@
     },
     "require": {
         "php": ">=7",
+        "symfony/event-dispatcher": "^3.2|^4",
         "symfony/http-foundation": "^3.1|^4",
-        "symfony/options-resolver": "^3.2|^4"
+        "symfony/options-resolver": "^3.2|^4",
+        "symfony/property-access": "^3.2|^4",
+        "symfony/property-info": "^3.2|^4"
     },
     "require-dev": {
         "box/spout": "^2.7",
         "phpunit/phpunit": "^6",
-        "symfony/property-access": "^3.2|^4",
-        "symfony/property-info": "^3.2|^4"
+        "twig/twig": "^2.5"
     },
     "replace": {
         "makinacorpus/calista-datasource": "self.version",
@@ -61,6 +63,7 @@
         "psr-4": {
             "MakinaCorpus\\Calista\\Datasource\\": "calista-datasource/src/",
             "MakinaCorpus\\Calista\\Query\\": "calista-query/src/",
+            "MakinaCorpus\\Calista\\Twig\\": "calista-twig/src/",
             "MakinaCorpus\\Calista\\View\\": "calista-view/src/"
         }
     },
@@ -68,6 +71,7 @@
         "psr-4": {
             "MakinaCorpus\\Calista\\Datasource\\Tests\\": "calista-datasource/tests/",
             "MakinaCorpus\\Calista\\Query\\Tests\\": "calista-query/tests/",
+            "MakinaCorpus\\Calista\\Twig\\Tests\\": "calista-twig/tests/",
             "MakinaCorpus\\Calista\\View\\Tests\\": "calista-view/tests/"
         }
     }

@@ -20,6 +20,9 @@
         <testsuite name="Calista Query">
             <directory>./calista-datasource/tests/</directory>
         </testsuite>
+        <testsuite name="Calista Twig">
+            <directory>./calista-twig/tests/</directory>
+        </testsuite>
         <testsuite name="Calista View">
             <directory>./calista-view/tests/</directory>
         </testsuite>
@@ -29,6 +32,7 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory>./calista-datasource/src</directory>
             <directory>./calista-query/src</directory>
+            <directory>./calista-twig/src</directory>
             <directory>./calista-view/src</directory>
             <exclude>
                 <directory>./vendor</directory>
