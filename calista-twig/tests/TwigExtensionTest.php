@@ -3,7 +3,7 @@
 namespace MakinaCorpus\Calista\Tests\Twig;
 
 use MakinaCorpus\Calista\Tests\View\PropertyRendererTest;
-use MakinaCorpus\Calista\Twig\PageExtension;
+use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\Tests\Mock\IntItem;

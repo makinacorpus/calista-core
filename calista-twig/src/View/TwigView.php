@@ -1,6 +1,6 @@
 <?php
 
-namespace MakinaCorpus\Calista\View\Html;
+namespace MakinaCorpus\Calista\Twig\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Query\Query;
@@ -135,7 +135,6 @@ class TwigView extends AbstractView
             'itemClass'     => $itemClass,
             'items'         => $items,
             'filters'       => $enabledFilters,
-            'visualFilters' => [],
             'sorts'         => $viewDefinition->isSortEnabled() ? $inputDefinition->getAllowedSorts() : [],
             'sortsEnabled'  => $viewDefinition->isSortEnabled(),
             'query'         => $query,

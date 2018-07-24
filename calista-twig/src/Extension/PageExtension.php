@@ -1,11 +1,10 @@
 <?php
 
-namespace MakinaCorpus\Calista\Twig;
+namespace MakinaCorpus\Calista\Twig\Extension;
 
-use MakinaCorpus\Calista\View\PropertyRenderer;
-use MakinaCorpus\Calista\View\PropertyView;
-use Symfony\Component\HttpFoundation\RequestStack;
 use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\View\PropertyRenderer;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class PageExtension extends \Twig_Extension
 {
@@ -58,7 +57,7 @@ class PageExtension extends \Twig_Extension
      *
      * @param object $item
      *   Item on which to find the property
-     * @param string|PropertyView $propery
+     * @param string|\MakinaCorpus\Calista\View\PropertyView $property
      *   Property name
      * @param mixed[] $options
      *   Display options for the property, dropped if the $property parameter

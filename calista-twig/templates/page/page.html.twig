@@ -7,9 +7,6 @@
  #    filters: Filter[]
  #    filters.ID.title: string (title)
  #    filters.ID.links: Link[]
- #    visualFilters: Filter[]
- #    visualFilters.ID.title: string (title)
- #    visualFilters.ID.links: Link[]
  #    displays: Link[]
  #    input: InputDefinition
  #    definition: ViewDefinition
@@ -68,21 +65,14 @@
 {% block search_form %}
   <form method="get" class="calista-search-form" accept-charset="UTF-8">
     <div class="input-group">
-      {% if visualFilters %}
-        <div class="form-control calista-visual-search"
-          data-definition="{{ visualFilters|calista_filter_definition|e }}"
-          data-query="{{ visualFilters|calista_filter_query(query.all)|e }}">
-        </div>
-      {% else %}
-        <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
-          value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
-        />
-        {% for name, value in query.routeParameters %}
-          {% if name != query.searchParameter %}
-            <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+      <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
+        value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
+      />
+      {% for name, value in query.routeParameters %}
+        {% if name != query.searchParameter %}
+          <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
+        {% endif %}
+      {% endfor %}
       <span class="input-group-btn">
         <button type="submit" title="{{ "Search"|trans }}" class="btn btn-primary">
           <span class="glyphicon glyphicon-search"></span>
@@ -309,7 +299,7 @@
 
 {% block page_content %}
   <div class="container-fluid">
-    {% if input.isSearchEnabled or visualFilters %}
+    {% if input.isSearchEnabled %}
       <div class="row">
         <div class="col-md-12" data-page-block="search_form">
           {{ block('search_form') }}

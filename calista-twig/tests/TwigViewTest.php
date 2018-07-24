@@ -4,9 +4,9 @@ namespace MakinaCorpus\Calista\Tests\View;
 
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\Twig\PageExtension;
+use MakinaCorpus\Calista\Twig\Extension\PageExtension;
+use MakinaCorpus\Calista\Twig\View\TwigView;
 use MakinaCorpus\Calista\View\ViewDefinition;
-use MakinaCorpus\Calista\View\Html\TwigView;
 use MakinaCorpus\Calista\View\Tests\Mock\IntArrayDatasource;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -85,9 +85,6 @@ class TwigViewTest extends TestCase
         $filters = $inputDefinition->getFilters();
         $this->assertSame('odd_or_even', \reset($filters)->getField());
         $this->assertSame('Odd or Even', \reset($filters)->getTitle());
-//         $visualFilters = $result->getVisualFilters();
-//         $this->assertSame('mod3', reset($visualFilters)->getField());
-//         $this->assertSame('Modulo 3', reset($visualFilters)->getTitle());
 
         $query = $inputDefinition->createQueryFromRequest($request);
         $items = $datasource->getItems($query);
