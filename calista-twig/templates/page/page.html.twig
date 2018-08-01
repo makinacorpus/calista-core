@@ -68,7 +68,7 @@
       <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
         value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
       />
-      {% for name, value in query.routeParameters %}
+      {% for name, value in query.queryParameters %}
         {% if name != query.searchParameter %}
           <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
         {% endif %}
@@ -365,7 +365,7 @@
 {% endblock %}
 
 {%- block page -%}
-  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ query.route }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" data-refresh-url="{{ path('calista_ajax_refresh') }}" data-view-type="{{ definition.viewType }}" class="calista-page">
+  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.queryParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType }}" class="calista-page">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}

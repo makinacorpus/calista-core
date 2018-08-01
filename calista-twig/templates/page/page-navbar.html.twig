@@ -7,7 +7,7 @@
       <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
         value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
       />
-      {% for name, value in query.routeParameters %}
+      {% for name, value in query.queryParameters %}
         {% if name != input.searchParameter %}
           <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
         {% endif %}

@@ -12,7 +12,7 @@ class QueryFactory
     /**
      * Create query from array
      */
-    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = ''): Query
+    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = '', $inQueryParameters = null): Query
     {
         $rawSearchString = '';
         $searchParameter = $inputDefinition->getSearchParameter();
@@ -22,7 +22,7 @@ class QueryFactory
 
         // We'll start with route parameters being identical that the global
         // query, we will prune default values later to make it shorter
-        $routeParameters = $input;
+        $queryParameters = $input;
 
         // Deal with search
         if ($inputDefinition->isSearchEnabled() && $searchParameter && !empty($input[$searchParameter])) {
@@ -45,7 +45,7 @@ class QueryFactory
         // Route parameters must contain the raw search string and not the
         // parsed search string to be able to rebuild correctly links
         if ($rawSearchString) {
-            $routeParameters[$searchParameter] = $rawSearchString;
+            $queryParameters[$searchParameter] = $rawSearchString;
         }
 
         $baseQuery = $inputDefinition->getBaseQuery();
@@ -54,8 +54,8 @@ class QueryFactory
             $inputDefinition,
             $route,
             $this->flattenQuery($this->applyBaseQuery($input, $baseQuery), [$searchParameter]),
-            $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true),
-            $baseQuery
+            $this->flattenQuery($this->applyBaseQuery($queryParameters, $baseQuery, true), [$searchParameter], true),
+            $inQueryParameters
         );
     }
 
@@ -88,9 +88,11 @@ class QueryFactory
     public function fromRequest(InputDefinition $inputDefinition, Request $request): Query
     {
         $route = $request->attributes->get('_route', '');
-        $input = array_merge($request->query->all(), $request->attributes->get('_route_params', []));
+        $queryParameters = $request->query->all();
 
-        return $this->fromArray($inputDefinition, $input, $route);
+        $input = \array_merge($queryParameters, $request->attributes->get('_route_params', []));
+
+        return $this->fromArray($inputDefinition, $input, $route, \array_keys($queryParameters));
     }
 
     /**
@@ -105,7 +107,7 @@ class QueryFactory
      * whitespace, this is useful for the full text search parameter, that
      * needs to remain a single string.
      */
-    private function flattenQuery(array $query, array $needsImplode = [], bool $isRouteParameters = false): array
+    private function flattenQuery(array $query, array $needsImplode = [], bool $isQueryParameters = false): array
     {
         foreach ($query as $key => $values) {
             if (is_array($values)) {
@@ -113,7 +115,7 @@ class QueryFactory
                     $query[$key] = reset($values);
                 } else if (in_array($key, $needsImplode)) {
                     $query[$key] = implode(' ', $values);
-                } else if ($isRouteParameters) {
+                } else if ($isQueryParameters) {
                     $query[$key] = implode(Query::URL_VALUE_SEP, $values);
                 }
             }
@@ -194,7 +196,7 @@ class QueryFactory
      * From the given prepared but unfiltered query, drop all values that are
      * not in base query boundaries
      */
-    private function applyBaseQuery(array $query, array $baseQuery, bool $isRouteParameters = false): array
+    private function applyBaseQuery(array $query, array $baseQuery, bool $isQueryParameters = false): array
     {
         // Ensure that query values are in base query bounds
         foreach ($baseQuery as $name => $allowed) {
@@ -212,7 +214,7 @@ class QueryFactory
                 // Restrict to fixed bounds
                 $filterValues = array_unique(array_intersect($input, $allowed));
 
-                if ($isRouteParameters) {
+                if ($isQueryParameters) {
                     // When filter is equal to base filter, it must be excluded
                     // from the route parameters, they are hardcoded by the
                     // controller and not derived from the query
@@ -232,7 +234,7 @@ class QueryFactory
                 } else {
                     $query[$name] = $filterValues;
                 }
-            } else if (!$isRouteParameters) {
+            } else if (!$isQueryParameters) {
                 $query[$name] = $allowed;
             }
         }

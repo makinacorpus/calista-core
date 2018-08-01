@@ -137,7 +137,7 @@ class QueryTest extends TestCase
             $this->assertSame('other', $all['some']);
 
             // Test the "route parameters" query
-            $params = $query->getRouteParameters();
+            $params = $query->getQueryParameters();
             $this->assertArrayNotHasKey('q', $params);
             $this->assertArrayHasKey('foo', $params);
             $this->assertArrayNotHasKey('some', $params);
@@ -203,7 +203,7 @@ class QueryTest extends TestCase
             $this->assertNotContains('e', $all['foo']);
 
             // Test the "route parameters" query
-            $params = $query->getRouteParameters();
+            $params = $query->getQueryParameters();
             $this->assertArrayNotHasKey('q', $params);
             $this->assertArrayHasKey('foo', $params);
             $this->assertArrayNotHasKey('some', $params);
@@ -269,7 +269,7 @@ class QueryTest extends TestCase
             $this->assertNotContains('search', $all['foo']);
 
             // Test the "route parameters" query
-            $params = $query->getRouteParameters();
+            $params = $query->getQueryParameters();
             $this->assertArrayNotHasKey('q', $params);
             $this->assertArrayHasKey('foo', $params);
             $this->assertArrayNotHasKey('some', $params);

@@ -15,6 +15,7 @@ class Query
     private $currentDisplay = '';
     private $filters = [];
     private $inputDefinition;
+    private $inQueryParameters = null;
     private $limit = self::LIMIT_DEFAULT;
     private $page = 1;
     private $rawSearchString = '';
@@ -31,14 +32,19 @@ class Query
      *   Current configuration
      * @param string $route
      *   Current route
-     * @param string[] $routeParameters
-     *   Route parameters (filters minus the default values)
      * @param string[] $filters
      *   Current filters (including defaults)
+     * @param string[] $routeParameters
+     *   Route parameters (filters minus the default values)
+     * @param null|string[] $inQueryParameters
+     *   If set, router parameters and query parameters will be separated, route
+     *   parameters will always be used to generate links via a router, while
+     *   the query parameters will endup in form generations into templates.
      */
-    public function __construct(InputDefinition $inputDefinition, string $route, array $filters = [], array $routeParameters = [])
+    public function __construct(InputDefinition $inputDefinition, string $route, array $filters = [], array $routeParameters = [], $inQueryParameters = null)
     {
         $this->inputDefinition = $inputDefinition;
+        $this->inQueryParameters = \is_array($inQueryParameters) ? \array_flip($inQueryParameters) : null;
         $this->filters = $filters;
         $this->route = $route;
         $this->routeParameters = $routeParameters;
@@ -259,10 +265,21 @@ class Query
     }
 
     /**
-     * Get the query without the parsed query string
+     * Get the route parameters, including various non filter attributes
      */
     public function getRouteParameters(): array
     {
         return $this->routeParameters;
+    }
+
+    /**
+     * Get the query without the parsed query string 
+     */
+    public function getQueryParameters(): array
+    {
+        if (null === $this->inQueryParameters) {
+            return $this->routeParameters;
+        }
+        return \array_intersect_key($this->routeParameters, $this->inQueryParameters);
     }
 }
