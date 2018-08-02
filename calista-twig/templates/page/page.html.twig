@@ -69,7 +69,7 @@
         value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
       />
       {% for name, value in query.routeParameters %}
-        {% if name != query.searchParameter %}
+        {% if name != input.searchParameter %}
           <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
         {% endif %}
       {% endfor %}
