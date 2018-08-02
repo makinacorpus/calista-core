@@ -105,7 +105,8 @@ class TwigView extends AbstractView
         // Build display links
         // @todo Do it better...
         $displayLinks = [];
-        $queryParameters = $query->getQueryParameters();
+        /*
+        $routeParameters = $query->getRouteParameters();
         foreach (array_keys($templates) as $name) {
             switch ($name) {
                 case 'grid':
@@ -120,12 +121,12 @@ class TwigView extends AbstractView
              * FIXME
              *
             if ($name === $viewDefinition->getDefaultDisplay()) {
-                $displayLinks[] = new Link($name, $query->getRoute(), array_diff_key($queryParameters, ['display' => '']), $display === $name, $displayIcon);
+                $displayLinks[] = new Link($name, $query->getRoute(), array_diff_key($routeParameters, ['display' => '']), $display === $name, $displayIcon);
             } else {
-                $displayLinks[] = new Link($name, $query->getRoute(), ['display' => $name] + $queryParameters, $display === $name, $displayIcon);
+                $displayLinks[] = new Link($name, $query->getRoute(), ['display' => $name] + $routeParameters, $display === $name, $displayIcon);
             }
-             */
         }
+         */
 
         return [
             'pageId'        => 'foo', /* $this->getId() */

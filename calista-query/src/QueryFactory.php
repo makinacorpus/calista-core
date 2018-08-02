@@ -3,6 +3,7 @@
 namespace MakinaCorpus\Calista\Query;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Parses and cleanups the incomming query from a Symfony request
@@ -12,7 +13,7 @@ class QueryFactory
     /**
      * Create query from array
      */
-    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = '', $inQueryParameters = null): Query
+    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = ''): Query
     {
         $rawSearchString = '';
         $searchParameter = $inputDefinition->getSearchParameter();
@@ -22,7 +23,7 @@ class QueryFactory
 
         // We'll start with route parameters being identical that the global
         // query, we will prune default values later to make it shorter
-        $queryParameters = $input;
+        $routeParameters = $input;
 
         // Deal with search
         if ($inputDefinition->isSearchEnabled() && $searchParameter && !empty($input[$searchParameter])) {
@@ -45,7 +46,7 @@ class QueryFactory
         // Route parameters must contain the raw search string and not the
         // parsed search string to be able to rebuild correctly links
         if ($rawSearchString) {
-            $queryParameters[$searchParameter] = $rawSearchString;
+            $routeParameters[$searchParameter] = $rawSearchString;
         }
 
         $baseQuery = $inputDefinition->getBaseQuery();
@@ -54,8 +55,7 @@ class QueryFactory
             $inputDefinition,
             $route,
             $this->flattenQuery($this->applyBaseQuery($input, $baseQuery), [$searchParameter]),
-            $this->flattenQuery($this->applyBaseQuery($queryParameters, $baseQuery, true), [$searchParameter], true),
-            $inQueryParameters
+            $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true)
         );
     }
 
@@ -88,11 +88,27 @@ class QueryFactory
     public function fromRequest(InputDefinition $inputDefinition, Request $request): Query
     {
         $route = $request->attributes->get('_route', '');
-        $queryParameters = $request->query->all();
 
-        $input = \array_merge($queryParameters, $request->attributes->get('_route_params', []));
+        // Symfony just replicates all query parameters and route parameters
+        // raw values into the _route_params array, which allows to use it
+        // transparently to regenerate the exact same URL.
+        $routeParameters = $request->attributes->get('_route_params', []);
 
-        return $this->fromArray($inputDefinition, $input, $route, \array_keys($queryParameters));
+        // Workaround for Drupal 8 context, we sadly had no other choice than
+        // working with it from here, Drupal 8 has the bad habbit of misusing
+        // APIs under it. It puts a ton of meta-information including objects
+        // into the _route_params array, which makes everything explode when
+        // trying to regenerate the URL using those parameters.
+        if (isset($routeParameters['_raw_variables'])) {
+            $routeParameters = $routeParameters['_raw_variables'];
+            // Des fois oui, des fois non, avec Drupal on ne sait jamais vraiment.
+            if ($routeParameters instanceof ParameterBag) {
+                $routeParameters = $routeParameters->all();
+            }
+            $routeParameters += $request->query->all();
+        }
+
+        return $this->fromArray($inputDefinition, $routeParameters, $route);
     }
 
     /**
@@ -107,7 +123,7 @@ class QueryFactory
      * whitespace, this is useful for the full text search parameter, that
      * needs to remain a single string.
      */
-    private function flattenQuery(array $query, array $needsImplode = [], bool $isQueryParameters = false): array
+    private function flattenQuery(array $query, array $needsImplode = [], bool $isRouteParameters = false): array
     {
         foreach ($query as $key => $values) {
             if (is_array($values)) {
@@ -115,7 +131,7 @@ class QueryFactory
                     $query[$key] = reset($values);
                 } else if (in_array($key, $needsImplode)) {
                     $query[$key] = implode(' ', $values);
-                } else if ($isQueryParameters) {
+                } else if ($isRouteParameters) {
                     $query[$key] = implode(Query::URL_VALUE_SEP, $values);
                 }
             }
@@ -196,7 +212,7 @@ class QueryFactory
      * From the given prepared but unfiltered query, drop all values that are
      * not in base query boundaries
      */
-    private function applyBaseQuery(array $query, array $baseQuery, bool $isQueryParameters = false): array
+    private function applyBaseQuery(array $query, array $baseQuery, bool $isRouteParameters = false): array
     {
         // Ensure that query values are in base query bounds
         foreach ($baseQuery as $name => $allowed) {
@@ -214,7 +230,7 @@ class QueryFactory
                 // Restrict to fixed bounds
                 $filterValues = array_unique(array_intersect($input, $allowed));
 
-                if ($isQueryParameters) {
+                if ($isRouteParameters) {
                     // When filter is equal to base filter, it must be excluded
                     // from the route parameters, they are hardcoded by the
                     // controller and not derived from the query
@@ -234,7 +250,7 @@ class QueryFactory
                 } else {
                     $query[$name] = $filterValues;
                 }
-            } else if (!$isQueryParameters) {
+            } else if (!$isRouteParameters) {
                 $query[$name] = $allowed;
             }
         }

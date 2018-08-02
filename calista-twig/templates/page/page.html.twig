@@ -44,7 +44,7 @@
   <div class="checkbox">
     <label>
       <a{% if link.isActive %} class="active"{% endif %} href="{{ path(link.route, link.routeParameters) }}" data-page-link="{{ filter.field }}">
-        <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}>
+        <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
         {{ link.title }} {% if link.count is defined %}<span class="badge">{{ link.count }}</span>{% endif %}
       </a>
     </label>
@@ -68,7 +68,7 @@
       <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
         value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
       />
-      {% for name, value in query.queryParameters %}
+      {% for name, value in query.routeParameters %}
         {% if name != query.searchParameter %}
           <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
         {% endif %}
@@ -82,64 +82,23 @@
   </form>
 {% endblock %}
 
-{% block sort_link_active_asc %}
-  <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
-{% endblock %}
-
-{% block sort_link_active_desc %}
-  <span class="glyphicon glyphicon-search-up" aria-hidden="true"></span>
-{% endblock %}
-
-{#
- # A table-header style sort link - unused per default.
- #
- # Use this to implement clickable table sort headers, use it the
- # following way:
- #
- # <th>
- #   {% with {title: "Référence", field: 'h.timestamp'} %}
- #     {{ block('sort_link_shortcut') }}
- #   {% endwith %}
- # </th>
- #}
-{% block sort_link_shortcut %}
-    {# Order to use #}
-    {% if field == query.sortField %}
-      {% if 'asc' == query.sortOrder %}
-        {% set order = 'desc' %}
-      {% else %}
-        {% set order = 'asc' %}
-      {% endif %}
-    {% else %}
-      {% set order = query.sortOrder %}
-    {% endif %}
-  {# The rest #}
-  {% set param = query.sortOrderParameter %}
-  {% set link = sorts.getLink(field) %}
-  {% set suffix = '' %}
-  {% spaceless %}
-    {% if link.isActive %}
-      {% if 'asc' == query.sortOrder(query) %}
-        {% set href = path(link.route, link.routeParameters|merge({(param): 'desc'})) %}
-        {% set suffix = block('sort_link_active_asc') %}
-      {% else %}
-        {% set href = path(link.route, link.routeParameters|merge({(param): 'asc'})) %}
-        {% set suffix = block('sort_link_active_desc') %}
-      {% endif %}
-    {% else %}
-      {% set href = path(link.route, link.routeParameters) %}
-    {% endif %}
-    <a href="{{ href }}" data-page-link>{{ title }}</a>
-  {% endspaceless %}
-{% endblock %}
-
 {#
  # A normal sort link
+ #
+ # You may use it for table header sort link:
+ #
+ # <th>
+ #   {% with {label: "Référence", field: 'h.timestamp'} %}
+ #     {{ block('sort_link') }}
+ #   {% endwith %}
+ # </th>
+ #
  #}
 {% block sort_link %}
   {% spaceless %}
+    {% set isActive = (field == query.sortField) %}
     {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): query.sortOrder} %}
-    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" {% if field == query.sortField %}class="active"{% endif %} data-page-link>
+    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" {% if isActive %}class="active"{% endif %} data-page-link>
       {{ label }}
     </a>
   {% endspaceless %}
@@ -365,7 +324,7 @@
 {% endblock %}
 
 {%- block page -%}
-  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.queryParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType }}" class="calista-page">
+  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType }}" class="calista-page">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}
