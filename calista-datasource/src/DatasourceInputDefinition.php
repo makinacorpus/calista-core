@@ -14,7 +14,7 @@ class DatasourceInputDefinition extends InputDefinition
         $options['filter_list'] = $datasource->getFilters();
         $options['sort_allowed_list'] =  $datasource->getSorts();
 
-        if (!$datasource->supportsFulltextSearch() && $this->options['search_enable'] && !$this->options['search_parse']) {
+        if (!$datasource->supportsFulltextSearch() && ($options['search_enable'] ?? false) && !($options['search_parse'] ?? false)) {
             throw new \InvalidArgumentException("datasource cannot do fulltext search, yet it is enabled, but search parse is disabled");
         }
 
