@@ -137,6 +137,7 @@ class InputDefinition
             'limit_allowed'       => false,
             'limit_default'       => Query::LIMIT_DEFAULT,
             'limit_param'         => 'limit',
+            'limit_max'           => Query::LIMIT_MAX,
             'pager_enable'        => true,
             'pager_param'         => 'page',
             'search_enable'       => false,

@@ -4,10 +4,13 @@ namespace MakinaCorpus\Calista\Query;
 
 /**
  * Sanitized version of an incomming query
+ *
+ * @todo support maximum limit
  */
 class Query
 {
     const LIMIT_DEFAULT = 10;
+    const LIMIT_MAX = 1000;
     const SORT_ASC = 'asc';
     const SORT_DESC = 'desc';
     const URL_VALUE_SEP = '|';

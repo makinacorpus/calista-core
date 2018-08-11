@@ -7,24 +7,36 @@ namespace MakinaCorpus\Calista\Query;
  */
 class Link
 {
-    private $title;
+    private $icon;
+    private $isActive = false;
     private $route;
     private $routeParameters;
-    private $isActive = false;
-    private $icon;
+    private $target;
+    private $title;
 
-    public function __construct(string $title, string $route, array $routeParameters = [], bool $isActive = false, string $icon = null)
+    public function __construct(string $title, string $route, array $routeParameters = [], string $target = null, bool $isActive = false, string $icon = null)
     {
-        $this->title = $title;
+        $this->icon = $icon;
+        $this->isActive = $isActive;
         $this->route = $route;
         $this->routeParameters = $routeParameters;
-        $this->isActive = $isActive;
-        $this->icon = $icon;
+        $this->target = $target;
+        $this->title = $title;
     }
 
     public function getTitle(): string
     {
         return $this->title ?? '';
+    }
+
+    public function hasTarget(): bool
+    {
+        return !empty($this->target);
+    }
+
+    public function getTarget(): string
+    {
+        return $this->target ?? '';
     }
 
     public function getRoute(): string
