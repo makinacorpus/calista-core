@@ -206,6 +206,14 @@ class Query
     }
 
     /**
+     * Is sort order ascending
+     */
+    public function isSortAsc(): bool
+    {
+        return $this->sortOrder !== self::SORT_DESC;
+    }
+
+    /**
      * Get limit
      */
     public function getLimit(): int
