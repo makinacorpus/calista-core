@@ -25,7 +25,7 @@ class QueryTest extends TestCase
         $inputDefinition = new InputDefinition(['sort_allowed_list' => ['a', 'b', 'c']]);
         $query = (new QueryFactory())->fromRequest($inputDefinition, $request);
 
-        $this->assertSame(3, count($inputDefinition->getAllowedSorts()));
+        $this->assertSame(3, \count($inputDefinition->getAllowedSorts()));
         $this->assertSame(Query::SORT_DESC, $inputDefinition->getDefaultSortOrder());
         $this->assertSame('a', $inputDefinition->getDefaultSortField());
         $this->assertSame(Query::SORT_ASC, $query->getSortOrder());
@@ -146,8 +146,8 @@ class QueryTest extends TestCase
             // Route parameters are left untouched, even if it matches some base query
             // parameters, only change that may be done in that is input cleaning and
             // array expansion or flattening of values
-            $this->assertTrue(is_string($params['foo']));
-            $fooValues = explode(Query::URL_VALUE_SEP, $params['foo']);
+            $this->assertTrue(\is_string($params['foo']));
+            $fooValues = \explode(Query::URL_VALUE_SEP, $params['foo']);
             $this->assertCount(3, $fooValues);
             $this->assertContains('c', $fooValues);
             $this->assertContains('d', $fooValues);
@@ -210,8 +210,8 @@ class QueryTest extends TestCase
             $this->assertArrayHasKey('foo', $params);
             $this->assertArrayNotHasKey('some', $params);
             // Route parameters are subject to base query change too
-            $this->assertTrue(is_string($params['foo']));
-            $fooValues = explode(Query::URL_VALUE_SEP, $params['foo']);
+            $this->assertTrue(\is_string($params['foo']));
+            $fooValues = \explode(Query::URL_VALUE_SEP, $params['foo']);
             $this->assertCount(2, $fooValues);
             $this->assertContains('b', $fooValues);
             $this->assertContains('c', $fooValues);
@@ -278,8 +278,8 @@ class QueryTest extends TestCase
             // Route parameters are left untouched, even if it matches some base query
             // parameters, only change that may be done in that is input cleaning and
             // array expansion or flattening of values
-            $this->assertTrue(is_string($params['foo']));
-            $fooValues = explode(Query::URL_VALUE_SEP, $params['foo']);
+            $this->assertTrue(\is_string($params['foo']));
+            $fooValues = \explode(Query::URL_VALUE_SEP, $params['foo']);
             $this->assertCount(3, $fooValues);
             $this->assertContains('c', $fooValues);
             $this->assertContains('d', $fooValues);

@@ -54,7 +54,7 @@ final class QueryStringParser
         $ret = [];
 
         $matches = [];
-        if (preg_match_all(self::REGEX_QUERY_STRING, $string, $matches)) {
+        if (\preg_match_all(self::REGEX_QUERY_STRING, $string, $matches)) {
 
             foreach ($matches[1] as $index => $field) {
 
@@ -65,13 +65,13 @@ final class QueryStringParser
                 $value = $matches[2][$index];
 
                 // Strip extra quotes but allow inside quotes
-                $len = strlen($value);
+                $len = \strlen($value);
                 if ('"' === $value[0] && '"' === $value[$len - 1]) {
-                    $value = substr($value, 1, $len - 2);
+                    $value = \substr($value, 1, $len - 2);
                 }
 
                 // Remove all trailing and leading spaces.
-                $value = trim($value);
+                $value = \trim($value);
 
                 // Broken value
                 if ('' === $value) {

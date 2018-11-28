@@ -75,7 +75,7 @@ class Filter implements \Countable
      */
     public function removeChoices(array $choices)
     {
-        $this->choicesMap = array_diff_key($this->choicesMap, array_flip($choices));
+        $this->choicesMap = \array_diff_key($this->choicesMap, \array_flip($choices));
     }
 
     /**
@@ -83,7 +83,7 @@ class Filter implements \Countable
      */
     public function removeChoicesNotIn(array $choices)
     {
-        $this->choicesMap = array_intersect_key($this->choicesMap, array_flip($choices));
+        $this->choicesMap = \array_intersect_key($this->choicesMap, \array_flip($choices));
     }
 
     /**
@@ -109,16 +109,16 @@ class Filter implements \Countable
 
             $values = $query[$this->queryParameter];
 
-            if (!is_array($values)) {
-                if (false !== strpos($values, Query::URL_VALUE_SEP)) {
-                    $values = explode(Query::URL_VALUE_SEP, $values);
+            if (!\is_array($values)) {
+                if (false !== \strpos($values, Query::URL_VALUE_SEP)) {
+                    $values = \explode(Query::URL_VALUE_SEP, $values);
                 } else {
                     $values = [$values];
                 }
             }
         }
 
-        return array_map('trim', $values);
+        return \array_map('trim', $values);
     }
 
     /**
@@ -137,21 +137,21 @@ class Filter implements \Countable
     private function getParametersForLink(array $query, string $value, bool $remove = false): array
     {
         if (isset($query[$this->queryParameter])) {
-            if (is_array($query[$this->queryParameter])) {
+            if (\is_array($query[$this->queryParameter])) {
                 $actual = $query[$this->queryParameter];
             } else {
-                $actual = explode(Query::URL_VALUE_SEP, $query[$this->queryParameter]);
+                $actual = \explode(Query::URL_VALUE_SEP, $query[$this->queryParameter]);
             }
         } else {
             $actual = [];
         }
 
         if ($remove) {
-            if (false !== ($pos = array_search($value, $actual))) {
+            if (false !== ($pos = \array_search($value, $actual))) {
                 unset($actual[$pos]);
             }
         } else {
-            if (false === array_search($value, $actual)) {
+            if (false === \array_search($value, $actual)) {
                 $actual[] = $value;
             }
         }
@@ -160,8 +160,8 @@ class Filter implements \Countable
             unset($query[$this->queryParameter]);
             return $query;
         } else {
-            sort($actual);
-            return [$this->queryParameter => implode(Query::URL_VALUE_SEP, $actual)] + $query;
+            \sort($actual);
+            return [$this->queryParameter => \implode(Query::URL_VALUE_SEP, $actual)] + $query;
         }
     }
 
@@ -183,7 +183,7 @@ class Filter implements \Countable
 
         foreach ($this->choicesMap as $value => $label) {
 
-            $isActive = in_array($value, $selectedValues);
+            $isActive = \in_array($value, $selectedValues);
 
             if ($isActive) {
                 $linkQuery = $this->getParametersForLink($query, $value, true);
@@ -202,7 +202,7 @@ class Filter implements \Countable
      */
     public function count(): int
     {
-        return count($this->choicesMap);
+        return \count($this->choicesMap);
     }
 
     public function isSafe(): bool

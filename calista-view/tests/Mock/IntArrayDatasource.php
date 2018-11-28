@@ -22,7 +22,7 @@ class IntArrayDatasource extends AbstractDatasource
      */
     public function __construct()
     {
-        $this->values = range(1, 255);
+        $this->values = \range(1, 255);
     }
 
     /**
@@ -47,7 +47,7 @@ class IntArrayDatasource extends AbstractDatasource
                 1 => "Yes",
                 0 => "No",
             ]),
-            (new Filter('modX', "Modulo X"))->setChoicesMap(array_combine(range(0, 10), range(0, 10))),
+            (new Filter('modX', "Modulo X"))->setChoicesMap(\array_combine(\range(0, 10), \range(0, 10))),
         ];
     }
 
@@ -75,13 +75,13 @@ class IntArrayDatasource extends AbstractDatasource
             switch ($query->get('odd_or_even')) {
 
                 case 'odd':
-                    $allowedValues = array_filter($allowedValues, function ($value) {
+                    $allowedValues = \array_filter($allowedValues, function ($value) {
                         return 1 === $value % 2;
                     });
                     break;
 
                 case 'even':
-                    $allowedValues = array_filter($allowedValues, function ($value) {
+                    $allowedValues = \array_filter($allowedValues, function ($value) {
                         return 0 === $value % 2;
                     });
                     break;
@@ -96,13 +96,13 @@ class IntArrayDatasource extends AbstractDatasource
             switch ($query->get('mod3')) {
 
                 case 1:
-                    $allowedValues = array_filter($allowedValues, function ($value) {
+                    $allowedValues = \array_filter($allowedValues, function ($value) {
                         return 0 === $value % 3;
                     });
                     break;
 
                 case 0:
-                    $allowedValues = array_filter($allowedValues, function ($value) {
+                    $allowedValues = \array_filter($allowedValues, function ($value) {
                         return 1 === $value % 3;
                     });
                     break;
@@ -116,7 +116,7 @@ class IntArrayDatasource extends AbstractDatasource
         if ($query->hasSortField()) {
             if ('value' === $query->getSortField()) {
                 if (Query::SORT_DESC === $query->getSortOrder()) {
-                    $allowedValues = array_reverse($allowedValues);
+                    $allowedValues = \array_reverse($allowedValues);
                 }
             }
             if ('odd_or_even' === $query->getSortField()) {
@@ -128,11 +128,11 @@ class IntArrayDatasource extends AbstractDatasource
             }
         }
 
-        $items = array_slice($allowedValues, $offset, $limit);
-        $items = array_map(function ($value) { return new IntItem($value); }, $items);
+        $items = \array_slice($allowedValues, $offset, $limit);
+        $items = \array_map(function ($value) { return new IntItem($value); }, $items);
 
         $result = new DefaultDatasourceResult(IntItem::class, $items);
-        $result->setTotalItemCount(count($allowedValues));
+        $result->setTotalItemCount(\count($allowedValues));
 
         return $result;
     }

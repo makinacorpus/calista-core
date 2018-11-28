@@ -40,7 +40,7 @@ class InputDefinition
             // Filter out non allowed (outside of base query) filter choices
             if (isset($this->options['base_query'][$name])) {
                 $choices = $this->options['base_query'][$name];
-                if (!is_array($choices)) {
+                if (!\is_array($choices)) {
                     $choices = [$choices];
                 }
                 $filter->removeChoicesNotIn($choices);
@@ -54,7 +54,7 @@ class InputDefinition
             if ($searchFields) {
                 foreach ($searchFields as $name) {
                     if (!$this->isFilterAllowed($name)) {
-                        throw new \InvalidArgumentException(sprintf("'%s' search field is not an allowed filter", $name));
+                        throw new \InvalidArgumentException(\sprintf("'%s' search field is not an allowed filter", $name));
                     }
                 }
             }
@@ -62,9 +62,9 @@ class InputDefinition
 
         // Ensure given base query only contains legitimate field names
         if ($this->options['base_query']) {
-            foreach (array_keys($this->options['base_query']) as $name) {
+            foreach (\array_keys($this->options['base_query']) as $name) {
                 if (!$this->isFilterAllowed($name)) {
-                    throw new \InvalidArgumentException(sprintf("'%s' base query filter is not an allowed filter", $name));
+                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $name));
                 }
             }
         }
@@ -75,7 +75,7 @@ class InputDefinition
             $this->options['sort_default_field'] = key($this->options['sort_allowed_list']);
         } else {
             if (!$this->isSortAllowed($this->options['sort_default_field'])) {
-                throw new \InvalidArgumentException(sprintf("'%s' sort field is not an allowed sort field", $this->options['sort_default_field']));
+                throw new \InvalidArgumentException(\sprintf("'%s' sort field is not an allowed sort field", $this->options['sort_default_field']));
             }
         }
     }

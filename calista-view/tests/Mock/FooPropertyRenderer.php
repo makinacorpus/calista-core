@@ -8,7 +8,7 @@ class FooPropertyRenderer
 {
     public function publicRenderFunction($value, array $options, $item)
     {
-        return substr($value, 1, 5);
+        return \substr($value, 1, 5);
     }
 
     protected function protectedRenderFunction($value, array $options, $item)

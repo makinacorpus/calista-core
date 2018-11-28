@@ -45,7 +45,7 @@ final class TypeHelper
      */
     static public function getInternalType($value)
     {
-        return self::normalizeType(gettype($value));
+        return self::normalizeType(\gettype($value));
     }
 
     /**
@@ -87,8 +87,8 @@ final class TypeHelper
             return self::getNullType();
         }
 
-        if (is_object($value)) {
-            return new Type(Type::BUILTIN_TYPE_OBJECT, false, get_class($value));
+        if (\is_object($value)) {
+            return new Type(Type::BUILTIN_TYPE_OBJECT, false, \get_class($value));
         }
 
         return new Type(self::getInternalType($value));

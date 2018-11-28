@@ -58,6 +58,6 @@ class CsvStreamDatasource extends AbstractDatasource
     {
         $reader = new CsvStreamReader($this->filename, $this->options);
 
-        return $this->createResult($reader, $reader->isCountReliable() ? count($reader) : null);
+        return $this->createResult($reader, $reader->isCountReliable() ? \count($reader) : null);
     }
 }

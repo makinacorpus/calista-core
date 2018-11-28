@@ -97,7 +97,7 @@ class TwigView extends AbstractView
                 }
                 // If the value of the filter is fixed by the base query and is
                 // not multiple, it becomes useless to display the filter.
-                if (isset($baseQuery[$field]) && (!\is_array($baseQuery[$field]) || count($baseQuery[$field]) < 2)) {
+                if (isset($baseQuery[$field]) && (!\is_array($baseQuery[$field]) || \count($baseQuery[$field]) < 2)) {
                     continue;
                 }
                 $enabledFilters[] = $filter;
@@ -109,7 +109,7 @@ class TwigView extends AbstractView
         $displayLinks = [];
         /*
         $routeParameters = $query->getRouteParameters();
-        foreach (array_keys($templates) as $name) {
+        foreach (\array_keys($templates) as $name) {
             switch ($name) {
                 case 'grid':
                     $displayIcon = 'th';
@@ -123,7 +123,7 @@ class TwigView extends AbstractView
              * FIXME
              *
             if ($name === $viewDefinition->getDefaultDisplay()) {
-                $displayLinks[] = new Link($name, $query->getRoute(), array_diff_key($routeParameters, ['display' => '']), $display === $name, $displayIcon);
+                $displayLinks[] = new Link($name, $query->getRoute(), \array_diff_key($routeParameters, ['display' => '']), $display === $name, $displayIcon);
             } else {
                 $displayLinks[] = new Link($name, $query->getRoute(), ['display' => $name] + $routeParameters, $display === $name, $displayIcon);
             }

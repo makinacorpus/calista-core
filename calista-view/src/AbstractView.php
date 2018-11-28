@@ -103,8 +103,8 @@ abstract class AbstractView implements ViewInterface
                 $types = $this->propertyInfoExtractor->getTypes($class, $name);
 
                 if ($types) {
-                    if (is_array($types)) {
-                        $type = reset($types);
+                    if (\is_array($types)) {
+                        $type = \reset($types);
                     } else {
                         $type = $types;
                     }

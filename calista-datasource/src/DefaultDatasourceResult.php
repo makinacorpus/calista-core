@@ -28,7 +28,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
 
         foreach ($properties as $index => $property) {
             if (!$property instanceof PropertyDescription) {
-                throw new \InvalidArgumentException(sprintf("property at index %s is not a %s instance", $index, PropertyDescription::class));
+                throw new \InvalidArgumentException(\sprintf("property at index %s is not a %s instance", $index, PropertyDescription::class));
             }
         }
 
@@ -42,7 +42,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     {
         // Having an array here would mean data has been preloaded hence it is
         // not gracefully streamed from the real datasource.
-        return !is_array($this->items);
+        return !\is_array($this->items);
     }
 
     /**
@@ -51,14 +51,14 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     public function getIterator()
     {
         if ($this->items instanceof \Closure) {
-            return call_user_func($this->items);
+            return \call_user_func($this->items);
         }
 
         if ($this->items instanceof \Traversable || $this->items instanceof \Generator) {
             return $this->items;
         }
 
-        if (is_array($this->items)) {
+        if (\is_array($this->items)) {
             return new \ArrayIterator($this->items);
         }
 
@@ -74,8 +74,8 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
             return $this->count;
         }
 
-        if (is_array($this->items) || $this->items instanceof \Countable) {
-            return $this->count = count($this->items);
+        if (\is_array($this->items) || $this->items instanceof \Countable) {
+            return $this->count = \count($this->items);
         }
 
         return $this->count = 0;

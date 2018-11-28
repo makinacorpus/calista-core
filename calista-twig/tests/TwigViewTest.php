@@ -42,10 +42,10 @@ class TwigViewTest extends TestCase
             return $route . '&' . \http_build_query($routeParameters);
         }), ['is_safe' => ['html']]);
         $twigEnv->addFilter(new \Twig_SimpleFilter('trans', function ($string, $params = []) {
-            return strtr($string, $params);
+            return \strtr($string, $params);
         }));
         $twigEnv->addFilter(new \Twig_SimpleFilter('t', function ($string, $params = []) {
-            return strtr($string, $params);
+            return \strtr($string, $params);
         }));
         $twigEnv->addFilter(new \Twig_SimpleFilter('time_diff', function ($value) {
             return (string)$value;

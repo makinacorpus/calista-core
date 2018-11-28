@@ -55,7 +55,7 @@ class Query
 
         // Now for security, prevent anything that is not a filter from
         // existing into the filter array
-        foreach (array_keys($this->filters) as $name) {
+        foreach (\array_keys($this->filters) as $name) {
             if (!$inputDefinition->isFilterAllowed($name)) {
                 unset($this->filters[$name]);
             }
@@ -115,7 +115,7 @@ class Query
 
         $sortOrderParameter = $this->inputDefinition->getSortOrderParameter();
         if ($sortOrderParameter && isset($this->routeParameters[$sortOrderParameter])) {
-            $this->sortOrder = strtolower($this->routeParameters[$sortOrderParameter]) === self::SORT_DESC ? self::SORT_DESC : self::SORT_ASC;
+            $this->sortOrder = \strtolower($this->routeParameters[$sortOrderParameter]) === self::SORT_DESC ? self::SORT_DESC : self::SORT_ASC;
         }
     }
 
@@ -164,7 +164,7 @@ class Query
      */
     public function has(string $name): bool
     {
-        return array_key_exists($name, $this->filters);
+        return \array_key_exists($name, $this->filters);
     }
 
     /**
@@ -228,7 +228,7 @@ class Query
      */
     public function getOffset(): int
     {
-        return $this->limit * max([0, $this->page - 1]);
+        return $this->limit * \max([0, $this->page - 1]);
     }
 
     /**

@@ -76,13 +76,13 @@ class ViewDefinition
 
         if ($this->options['default_display']) {
             if (!$this->options['templates']) {
-                throw new \InvalidArgumentException(sprintf("default display '%s' is set but no templates are", $this->options['default_display']));
+                throw new \InvalidArgumentException(\sprintf("default display '%s' is set but no templates are", $this->options['default_display']));
             }
             if (!isset($this->options['templates'][$this->options['default_display']])) {
                 throw new \InvalidArgumentException(
-                    sprintf("default display '%s' does not exists in templates '%s'",
+                    \sprintf("default display '%s' does not exists in templates '%s'",
                     $this->options['default_display'],
-                    implode("', '", array_keys($this->options['templates']))
+                    \implode("', '", \array_keys($this->options['templates']))
                 ));
             }
         }
@@ -145,7 +145,7 @@ class ViewDefinition
      */
     public function getExtraOptionValue($name, $default = null)
     {
-        return array_key_exists($name, $this->options['extra']) ? $this->options['extra'][$name] : $default;
+        return \array_key_exists($name, $this->options['extra']) ? $this->options['extra'][$name] : $default;
     }
 
     /**
@@ -166,11 +166,11 @@ class ViewDefinition
      */
     public function getDisplayedProperties()
     {
-        if (!is_array($this->options['properties'])) {
+        if (!\is_array($this->options['properties'])) {
             return null;
         }
 
-        return array_keys($this->options['properties']);
+        return \array_keys($this->options['properties']);
     }
 
     /**
@@ -183,9 +183,9 @@ class ViewDefinition
     public function getPropertyDisplayOptions($name)
     {
          if (isset($this->options['properties'][$name])) {
-              if (is_string($this->options['properties'][$name])) {
+              if (\is_string($this->options['properties'][$name])) {
                   return ['type' => $this->options['properties'][$name]];
-              } else if (is_array($this->options['properties'][$name])) {
+              } else if (\is_array($this->options['properties'][$name])) {
                   return $this->options['properties'][$name];
               }
          }
@@ -225,7 +225,7 @@ class ViewDefinition
      */
     public function isFilterDisplayed($name)
     {
-        return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || in_array($name, $this->options['enabled_filters']));
+        return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || \in_array($name, $this->options['enabled_filters']));
     }
 
     /**

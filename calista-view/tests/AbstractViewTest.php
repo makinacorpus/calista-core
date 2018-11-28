@@ -76,7 +76,7 @@ class AbstractViewTest extends TestCase
 
         $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
         $this->assertCount(3, $properties);
-        reset($properties);
+        \reset($properties);
 
         // Order is the same, we have all properties we defined
         // 'foo' is the first
@@ -106,7 +106,7 @@ class AbstractViewTest extends TestCase
         $this->assertSame('test', $property->getName());
         $this->assertFalse($property->isVirtual());
         $this->assertTrue($viewDefinition->isPropertyDisplayed('test'));
-        $this->assertTrue(is_callable($property->getOptions()['callback']));
+        $this->assertTrue(\is_callable($property->getOptions()['callback']));
         // Label is just the property name
         $this->assertSame("test", $property->getLabel());
     }
@@ -146,7 +146,7 @@ class AbstractViewTest extends TestCase
         ]);
 
         $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
-        reset($properties);
+        \reset($properties);
 
         // Trust the user, display everything
         foreach ($properties as $property) {
@@ -177,7 +177,7 @@ class AbstractViewTest extends TestCase
         // property list
         $viewDefinition = new ViewDefinition(['view_type' => $view]);
         $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
-        reset($properties);
+        \reset($properties);
 
         // Order is the same, we have all properties we defined
         // 'foo' is the first

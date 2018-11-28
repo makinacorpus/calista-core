@@ -59,19 +59,19 @@ class CsvStreamReader implements \Iterator, \Countable
      */
     private function checkFile()
     {
-        if (!file_exists($this->filename)) {
+        if (!\file_exists($this->filename)) {
             throw new \InvalidArgumentException("File '" . $this->filename . "' does not exists");
         }
-        if (!is_readable($this->filename)) {
+        if (!\is_readable($this->filename)) {
             throw new \InvalidArgumentException("File '" . $this->filename . "' cannot be read");
         }
 
         // Set the count approximation.
         if (shell_exec("which cat")) {
-            $this->countApproximation = ((int)shell_exec("cat " . escapeshellcmd($this->filename) . " | wc -l")) - 1;
+            $this->countApproximation = ((int)\shell_exec("cat " . \escapeshellcmd($this->filename) . " | wc -l")) - 1;
             $this->isCountReliable = true;
         } else {
-            $this->countApproximation = (int)filesize($this->filename) / 100;
+            $this->countApproximation = (int)\filesize($this->filename) / 100;
             $this->isCountReliable = false;
         }
     }
@@ -107,7 +107,7 @@ class CsvStreamReader implements \Iterator, \Countable
      */
     public function hasHeader($name)
     {
-        return in_array($name, $this->getHeaders());
+        return \in_array($name, $this->getHeaders());
     }
 
     /**
@@ -127,7 +127,7 @@ class CsvStreamReader implements \Iterator, \Countable
 
     private function fetchNextLine()
     {
-        $this->currentFileIndex = ftell($this->handle);
+        $this->currentFileIndex = \ftell($this->handle);
 
         // Prepare some parameters.
         $l = $this->settings['length'];
@@ -140,14 +140,14 @@ class CsvStreamReader implements \Iterator, \Countable
         // PHP 5.3 accepts the 'escape' parameters, using it on PHP 5.2 will make
         // the fgetcsv() function throw a warning and not return any array.
         if ($this->decentFgetcsv) {
-            $line = fgetcsv($this->handle, $l, $d, $e, $c);
+            $line = \fgetcsv($this->handle, $l, $d, $e, $c);
         } else {
-            $line = fgetcsv($this->handle, $l, $d, $e);
+            $line = \fgetcsv($this->handle, $l, $d, $e);
         }
 
         // Check for reading sanity.
         if (false === $line) {
-            if (feof($this->handle)) {
+            if (\feof($this->handle)) {
                 // We reached the end of file, but our object is still valid. Reset
                 // the buffer to empty but leave the rest as-is.
                 $this->eofReached = true;
@@ -163,7 +163,7 @@ class CsvStreamReader implements \Iterator, \Countable
     {
         if (!$this->handleIsValid()) {
 
-            $this->handle = fopen($this->filename, "r");
+            $this->handle = \fopen($this->filename, "r");
 
             if (false === $this->handle) {
                 if (feof($this->handle)) {
@@ -181,14 +181,14 @@ class CsvStreamReader implements \Iterator, \Countable
 
             if ($this->parseHeaders) {
                 foreach ($this->line as $header) {
-                    $this->headers[] = trim($header);
+                    $this->headers[] = \trim($header);
                 }
 
                 // Position the stream over the real first item.
                 $this->fetchNextLine();
 
             } else {
-                $this->headers = range(0, count($this->line));
+                $this->headers = \range(0, \count($this->line));
             }
         }
     }
@@ -217,13 +217,13 @@ class CsvStreamReader implements \Iterator, \Countable
         foreach ($line as $key => $value) {
             if ($this->parseHeaders && isset($this->headers[$key])) {
                 if ($this->forceContentTrim) {
-                    $ret[$this->headers[$key]] = trim($value);
+                    $ret[$this->headers[$key]] = \trim($value);
                 } else {
                     $ret[$this->headers[$key]] = $value;
                 }
             } else {
                 if ($this->forceContentTrim) {
-                    $ret[] = trim($value);
+                    $ret[] = \trim($value);
                 } else {
                     $ret[] = $value;
                 }

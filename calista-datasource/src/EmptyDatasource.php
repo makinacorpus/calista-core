@@ -37,7 +37,7 @@ class EmptyDatasource extends AbstractDatasource
 
     public function getFilters(): array
     {
-        return array_map(
+        return \array_map(
             function ($name) {
                 return new Filter($name);
             },
@@ -50,7 +50,7 @@ class EmptyDatasource extends AbstractDatasource
      */
     public function getSorts(): array
     {
-        return array_combine($this->allowedSorts, $this->allowedSorts);
+        return \array_combine($this->allowedSorts, $this->allowedSorts);
     }
 
     /**

@@ -71,7 +71,7 @@ class PropertyRenderer
 
         if (!$value instanceof \DateTimeInterface) {
             try {
-                if (is_numeric($value)) {
+                if (\is_numeric($value)) {
                     $value = new \DateTimeImmutable('@' . $value);
                 } else {
                     $value = new \DateTime($value);
@@ -95,7 +95,7 @@ class PropertyRenderer
      */
     public function renderInt($value, array $options = [])
     {
-        return null === $value ? '' : number_format($value, 0, '.', $options['thousand_separator']);
+        return null === $value ? '' : \number_format($value, 0, '.', $options['thousand_separator']);
     }
 
     /**
@@ -103,7 +103,7 @@ class PropertyRenderer
      */
     public function renderFloat($value, array $options = [])
     {
-        return number_format($value, $options['decimal_precision'], $options['decimal_separator'], $options['thousand_separator']);
+        return \number_format($value, $options['decimal_precision'], $options['decimal_separator'], $options['thousand_separator']);
     }
 
     /**
@@ -136,13 +136,13 @@ class PropertyRenderer
      */
     public function renderString($value, array $options = [])
     {
-        $value = strip_tags($value);
+        $value = \strip_tags($value);
 
-        if (0 < $options['string_maxlength'] && strlen($value) > $options['string_maxlength']) {
-            $value = substr($value, 0, $options['string_maxlength']);
+        if (0 < $options['string_maxlength'] && \strlen($value) > $options['string_maxlength']) {
+            $value = \substr($value, 0, $options['string_maxlength']);
 
             if ($options['string_ellipsis']) {
-                if (is_string($options['string_ellipsis'])) {
+                if (\is_string($options['string_ellipsis'])) {
                     $value .= $options['string_ellipsis'];
                 } else {
                     $value .= '...';
@@ -202,7 +202,7 @@ class PropertyRenderer
      */
     private function renderValueCollection(Type $type, $values, array $options = [])
     {
-        if (!$values instanceof \Traversable && !is_array($values)) {
+        if (!$values instanceof \Traversable && !\is_array($values)) {
             if ($this->debug) {
                 throw new PropertyTypeError("Collection value is not a \Traversable nor an array");
             }
@@ -214,7 +214,7 @@ class PropertyRenderer
             $ret[] = $this->renderValue($type->getCollectionValueType(), $value, $options);
         }
 
-        return implode($options['collection_separator'], $ret);
+        return \implode($options['collection_separator'], $ret);
     }
 
     /**
@@ -232,15 +232,15 @@ class PropertyRenderer
         if (isset($options['value_accessor'])) {
 
             // Attempt using object method.
-            if (is_string($options['value_accessor'])) {
+            if (\is_string($options['value_accessor'])) {
                 $options['value_accessor'] = [$item, $options['value_accessor']];
             }
 
-            if (!is_callable($options['value_accessor'])) {
+            if (!\is_callable($options['value_accessor'])) {
                 if ($this->debug) {
-                    $itemType = is_object($item) ? get_class($item) : gettype($item);
+                    $itemType = \is_object($item) ? \get_class($item) : \gettype($item);
 
-                    throw new \InvalidArgumentException(sprintf("value accessor for property '%s' on class '%s' is not callbable", $property, $itemType));
+                    throw new \InvalidArgumentException(\sprintf("value accessor for property '%s' on class '%s' is not callbable", $property, $itemType));
                 }
 
                 // We cannot use the value accessor, but we cannot let the
@@ -250,14 +250,14 @@ class PropertyRenderer
                 return null;
             }
 
-            return call_user_func($options['value_accessor'], $item, $property, $options);
+            return \call_user_func($options['value_accessor'], $item, $property, $options);
         }
 
         try {
             // In case we have an array, and a numeric property, this means the
             // intends to fetch data in a numerically indexed array, let's make
             // it understandable for the Symfony's PropertyAccess component
-            if (is_array($item) && is_numeric($property)) {
+            if (\is_array($item) && \is_numeric($property)) {
                 $property = '[' . $property . ']';
             }
 
@@ -299,16 +299,16 @@ class PropertyRenderer
      */
     private function findRenderCallback($itemType, $property, $callback)
     {
-        if (is_callable($callback)) {
+        if (\is_callable($callback)) {
             return $callback;
         }
 
-        if (is_string($callback)) {
+        if (\is_string($callback)) {
             $privates = [];
 
             foreach ($this->renderers + [$this] as $renderer) {
 
-                if (method_exists($renderer, $callback)) {
+                if (\method_exists($renderer, $callback)) {
                     if ((new \ReflectionMethod($renderer, $callback))->isPublic()) {
                         return [$renderer, $callback];
                     }
@@ -316,16 +316,16 @@ class PropertyRenderer
                     // If method is private or protected, it cannot be called using
                     // call_user_func() but let's provide some useful debug info
                     // for the developer
-                    $privates[] = get_class($renderer) . '::' . $callback;
+                    $privates[] = \get_class($renderer) . '::' . $callback;
                 }
             }
 
             if ($privates) {
-                throw new \InvalidArgumentException(sprintf("callback '%s' for property '%s' on class '%s' has candidates, but their visibility is not public: %s", $callback, $property, $itemType, implode(', ', $privates)));
+                throw new \InvalidArgumentException(\sprintf("callback '%s' for property '%s' on class '%s' has candidates, but their visibility is not public: %s", $callback, $property, $itemType, implode(', ', $privates)));
             }
         }
 
-        throw new \InvalidArgumentException(sprintf("callback '%s' for property '%s' on class '%s' is not callable", $callback, $property, $itemType));
+        throw new \InvalidArgumentException(\sprintf("callback '%s' for property '%s' on class '%s' is not callable", $callback, $property, $itemType));
     }
 
     /**
@@ -344,10 +344,10 @@ class PropertyRenderer
         $property = $propertyView->getName();
         $value = null;
 
-        if (is_object($item)) {
-            $itemType = get_class($item);
+        if (\is_object($item)) {
+            $itemType = \get_class($item);
         } else {
-            $itemType = gettype($item);
+            $itemType = \gettype($item);
         }
 
         // Skip property info if options contain a callback.
@@ -367,13 +367,13 @@ class PropertyRenderer
                 $value = $this->getValue($item, $property, $options);
             }
 
-            return call_user_func($options['callback'], $value, $options, $item);
+            return \call_user_func($options['callback'], $value, $options, $item);
         }
 
         // A virtual property with no callback should not be displayable at all
         if ($propertyView->isVirtual()) {
             if ($this->debug) {
-                throw new \InvalidArgumentException(sprintf("property '%s' on class '%s' is virtual but has no callback", $property, $itemType));
+                throw new \InvalidArgumentException(\sprintf("property '%s' on class '%s' is virtual but has no callback", $property, $itemType));
             }
 
             return self::RENDER_NOT_POSSIBLE;
@@ -409,19 +409,19 @@ class PropertyRenderer
             return $this->renderProperty($item, $property);
         }
 
-        if (!is_object($item)) {
+        if (!\is_object($item)) {
             if ($this->debug) {
-                throw new PropertyTypeError(sprintf("Item is not an object %s found instead while rendering the '%s' property", gettype($item), $property));
+                throw new PropertyTypeError(\sprintf("Item is not an object %s found instead while rendering the '%s' property", \gettype($item), $property));
             }
             return self::RENDER_NOT_POSSIBLE;
         }
 
         $type = null;
-        $class = get_class($item);
+        $class = \get_class($item);
         $types = $this->propertyInfo->getTypes($class, $property);
 
         if ($types) {
-            $type = reset($types);
+            $type = \reset($types);
         }
 
         return $this->renderProperty($item, new PropertyView($property, $type, $options));
