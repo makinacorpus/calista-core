@@ -59,7 +59,7 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
      */
     public function getPageCount(int $limit = Query::LIMIT_DEFAULT): int
     {
-        return null !== $this->totalCount ? ceil($this->totalCount / $limit) : 1;
+        return (int)(null !== $this->totalCount ? \ceil($this->totalCount / $limit) : 1);
     }
 
     /**
