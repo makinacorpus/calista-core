@@ -9,10 +9,14 @@ namespace MakinaCorpus\Calista\Query;
  */
 class Filter implements \Countable
 {
+    private $arbitraryInput = false;
     private $choicesMap = [];
+    private $isSafe = false;
+    private $mandatory = false;
+    private $multiple = true;
+    private $noneOption;
     private $queryParameter;
     private $title;
-    private $isSafe = false;
 
     /**
      * Default constructor
@@ -29,6 +33,82 @@ class Filter implements \Countable
     }
 
     /**
+     * Set or unset the "multiple" flag, default is true
+     */
+    public function setMultiple(bool $toggle = true): self
+    {
+        $this->multiple = $toggle;
+
+        return $this;
+    }
+
+    /**
+     * Does this filter allows multiple input
+     */
+    public function isMultiple(): bool
+    {
+        return $this->multiple;
+    }
+
+    /**
+     * Set the "None/All/N/A" option
+     */
+    public function setNoneOption(?string $value): self
+    {
+        $this->noneOption = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get the none option
+     */
+    public function getNoneOption(): ?string
+    {
+        return $this->noneOption;
+    }
+
+    /**
+     * Set or unset the mandatory flag
+     */
+    public function setMandatory(bool $toggle = true): self
+    {
+        $this->mandatory = (bool)$toggle;
+
+        return $this;
+    }
+
+    /**
+     * Is this filter mandatory
+     */
+    public function isMandatory(): bool
+    {
+        return $this->mandatory;
+    }
+
+    /**
+     * Is arbitrary input field
+     */
+    public function isArbitraryInput(): bool
+    {
+        return !$this->choicesMap && $this->arbitraryInput;
+    }
+
+    /**
+     * Set or unset the arbitrary input flag
+     *
+     * @param bool $toggle
+     *
+     * @return self
+     */
+    public function setArbitraryInput(bool $toggle = true): self
+    {
+        $this->arbitraryInput = $toggle;
+
+        return $this;
+    }
+
+    /**
      * Set choices map
      *
      * Choice map is a key-value array in which keys are indexed values and
@@ -40,7 +120,7 @@ class Filter implements \Countable
      *
      * @return $this
      */
-    public function setChoicesMap(array $choicesMap): Filter
+    public function setChoicesMap(array $choicesMap): self
     {
         $this->isSafe = true;
         $this->choicesMap = $choicesMap;
@@ -73,7 +153,7 @@ class Filter implements \Countable
      *
      * @param array $choices
      */
-    public function removeChoices(array $choices)
+    public function removeChoices(array $choices): void
     {
         $this->choicesMap = \array_diff_key($this->choicesMap, \array_flip($choices));
     }
@@ -81,7 +161,7 @@ class Filter implements \Countable
     /**
      * Remove selected choices
      */
-    public function removeChoicesNotIn(array $choices)
+    public function removeChoicesNotIn(array $choices): void
     {
         $this->choicesMap = \array_intersect_key($this->choicesMap, \array_flip($choices));
     }

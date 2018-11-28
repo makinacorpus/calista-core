@@ -22,9 +22,9 @@
  #}
 
 {%- block display_mode_link -%}
-  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title }}" data-page-link>
-    <span class="glyphicon glyphicon-{{ link.icon }}" aria-hidden="true"></span>
-    <span class="sr-only">{{ link.title }}</span>
+  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title|e }}" data-page-link>
+    <span class="glyphicon glyphicon-{{ link.icon|e }}" aria-hidden="true"></span>
+    <span class="sr-only">{{ link.title|e }}</span>
   </a>
 {%- endblock -%}
 
@@ -43,30 +43,54 @@
 {%- block filter_link -%}
   <div class="checkbox">
     <label>
-      <a{% if link.isActive %} class="active"{% endif %} href="{{ path(link.route, link.routeParameters) }}" data-page-link="{{ filter.field }}">
+      <a{% if link.isActive %} class="active"{% endif %} href="{{ path(link.route, link.routeParameters) }}" data-page-link="{{ filter.field|e }}">
         <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
-        {{ link.title }} {% if link.count is defined %}<span class="badge">{{ link.count }}</span>{% endif %}
+        {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
       </a>
     </label>
   </div>
 {%- endblock -%}
 
+{%- block filter_input -%}
+  <div class="form-group">
+    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
+    {% set value = query.routeParameters[filter.field] %}
+    <input type="text" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}" placeholder="">
+  </div>
+{%- endblock -%}
+
 {%- block filter -%}
-  <strong>{{ filter.title }}</strong>
-  <ul class="list-unstyled">
-    {% for link in filter.links(query) %}
-      <li>{{ block('filter_link') }}</li>
-    {% else %}
-      <li>{{ "No values"|trans }}</li>
-    {% endfor %}
-  </ul>
+  {% if filter.isMultiple %}
+    <strong>{{ filter.title|e }}</strong>
+    <ul class="list-unstyled">
+      {% for link in filter.links(query) %}
+        <li>{{ block('filter_link') }}</li>
+      {% else %}
+        <li>{{ "No values"|trans }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+     <div class="form-group">
+      <label for="disabledTextInput">{{ filter.title|e }}</label>
+      <select>
+        {% if not filter.isMandatory %}
+          {% set noneOption = filter.noneOption %}
+          <option value="">{% if noneOption %}{{ noneOption|e }}{% else %}{{ "All"|trans }}{% endif %}</option>
+        {% endif %}
+        {% for link in filter.links(query) %}
+          {% set value = link.routeParameters[filter.field] %}
+          <option{% if link.isActive %} selected="selected"{% endif %} value="{{ value|e }}">{{ link.title|e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endif %}
 {%- endblock -%}
 
 {% block search_form %}
   <form method="get" class="calista-search-form" accept-charset="UTF-8">
     <div class="input-group">
-      <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter }}"
-        value="{{ query.rawSearchString|escape }}" maxlength="128" type="text"
+      <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter|e }}"
+        value="{{ query.rawSearchString|e }}" maxlength="128" type="text"
       />
       {% for name, value in query.routeParameters %}
         {% if name != input.searchParameter %}
@@ -108,7 +132,7 @@
     {% endif %}
     {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
     <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" {% if isActive %}class="active"{% endif %} data-page-link>
-      {{ label }}
+      {{ label|e }}
     </a>
   {% endspaceless %}
 {% endblock %}
@@ -299,9 +323,16 @@
 {% endblock %}
 
 {% block filters %}
-  {% for filter in filters %}
-    {{ block('filter') }}
-  {% endfor %}
+  <form method="get" action="{{ path(query.route, query.routeParameters) }}" class="form-inline">
+    {% for filter in filters %}
+      {% if filter.isArbitraryInput %}
+        {{ block('filter_input') }}
+      {% else %}
+        {{ block('filter') }}
+      {% endif %}
+    {% endfor %}
+    <input type="submit" value="{{ "Filter"|trans }}"/>
+  </form>
 {% endblock %}
 
 {% block page_layout %}
@@ -333,7 +364,7 @@
 {% endblock %}
 
 {%- block page -%}
-  <div{% if pageId %} data-page="{{ pageId }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType }}" class="calista-page">
+  <div{% if pageId %} data-page="{{ pageId|e }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType|e }}" class="calista-page">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}

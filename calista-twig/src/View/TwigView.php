@@ -85,9 +85,10 @@ class TwigView extends AbstractView
         $enabledFilters = [];
         if ($viewDefinition->isFiltersEnabled()) {
             $baseQuery = $inputDefinition->getBaseQuery();
+            /** @var \MakinaCorpus\Calista\Query\Filter $filter */
             foreach ($inputDefinition->getFilters() as $filter) {
                 // Only considers filters with choices.
-                if (!$filter->hasChoices()) {
+                if (!$filter->hasChoices() && !$filter->isArbitraryInput()) {
                     continue;
                 }
                 $field = $filter->getField();
