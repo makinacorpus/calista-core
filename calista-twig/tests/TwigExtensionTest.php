@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MakinaCorpus\Calista\Tests\Twig;
 
 use MakinaCorpus\Calista\Tests\View\PropertyRendererTest;

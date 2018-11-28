@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MakinaCorpus\Calista\View\Tests;
 
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;

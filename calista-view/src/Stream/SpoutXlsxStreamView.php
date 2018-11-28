@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MakinaCorpus\Calista\View\Stream;
 
 use Box\Spout\Common\Type;
