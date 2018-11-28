@@ -58,7 +58,7 @@ class EmptyDatasource extends AbstractDatasource
      */
     public function getItems(Query $query): DatasourceResultInterface
     {
-        return new DefaultDatasourceResult([]);
+        return new DefaultDatasourceResult();
     }
 
     /**

@@ -94,7 +94,7 @@ class QueryFactory
         // Symfony just replicates all query parameters and route parameters
         // raw values into the _route_params array, which allows to use it
         // transparently to regenerate the exact same URL.
-        if ($request->attributes->has('_route_params')) {
+        if (false && $request->attributes->has('_route_params')) {
             $routeParameters = $request->attributes->get('_route_params', []);
         } else {
             $routeParameters = $request->query->all();

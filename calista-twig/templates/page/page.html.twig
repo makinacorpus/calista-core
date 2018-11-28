@@ -54,7 +54,7 @@
 {%- block filter_boolean -%}
   <div class="checkbox">
     <label>
-      {% set value = query.routeParameters[filter.field] %}
+      {% set value = query.get(filter.field) %}
       <input type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/> {{ filter.title|e }}
     </label>
   </div>
@@ -63,7 +63,7 @@
 {%- block filter_input -%}
   <div class="form-group">
     <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
-    {% set value = query.routeParameters[filter.field] %}
+    {% set value = query.get(filter.field) %}
     <input type="text" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}" placeholder="">
   </div>
 {%- endblock -%}
