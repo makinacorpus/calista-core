@@ -10,6 +10,7 @@ namespace MakinaCorpus\Calista\Query;
 class Filter implements \Countable
 {
     private $arbitraryInput = false;
+    private $boolean = false;
     private $choicesMap = [];
     private $isSafe = false;
     private $mandatory = false;
@@ -30,6 +31,24 @@ class Filter implements \Countable
     {
         $this->queryParameter = $queryParameter;
         $this->title = $title;
+    }
+
+    /**
+     * Set the "boolean" toggle
+     */
+    public function setBoolean(bool $toggle = true): self
+    {
+        $this->boolean = (bool)$toggle;
+
+        return $this;
+    }
+
+    /**
+     * Is boolean
+     */
+    public function isBoolean(): bool
+    {
+        return $this->boolean && !$this->arbitraryInput && !$this->choicesMap;
     }
 
     /**
