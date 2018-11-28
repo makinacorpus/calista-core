@@ -48,7 +48,10 @@
         "box/spout": "^2.7",
         "phpunit/phpunit": "^6",
         "symfony/config": "^3.4|^4",
+        "symfony/console": "^3.4|^4",
         "symfony/dependency-injection": "^3.4|^4",
+        "symfony/framework-bundle": "^3.4|^4",
+        "symfony/http-kernel": "^3.4|^4",
         "twig/twig": "^2.5"
     },
     "replace": {
