@@ -56,7 +56,7 @@
         "makinacorpus/calista-query": "self.version",
         "makinacorpus/calista-view": "self.version"
     },
-    "suggests": {
+    "suggest": {
         "box/spout ^2.7": "For XLSX (Excel) stream view support",
         "symfony/property-access": "For dynamic property access in view component",
         "symfony/property-info": "For dynamic property introspection in view component"
