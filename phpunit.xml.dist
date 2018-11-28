@@ -14,6 +14,9 @@
     </php>
 
     <testsuites>
+        <testsuite name="Calista Bundle">
+            <directory>./calista-bundle/tests/</directory>
+        </testsuite>
         <testsuite name="Calista Datasource">
             <directory>./calista-query/tests/</directory>
         </testsuite>
@@ -30,6 +33,7 @@
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>./calista-bundle/src</directory>
             <directory>./calista-datasource/src</directory>
             <directory>./calista-query/src</directory>
             <directory>./calista-twig/src</directory>

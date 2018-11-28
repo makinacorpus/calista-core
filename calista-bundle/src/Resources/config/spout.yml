@@ -1,0 +1,7 @@
+services:
+
+    calista.view.spout_xlsx_stream:
+        public: true
+        class: MakinaCorpus\Calista\View\Stream\SpoutXlsxStreamView
+        arguments: ['@calista.property_renderer']
+        tags: [{name: calista.view, id: spout_xlsx_stream}]

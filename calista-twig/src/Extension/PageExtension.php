@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Twig\Extension;
 
+use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,11 +19,11 @@ class PageExtension extends \Twig_Extension
     /**
      * Default constructor
      */
-    public function __construct(RequestStack $requestStack, PropertyRenderer $propertyRenderer /*, PageRenderer $pageRenderer = null */)
+    public function __construct(RequestStack $requestStack, PropertyRenderer $propertyRenderer, PageRenderer $pageRenderer = null)
     {
         $this->requestStack = $requestStack;
         $this->propertyRenderer = $propertyRenderer;
-        /* $this->pageRenderer = $pageRenderer; */
+        $this->pageRenderer = $pageRenderer;
     }
 
     /**
@@ -41,7 +42,7 @@ class PageExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
-            // new \Twig_SimpleFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -143,8 +144,7 @@ class PageExtension extends \Twig_Extension
             throw new \LogicException("page renderer is not set");
         }
 
-        // return $this->pageRenderer->renderPage($name, $this->requestStack->getCurrentRequest(), $inputOptions);
-        return '';
+        return $this->pageRenderer->renderPage($name, $this->requestStack->getCurrentRequest(), $inputOptions);
     }
 
     /**

@@ -1,0 +1,22 @@
+services:
+
+    calista.view_factory:
+        public: true
+        class: MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory
+        arguments: ['@service_container']
+
+    MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory:
+        alias: calista.view_factory
+
+    calista.page_renderer:
+        public: true
+        class: MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer
+        arguments: ['@calista.view_factory']
+
+    MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer:
+        alias: calista.page_renderer
+
+    calista.property_renderer:
+        public: false
+        class: MakinaCorpus\Calista\View\PropertyRenderer
+        arguments: ['@property_accessor', '@property_info']

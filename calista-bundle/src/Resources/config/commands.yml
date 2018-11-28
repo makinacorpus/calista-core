@@ -1,0 +1,13 @@
+services:
+
+    MakinaCorpus\Calista\Bridge\Symfony\Command\DatasourceCommand:
+        public: false
+        class: MakinaCorpus\Calista\Bridge\Symfony\Command\DatasourceCommand
+        arguments: ['@calista.view_factory']
+        tags: [console.command]
+
+    MakinaCorpus\Calista\Bridge\Symfony\Command\ViewCommand:
+        public: false
+        class: MakinaCorpus\Calista\Bridge\Symfony\Command\ViewCommand
+        arguments: ['@calista.view_factory']
+        tags: [console.command]

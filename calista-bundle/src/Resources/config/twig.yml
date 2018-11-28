@@ -1,0 +1,13 @@
+services:
+
+    calista.view.twig_page:
+        public: true
+        class: MakinaCorpus\Calista\Twig\View\TwigView
+        arguments: ['@twig', '@event_dispatcher']
+        tags: [{name: calista.view, id: twig_page}]
+
+    calista.twig.page_extension:
+        public: false
+        class: MakinaCorpus\Calista\Twig\Extension\PageExtension
+        arguments: ['@request_stack', '@calista.property_renderer', '@calista.page_renderer']
+        tags: [{name: twig.extension}]
