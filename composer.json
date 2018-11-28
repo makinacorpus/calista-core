@@ -38,15 +38,17 @@
     },
     "require": {
         "php": ">=7",
-        "symfony/event-dispatcher": "^3.2|^4",
-        "symfony/http-foundation": "^3.1|^4",
-        "symfony/options-resolver": "^3.2|^4",
-        "symfony/property-access": "^3.2|^4",
-        "symfony/property-info": "^3.2|^4"
+        "symfony/event-dispatcher": "^3.4|^4",
+        "symfony/http-foundation": "^3.4|^4",
+        "symfony/options-resolver": "^3.4|^4",
+        "symfony/property-access": "^3.4|^4",
+        "symfony/property-info": "^3.4|^4"
     },
     "require-dev": {
         "box/spout": "^2.7",
         "phpunit/phpunit": "^6",
+        "symfony/config": "^3.4|^4",
+        "symfony/dependency-injection": "^3.4|^4",
         "twig/twig": "^2.5"
     },
     "replace": {
