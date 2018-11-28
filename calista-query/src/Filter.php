@@ -191,7 +191,7 @@ class Filter implements \Countable
                 $linkQuery = $this->getParametersForLink($query, $value);
             }
 
-            $ret[] = new Link($label, $route, $linkQuery, $isActive);
+            $ret[] = new Link($label, $route, $linkQuery, null, $isActive);
         }
 
         return $ret;

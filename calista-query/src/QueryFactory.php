@@ -94,7 +94,11 @@ class QueryFactory
         // Symfony just replicates all query parameters and route parameters
         // raw values into the _route_params array, which allows to use it
         // transparently to regenerate the exact same URL.
-        $routeParameters = $request->attributes->get('_route_params', []);
+        if ($request->attributes->has('_route_params')) {
+            $routeParameters = $request->attributes->get('_route_params', []);
+        } else {
+            $routeParameters = $request->query->all();
+        }
 
         // Workaround for Drupal 8 context, we sadly had no other choice than
         // working with it from here, Drupal 8 has the bad habbit of misusing

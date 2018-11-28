@@ -37,7 +37,7 @@ class FilterTest extends TestCase
         $this->assertCount(4, $filter->getChoicesMap());
 
         $request = new Request(['foo' => 'a|c'], [], ['_route' => 'where/should/I/go']);
-        $query = (new QueryFactory())->fromRequest(new InputDefinition(), $request);
+        $query = (new QueryFactory())->fromRequest(new InputDefinition(['filter_list' => [$filter]]), $request);
 
         $links = $filter->getLinks($query);
         $this->assertCount(4, $links);
