@@ -285,9 +285,9 @@ class Filter implements \Countable
             $isActive = \in_array($value, $selectedValues);
 
             if ($isActive) {
-                $linkQuery = $this->getParametersForLink($query, $value, true);
+                $linkQuery = $this->getParametersForLink($query, (string)$value, true);
             } else {
-                $linkQuery = $this->getParametersForLink($query, $value);
+                $linkQuery = $this->getParametersForLink($query, (string)$value);
             }
 
             $ret[] = new Link($label, $route, $linkQuery, null, $isActive);
