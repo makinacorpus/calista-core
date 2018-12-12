@@ -11,15 +11,15 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
 /**
- * Usable extension for both Symfony, Drupal and may be other dependency
- * injection based environments.
- *
  * @codeCoverageIgnore
  */
 final class CalistaExtension extends Extension
 {
+    const DEFAULT_THEME_TEMPLATE = '@calista/page/page.html.twig';
+
     /**
      * {@inheritdoc}
      */

@@ -22,12 +22,17 @@ final class CalistaConfiguration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('calista');
 
-        // This is a very concise representation of pages, because it will
-        // be validated at runtime using the OptionResolver component; we
-        // only describe the required/possible keys and that's pretty much
-        // it.
         $rootNode
             ->children()
+
+                // Global configuration
+                ->arrayNode('config')
+                    ->children()
+                        ->scalarNode('theme')->defaultValue(CalistaExtension::DEFAULT_THEME_TEMPLATE)->end()
+                    ->end()
+                ->end()
+
+                // Definition of pages
                 ->arrayNode('pages')
                     ->normalizeKeys(true)
                     ->prototype('array')

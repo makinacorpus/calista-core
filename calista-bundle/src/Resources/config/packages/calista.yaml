@@ -1,0 +1,8 @@
+calista:
+    config:
+        # This variable is what will be in the 'calista_theme' global twig
+        # variable, you can use it this way: {{ extends calista_theme }}
+        # theme: '@calista/page/page.html.twig'
+        theme: '@calista/page/page-bootstrap4.html.twig'
+
+    pages: []
