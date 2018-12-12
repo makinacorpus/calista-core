@@ -18,9 +18,19 @@
 
 {%- block filter_boolean -%}
   {% set value = query.get(filter.field) %}
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/>
-    <label class="form-check-label">{{ filter.title|e }}</label>
+  <div class="form-group form-inline">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/>
+      <label class="form-check-label">{{ filter.title|e }}</label>
+    </div>
+  </div>
+{%- endblock -%}
+
+{%- block filter_input -%}
+  <div class="form-group form-inline">
+    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
+    {% set value = query.get(filter.field) %}
+    <input type="text" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}" placeholder="">
   </div>
 {%- endblock -%}
 
@@ -122,59 +132,63 @@
 {% endblock %}
 
 {% block page_content %}
-  <div class="container-fluid">
-    {% if input.isSearchEnabled %}
-      <div class="row">
-        <div class="col" data-page-block="search_form">
-          {{ block('search_form') }}
-        </div>
-      </div>
-    {% endif %}
-    {% if sortsEnabled and 1 < input.allowedSorts|length %}
-      <div class="row">
-        <div class="col" data-page-block="sort_links">
-          {{ block('sort_links') }}
-        </div>
-      </div>
-    {% endif %}
+  {% if input.isSearchEnabled %}
     <div class="row">
-      <div class="col" data-page-block="item_list">
-        {{ block('item_list') }}
+      <div class="col" data-page-block="search_form">
+        {{ block('search_form') }}
       </div>
     </div>
-    {% if pagerEnabled %}
-      <div class="row">
-        <div class="col" data-page-block="pager">
-          {% if query.limit < items.totalCount %}
-            {{ block('pager') }}
-          {% endif %}
-        </div>
+  {% endif %}
+  {% if sortsEnabled and 1 < input.allowedSorts|length %}
+    <div class="row">
+      <div class="col" data-page-block="sort_links">
+        {{ block('sort_links') }}
       </div>
-    {% endif %}
+    </div>
+  {% endif %}
+  <div class="row">
+    <div class="col" data-page-block="item_list">
+      {{ block('item_list') }}
+    </div>
   </div>
+  {% if pagerEnabled %}
+    <div class="row">
+      <div class="col" data-page-block="pager">
+        {% if query.limit < items.totalCount %}
+          {{ block('pager') }}
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block filters %}
-  <form method="get" action="{{ path(query.route, query.routeParameters) }}" class="form-inline">
-    {% for filter in filters %}
-      {% if filter.isBoolean %}
-        {{ block('filter_boolean') }}
-      {% elseif filter.isArbitraryInput %}
-        {{ block('filter_input') }}
-      {% else %}
-        {{ block('filter') }}
-      {% endif %}
-    {% endfor %}
-    <div class="form-group">
-      <div class="input-group-btn">
-        <button type="submit" class="btn btn-primary">
-          <span class="glyphicon glyphicon-search"></span>
-          {{ "Filter"|trans }}
-        </button>
-        <a href="{{ path(query.route) }}" class="btn btn-default">
-          <span class="glyphicon glyphicon-remove"></span>
-          {{ "Reset"|trans }}
-        </a>
+  <form method="get" action="{{ path(query.route, query.routeParameters) }}">
+    <div class="form-row align-items-center">
+      {% for filter in filters %}
+        <div class="col-auto">
+          {% if filter.isBoolean %}
+            {{ block('filter_boolean') }}
+          {% elseif filter.isArbitraryInput %}
+            {{ block('filter_input') }}
+          {% else %}
+            {{ block('filter') }}
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="col-auto">
+        <div class="form-group">
+          <div class="input-group-btn">
+            <button type="submit" class="btn btn-primary">
+              <span class="glyphicon glyphicon-search"></span>
+              {{ "Filter"|trans }}
+            </button>
+            <a href="{{ path(query.route) }}" class="btn btn-default">
+              <span class="glyphicon glyphicon-remove"></span>
+              {{ "Reset"|trans }}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </form>
@@ -199,11 +213,7 @@
       </div>
     </div>
   {% endif %}
-  <div class="row">
-    <div id="calista-results" class="col">
-      {{ block('page_content') }}
-    </div>
-  </div>
+  {{ block('page_content') }}
 {% endblock %}
 
 {%- block page -%}
