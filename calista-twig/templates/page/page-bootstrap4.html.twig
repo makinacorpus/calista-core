@@ -1,0 +1,217 @@
+{% extends '@calista/page/page.html.twig' %}
+
+{%- block display_mode_link -%}
+  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title|e }}" data-page-link>
+    <span class="sr-only">{{ link.title|e }}</span>
+  </a>
+{%- endblock -%}
+
+{%- block filter_link -%}
+  {% if class is not defined %}
+    {% set class = '' %}
+  {% endif %}
+  <a class="{{ class }}{% if link.isActive %} active{% endif %}" href="{{ path(link.route, link.routeParameters) }}" data-page-link="{{ filter.field|e }}">
+    <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
+    {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
+  </a>
+{%- endblock -%}
+
+{%- block filter_boolean -%}
+  {% set value = query.get(filter.field) %}
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/>
+    <label class="form-check-label">{{ filter.title|e }}</label>
+  </div>
+{%- endblock -%}
+
+{%- block filter -%}
+  {% if filter.isMultiple %}
+    {% set id = 'filter-' ~ filter.field %}
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button" id="{{ id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ filter.title|e }}
+      </button>
+      <div class="dropdown-menu" aria-labelledby="{{ id }}">
+        {% for link in filter.links(query) %}
+          {% with {class: 'dropdown-item'} %}{{ block('filter_link') }}{% endwith %}
+        {% else %}
+          <a href="#" class="disabled" disabled="disabled">{{ "No values"|trans }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+     <div class="form-group">
+      <label for="disabledTextInput">{{ filter.title|e }}</label>
+      <select name="{{ filter.field|e }}">
+        {% if not filter.isMandatory %}
+          {% set noneOption = filter.noneOption %}
+          <option value="">{% if noneOption %}{{ noneOption|e }}{% else %}{{ "All"|trans }}{% endif %}</option>
+        {% endif %}
+        {% for link in filter.links(query) %}
+          {% set value = link.routeParameters[filter.field] %}
+          <option{% if link.isActive %} selected="selected"{% endif %} value="{{ value|e }}">{{ link.title|e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endif %}
+{%- endblock -%}
+
+{% block search_form_button_content %}
+  {{ "Search"|trans }}
+{% endblock %}
+
+{% block sort_links_field %}
+  {% set allowedSorts = input.allowedSorts %}
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" title="{{ "Sort by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
+      {% spaceless %}
+        {% if query.hasSortField %}
+          {{ allowedSorts[(query.sortField)] }}
+        {% else %}
+          {{ "Select"|trans }}
+        {% endif %}
+      {% endspaceless %}
+    </button>
+    <div class="dropdown-menu">
+      {% for field, label in allowedSorts %}
+        {% with {class: 'dropdown-item'} %}{{ block('sort_link') }}{% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block sort_links_order %}
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" title="{{ "Order by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
+     {% if 'asc' == query.sortOrder %}{{ "ascending"|trans }}{% else %}{{ "descending"|trans }}{% endif %}&nbsp;<span class="caret"></span>
+    </button>
+    <div class="dropdown-menu">
+      <a href="{{ path(query.route, query.routeParameters|merge({(input.sortOrderParameter): 'asc'})) }}" class="dropdown-item {% if 'asc' == query.sortOrder %}active{% endif %}" data-page-link>
+        {{ "ascending"|trans }}
+      </a>
+      <a href="{{ path(query.route, query.routeParameters|merge({(input.sortOrderParameter): 'desc'})) }}" class="dropdown-item {% if 'desc' == query.sortOrder %}active{% endif %}" data-page-link>
+        {{ "descending"|trans }}
+      </a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block sort_links %}
+  <div class="btn-group sort-links">
+    {{ block('sort_links_field') }}
+    {{ block('sort_links_order') }}
+  </div>
+{% endblock %}
+
+{% block item_list %}
+  <table class="table table-bordered table-hover table-sm">
+    <thead>
+      <tr>
+        {% for property in properties %}
+          <th class="property-{{ property.name }}">{{ property.label }}</th>
+        {% endfor %}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        {{ block('item') }}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block page_content %}
+  <div class="container-fluid">
+    {% if input.isSearchEnabled %}
+      <div class="row">
+        <div class="col" data-page-block="search_form">
+          {{ block('search_form') }}
+        </div>
+      </div>
+    {% endif %}
+    {% if sortsEnabled and 1 < input.allowedSorts|length %}
+      <div class="row">
+        <div class="col" data-page-block="sort_links">
+          {{ block('sort_links') }}
+        </div>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div class="col" data-page-block="item_list">
+        {{ block('item_list') }}
+      </div>
+    </div>
+    {% if pagerEnabled %}
+      <div class="row">
+        <div class="col" data-page-block="pager">
+          {% if query.limit < items.totalCount %}
+            {{ block('pager') }}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block filters %}
+  <form method="get" action="{{ path(query.route, query.routeParameters) }}" class="form-inline">
+    {% for filter in filters %}
+      {% if filter.isBoolean %}
+        {{ block('filter_boolean') }}
+      {% elseif filter.isArbitraryInput %}
+        {{ block('filter_input') }}
+      {% else %}
+        {{ block('filter') }}
+      {% endif %}
+    {% endfor %}
+    <div class="form-group">
+      <div class="input-group-btn">
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-search"></span>
+          {{ "Filter"|trans }}
+        </button>
+        <a href="{{ path(query.route) }}" class="btn btn-default">
+          <span class="glyphicon glyphicon-remove"></span>
+          {{ "Reset"|trans }}
+        </a>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block page_layout %}
+  {% if 1 < displays|length or filters %}
+    <div class="row">
+      <div class="col">
+        {% if displays %}
+          <div data-page-block="display_mode">
+            {% if 1 < displays|length %}
+              {{ block('display_mode') }}
+            {% endif %}
+          </div>
+        {% endif %}
+        {% if filters %}
+          <div data-page-block="filters">
+            {{ block('filters') }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  <div class="row">
+    <div id="calista-results" class="col">
+      {{ block('page_content') }}
+    </div>
+  </div>
+{% endblock %}
+
+{%- block page -%}
+  <div class="calista-page" {% if pageId %} data-page="{{ pageId|e }}"
+      data-page-route="{{ path(query.route, query.routeParameters) }}"
+      data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
+      data-page-search="{{ input.searchParameter|e }}"
+      data-view-type="{{ definition.viewType|e }}">
+    {{ block('page_layout') }}
+  </div>
+{%- endblock -%}

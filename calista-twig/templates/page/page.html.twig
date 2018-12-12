@@ -31,7 +31,7 @@
 {%- block display_mode -%}
   {% if 1 < displays|length %}
     <div class="clearfix">
-      <div class="btn-group">
+      <div class="btn-group" role="group" aria-label="{{ "Change display"|trans }}">
         {% for link in displays %}
           {{ block('display_mode_link') }}
         {% endfor %}
@@ -95,6 +95,10 @@
   {% endif %}
 {%- endblock -%}
 
+{% block search_form_button_content %}
+  <span class="glyphicon glyphicon-search"></span>
+{% endblock %}
+
 {% block search_form %}
   <form method="get" class="calista-search-form" accept-charset="UTF-8">
     <div class="input-group">
@@ -108,7 +112,7 @@
       {% endfor %}
       <span class="input-group-btn">
         <button type="submit" title="{{ "Search"|trans }}" class="btn btn-primary">
-          <span class="glyphicon glyphicon-search"></span>
+          {{ block('search_form_button_content') }}
         </button>
       </span>
     </div>
@@ -121,7 +125,7 @@
  # You may use it for table header sort link:
  #
  # <th>
- #   {% with {label: "Référence", field: 'h.timestamp'} %}
+ #   {% with {label: "Référence", field: 'h.timestamp', class: 'dropdown-item'} %}
  #     {{ block('sort_link') }}
  #   {% endwith %}
  # </th>
@@ -130,6 +134,9 @@
 {% block sort_link %}
   {% spaceless %}
     {% set isActive = (field == query.sortField) %}
+    {% if class is not defined %}
+      {% set class = '' %}
+    {% endif %}
     {% if isActive %}
       {% if 'desc' == query.sortOrder %}
         {% set linkOrder = 'asc' %}
@@ -140,7 +147,7 @@
       {% set linkOrder = query.sortOrder %}
     {% endif %}
     {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
-    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" {% if isActive %}class="active"{% endif %} data-page-link>
+    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" class="{{ class }}{% if isActive %} active{% endif %}" data-page-link>
       {{ label|e }}
     </a>
   {% endspaceless %}
@@ -154,14 +161,14 @@
       {% if query.hasSortField %}
         {{ allowedSorts[(query.sortField)] }}
       {% else %}
-        WTF
+        {{ "Select"|trans }}
       {% endif %}
       &nbsp;<span class="caret"></span>
     {% endspaceless %}
   </a>
   <ul class="dropdown-menu dropdown-menu-right">
     {% for field, label in allowedSorts %}
-      <li>{{ block('sort_link') }}</li>
+      <li>{% with {class: 'dropdown-item'} %}{{ block('sort_link') }}{% endwith %}</li>
     {% endfor %}
   </ul>
 {% endblock %}
@@ -195,14 +202,6 @@
   </div>
 {% endblock %}
 
-{#
- # Place it or not into your custom templates, but never forget the
- # data-page-checkbox="all" attribute on which the javascript will match.
- #}
-{%- block item_checkbox_all -%}
-  <input type="checkbox" data-page-checkbox="all" title="{{ "(Un)check all"|trans }}"/>
-{%- endblock -%}
-
 {%- block item -%}
   <tr>
     {% for property in properties %}
@@ -220,9 +219,6 @@
   <table class="table table-condensed">
     <thead>
       <tr>
-        {% if form is defined %}
-          <th>{{ block('item_checkbox_all') }}</th>
-        {% endif %}
         {% for property in properties %}
           <th class="property-{{ property.name }}">{{ property.label }}</th>
         {% endfor %}
@@ -258,7 +254,7 @@
  #}
 {%- block pager_link -%}
   {% if index is defined %}
-    <a href="{{ block('pager_href') }}" data-page-link="">
+    <a class="page-link" href="{{ block('pager_href') }}" data-page-link="">
       {{ index }}
     </a>
   {% endif %}
@@ -275,31 +271,31 @@
     <nav aria-label="{{ "Navigation"|trans }}">
       <ul class="pagination">
         {% if 1 < page %}
-          <li>
-            <a href="{% with {index: 1} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "First"|trans }}" data-page-link>
+          <li class="page-item">
+            <a class="page-link" href="{% with {index: 1} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "First"|trans }}" data-page-link>
               <span aria-hidden="true">&larr;</span>
             </a>
           </li>
-          <li>
-            <a href="{% with {index: (page - 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Previous"|trans }}" data-page-link>
+          <li class="page-item">
+            <a class="page-link" href="{% with {index: (page - 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Previous"|trans }}" data-page-link>
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
         {% endif %}
         {% for index in items.getPageRange(page, query.limit) %}
-          <li>
+          <li class="page-item">
             {{ block('pager_link') }}
           </li>
         {% endfor %}
         {% set pageCount = items.pageCount(query.limit) %}
         {% if page < pageCount %}
-          <li>
-            <a href="{% with {index: (page + 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Next"|trans }}" data-page-link>
+          <li class="page-item">
+            <a class="page-link" href="{% with {index: (page + 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Next"|trans }}" data-page-link>
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>
-          <li>
-            <a href="{% with {index: pageCount} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Last"|trans }}" data-page-link>
+          <li class="page-item">
+            <a class="page-link" href="{% with {index: pageCount} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Last"|trans }}" data-page-link>
               <span aria-hidden="true">&rarr;</span>
             </a>
           </li>
@@ -397,7 +393,11 @@
 {% endblock %}
 
 {%- block page -%}
-  <div{% if pageId %} data-page="{{ pageId|e }}" data-page-route="{{ path(query.route, query.routeParameters) }}" data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %} data-page-search="{{ input.searchParameter|e }}" {# data-refresh-url="{{ path('calista_ajax_refresh') }}" #} data-view-type="{{ definition.viewType|e }}" class="calista-page">
+  <div class="calista-page" {% if pageId %} data-page="{{ pageId|e }}"
+      data-page-route="{{ path(query.route, query.routeParameters) }}"
+      data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
+      data-page-search="{{ input.searchParameter|e }}"
+      data-view-type="{{ definition.viewType|e }}">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}
