@@ -15,7 +15,7 @@ class QueryFactory
     /**
      * Create query from array
      */
-    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = ''): Query
+    public function fromArray(InputDefinition $inputDefinition, array $input, string $route = '', array $protected = []): Query
     {
         $rawSearchString = '';
         $searchParameter = $inputDefinition->getSearchParameter();
@@ -57,7 +57,7 @@ class QueryFactory
             $inputDefinition,
             $route,
             $this->flattenQuery($this->applyBaseQuery($input, $baseQuery), [$searchParameter]),
-            $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true)
+            $protected + $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true)
         );
     }
 
@@ -91,13 +91,21 @@ class QueryFactory
     {
         $route = $request->attributes->get('_route', '');
 
+        // We must keep track of Symfony own route parameters: when base
+        // query is processed, parameters included within the base query
+        // are removed, in order for the user to NOT see them in the URL.
+        // Nevertheless, if they are mandatory to generate the current
+        // route, we must restore them in routeParameters so that the
+        // calls to the twig {{ path(query.route, query.routeParams) }}
+        // will give them to the router.
+        $protected = [];
+        $routeParameters = $request->query->all();
+
         // Symfony just replicates all query parameters and route parameters
         // raw values into the _route_params array, which allows to use it
         // transparently to regenerate the exact same URL.
-        if (false && $request->attributes->has('_route_params')) {
-            $routeParameters = $request->attributes->get('_route_params', []);
-        } else {
-            $routeParameters = $request->query->all();
+        if ($request->attributes->has('_route_params')) {
+            $routeParameters += $protected = $request->attributes->get('_route_params', []);
         }
 
         // Workaround for Drupal 8 context, we sadly had no other choice than
@@ -114,7 +122,7 @@ class QueryFactory
             $routeParameters += $request->query->all();
         }
 
-        return $this->fromArray($inputDefinition, $routeParameters, $route);
+        return $this->fromArray($inputDefinition, $routeParameters, $route, $protected);
     }
 
     /**
