@@ -25,6 +25,7 @@ class Query
     private $rawSearchString = '';
     private $route = '';
     private $routeParameters = [];
+    private $routeProtectedParameters = [];
     private $searchString = '';
     private $sortField = '';
     private $sortOrder = self::SORT_DESC;
@@ -41,12 +42,13 @@ class Query
      * @param string[] $routeParameters
      *   Route parameters (filters minus the default values)
      */
-    public function __construct(InputDefinition $inputDefinition, string $route, array $filters = [], array $routeParameters = [])
+    public function __construct(InputDefinition $inputDefinition, string $route, array $filters = [], array $routeParameters = [], array $routeProtectedParameters = [])
     {
         $this->inputDefinition = $inputDefinition;
         $this->filters = $filters;
         $this->route = $route;
         $this->routeParameters = $routeParameters;
+        $this->routeProtectedParameters = $routeProtectedParameters;
 
         $this->findCurrentDisplay();
         $this->findRange();
@@ -277,5 +279,13 @@ class Query
     public function getRouteParameters(): array
     {
         return $this->routeParameters;
+    }
+
+    /**
+     * Get the route parameters, including various non filter attributes
+     */
+    public function getRouteProtectedParameters(): array
+    {
+        return $this->routeProtectedParameters;
     }
 }

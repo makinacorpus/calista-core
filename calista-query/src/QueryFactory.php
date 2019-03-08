@@ -57,7 +57,8 @@ class QueryFactory
             $inputDefinition,
             $route,
             $this->flattenQuery($this->applyBaseQuery($input, $baseQuery), [$searchParameter]),
-            $protected + $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true)
+            $protected + $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true),
+            $protected
         );
     }
 

@@ -183,7 +183,7 @@
               <span class="glyphicon glyphicon-search"></span>
               {{ "Filter"|trans }}
             </button>
-            <a href="{{ path(query.route) }}" class="btn btn-default">
+            <a href="{{ path(query.route, query.routeProtectedParameters) }}" class="btn btn-default">
               <span class="glyphicon glyphicon-remove"></span>
               {{ "Reset"|trans }}
             </a>
