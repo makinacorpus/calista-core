@@ -147,7 +147,7 @@
       {% set linkOrder = query.sortOrder %}
     {% endif %}
     {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
-    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" class="{{ class }}{% if isActive %} active{% endif %}" data-page-link>
+    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" class="{{ class }} sort-{{ linkOrder }}{% if isActive %} active{% endif %}" data-page-link>
       {{ label|e }}
     </a>
   {% endspaceless %}
