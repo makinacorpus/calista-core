@@ -152,7 +152,6 @@ class InputDefinition
             'sort_default_order'  => Query::SORT_DESC,
             'sort_field_param'    => 'st',
             'sort_order_param'    => 'by',
-            'template_param'      => [],
         ]);
 
         $resolver->setAllowedTypes('base_query', ['array']);
@@ -171,7 +170,6 @@ class InputDefinition
         $resolver->setAllowedTypes('sort_default_order', ['string']);
         $resolver->setAllowedTypes('sort_field_param', ['string']);
         $resolver->setAllowedTypes('sort_order_param', ['string']);
-        $resolver->setAllowedTypes('template_param', ['array']);
     }
 
     /**
@@ -352,14 +350,6 @@ class InputDefinition
     public function getDefaultSortOrder(): string
     {
         return $this->options['sort_default_order'] ?? '';
-    }
-
-    /**
-     * Get parameters to tranmit to template
-     */
-    public function getTemplateParam(): ?array
-    {
-        return $this->options['template_param'] ?? null;
     }
 
     /**
