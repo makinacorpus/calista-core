@@ -146,7 +146,7 @@ class TwigView extends AbstractView
             'displays'      => $displayLinks,
             'hasPager'      => $viewDefinition->isPagerEnabled(),
             'pagerEnabled'  => $viewDefinition->isPagerEnabled(),
-        ] + $arguments;
+        ] + $arguments + $inputDefinition->getTemplateParam();
     }
 
     /**
