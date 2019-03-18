@@ -138,13 +138,13 @@ class PageExtension extends \Twig_Extension
     /**
      * Render a complete page
      */
-    public function renderPage(string $name, array $inputOptions = []): string
+    public function renderPage(string $name, array $inputOptions = [], array $viewOptions = []): string
     {
         if (!$this->pageRenderer) {
             throw new \LogicException("page renderer is not set");
         }
 
-        return $this->pageRenderer->renderPage($name, $this->requestStack->getCurrentRequest(), $inputOptions);
+        return $this->pageRenderer->renderPage($name, $this->requestStack->getCurrentRequest(), $inputOptions, $viewOptions);
     }
 
     /**
