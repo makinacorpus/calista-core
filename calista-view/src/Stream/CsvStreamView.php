@@ -34,7 +34,7 @@ class CsvStreamView extends AbstractView
      *
      * @param DatasourceResultInterface $items
      * @param ViewDefinition $viewDefinition
-     * @param PropertyView[] $properties
+     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
      *
      * @return string[]
      */
@@ -42,6 +42,7 @@ class CsvStreamView extends AbstractView
     {
         $ret = [];
 
+        /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         foreach ($properties as $property) {
             $ret[] = $property->getLabel();
         }
@@ -54,7 +55,7 @@ class CsvStreamView extends AbstractView
      *
      * @param DatasourceResultInterface $items
      * @param ViewDefinition $viewDefinition
-     * @param \MakinaCorpus\Calista\View\PropertyView $properties
+     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
      * @param mixed $current
      *
      * @return string[]
@@ -63,6 +64,7 @@ class CsvStreamView extends AbstractView
     {
         $ret = [];
 
+        /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         foreach ($properties as $property) {
             $ret[] = $this->propertyRenderer->renderItemProperty($current, $property);
         }
