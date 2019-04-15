@@ -65,6 +65,40 @@ class Query
     }
 
     /**
+     * Decode values from a single query parameter
+     */
+    public static function valuesDecode($values)
+    {
+        if (!\is_array($values)) {
+            if (\is_iterable($values)) {
+                $values = \iterator_to_array($values);
+            } else if (\is_string($values)) {
+                $values = \explode(self::URL_VALUE_SEP, $values);
+            } else {
+                $values = [$values];
+            }
+        }
+        return \array_map('trim', $values);
+    }
+
+    /**
+     * Encode values to be used as a single query paramter
+     */
+    public static function valuesEncode($values)
+    {
+        if (\is_array($values)) {
+            \sort($values);
+            return \implode(self::URL_VALUE_SEP, $values);
+        }
+        if (\is_iterable($values)) {
+            $values = \iterator_to_array($values);
+            \sort($values);
+            return \implode(self::URL_VALUE_SEP, $values);
+        }
+        return (string)$values;
+    }
+
+    /**
      * Find range from query
      */
     private function findRange()

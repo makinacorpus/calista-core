@@ -210,22 +210,7 @@ class Filter implements \Countable
      */
     private function getSelectedValues(array $query): array
     {
-        $values = [];
-
-        if (isset($query[$this->queryParameter])) {
-
-            $values = $query[$this->queryParameter];
-
-            if (!\is_array($values)) {
-                if (false !== \strpos($values, Query::URL_VALUE_SEP)) {
-                    $values = \explode(Query::URL_VALUE_SEP, $values);
-                } else {
-                    $values = [$values];
-                }
-            }
-        }
-
-        return \array_map('trim', $values);
+        return Query::valuesDecode($query[$this->queryParameter] ?? []);
     }
 
     /**
@@ -243,18 +228,10 @@ class Filter implements \Countable
      */
     private function getParametersForLink(array $query, string $value, bool $remove = false): array
     {
-        if (isset($query[$this->queryParameter])) {
-            if (\is_array($query[$this->queryParameter])) {
-                $actual = $query[$this->queryParameter];
-            } else {
-                $actual = \explode(Query::URL_VALUE_SEP, $query[$this->queryParameter]);
-            }
-        } else {
-            $actual = [];
-        }
+        $actual = $this->getSelectedValues($query);
 
         if ($remove) {
-            if (false !== ($pos = \array_search($value, $actual))) {
+            while (false !== ($pos = \array_search($value, $actual))) {
                 unset($actual[$pos]);
             }
         } else {
@@ -267,8 +244,7 @@ class Filter implements \Countable
             unset($query[$this->queryParameter]);
             return $query;
         } else {
-            \sort($actual);
-            return [$this->queryParameter => \implode(Query::URL_VALUE_SEP, $actual)] + $query;
+            return [$this->queryParameter => Query::valuesEncode($actual)] + $query;
         }
     }
 
