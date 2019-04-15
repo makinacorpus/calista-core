@@ -12,6 +12,7 @@ class Filter implements \Countable
     private $arbitraryInput = false;
     private $boolean = false;
     private $choicesMap = [];
+    private $description;
     private $isSafe = false;
     private $mandatory = false;
     private $multiple = true;
@@ -27,8 +28,9 @@ class Filter implements \Countable
      * @param string $title
      *   Filter title
      */
-    public function __construct(string $queryParameter, string $title = null)
+    public function __construct(string $queryParameter, string $title = null, string $description = null)
     {
+        $this->description = $description;
         $this->queryParameter = $queryParameter;
         $this->title = $title;
     }
@@ -168,9 +170,15 @@ class Filter implements \Countable
     }
 
     /**
+     * Get description
+     */
+    public function getDescription() /* : ?string */
+    {
+        return $this->description;
+    }
+
+    /**
      * Remove selected choices
-     *
-     * @param array $choices
      */
     public function removeChoices(array $choices): void
     {
