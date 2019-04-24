@@ -208,7 +208,7 @@ class Filter implements \Countable
      *
      * @return string[]
      */
-    private function getSelectedValues(array $query): array
+    public function getSelectedValues(array $query): array
     {
         return Query::valuesDecode($query[$this->queryParameter] ?? []);
     }
