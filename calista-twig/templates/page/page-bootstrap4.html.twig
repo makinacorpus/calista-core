@@ -52,14 +52,14 @@
   {% else %}
      <div class="form-group">
       <label for="disabledTextInput">{{ filter.title|e }}</label>
+      {% set selectedValues = filter.getSelectedValues(query.all) %}
       <select name="{{ filter.field|e }}">
         {% if not filter.isMandatory %}
           {% set noneOption = filter.noneOption %}
           <option value="">{% if noneOption %}{{ noneOption|e }}{% else %}{{ "All"|trans }}{% endif %}</option>
         {% endif %}
-        {% for link in filter.links(query) %}
-          {% set value = link.routeParameters[filter.field] %}
-          <option{% if link.isActive %} selected="selected"{% endif %} value="{{ value|e }}">{{ link.title|e }}</option>
+        {% for key, title in filter.choicesMap %}
+          <option{% if key in selectedValues %} selected="selected"{% endif %} value="{{ key|e }}">{{ title|e }}</option>
         {% endfor %}
       </select>
     </div>
