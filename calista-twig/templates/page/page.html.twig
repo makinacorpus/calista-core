@@ -60,6 +60,14 @@
   </div>
 {%- endblock -%}
 
+{%- block filter_date -%}
+  <div class="form-group">
+    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
+    {% set value = query.get(filter.field) %}
+    <input type="date" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}"/>
+  </div>
+{%- endblock -%}
+
 {%- block filter_input -%}
   <div class="form-group">
     <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
@@ -345,6 +353,8 @@
         {{ block('filter_boolean') }}
       {% elseif filter.isArbitraryInput %}
         {{ block('filter_input') }}
+      {% elseif filter.isDate %}
+        {{ block('filter_date') }}
       {% else %}
         {{ block('filter') }}
       {% endif %}

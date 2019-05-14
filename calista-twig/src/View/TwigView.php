@@ -88,7 +88,7 @@ class TwigView extends AbstractView
             /** @var \MakinaCorpus\Calista\Query\Filter $filter */
             foreach ($inputDefinition->getFilters() as $filter) {
                 // Only considers filters with choices.
-                if (!$filter->hasChoices() && !$filter->isArbitraryInput() && !$filter->isBoolean()) {
+                if (!$filter->hasChoices() && !$filter->isArbitraryInput() && !$filter->isBoolean() && !$filter->isDate()) {
                     continue;
                 }
                 $field = $filter->getField();

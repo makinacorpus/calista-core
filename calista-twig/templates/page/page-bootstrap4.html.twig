@@ -186,6 +186,8 @@
             {{ block('filter_boolean') }}
           {% elseif filter.isArbitraryInput %}
             {{ block('filter_input') }}
+          {% elseif filter.isDate %}
+            {{ block('filter_date') }}
           {% else %}
             {{ block('filter') }}
           {% endif %}

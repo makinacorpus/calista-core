@@ -11,9 +11,12 @@ class Filter implements \Countable
 {
     private $arbitraryInput = false;
     private $asLinks = false;
+    private $attributes = [];
     private $boolean = false;
     private $choicesMap = [];
+    private $dateFormat = 'd/m/Y';
     private $description;
+    private $isDate = false;
     private $isSafe = false;
     private $mandatory = false;
     private $multiple = true;
@@ -52,6 +55,42 @@ class Filter implements \Countable
     public function isBoolean(): bool
     {
         return $this->boolean && !$this->arbitraryInput && !$this->choicesMap;
+    }
+
+    /**
+     * Set the "date" mode
+     */
+    public function setIsDate(bool $toggle): self
+    {
+        $this->isDate = $toggle;
+
+        return $this;
+    }
+
+    /**
+     * This filter represents a date
+     */
+    public function isDate(): bool
+    {
+        return $this->isDate;
+    }
+
+    /**
+     * Set arbitrary attributes over the widget
+     */
+    public function setAttributes(array $attributes): self
+    {
+        $this->attributes = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * Get arbitrary attributes
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 
     /**
