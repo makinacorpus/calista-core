@@ -82,11 +82,7 @@ class PageExtension extends \Twig_Extension
      */
     public function flattenQueryParam($value)
     {
-        if (\is_array($value)) {
-            return \implode(Query::URL_VALUE_SEP, $value);
-        }
-
-        return $value;
+        return Query::valuesEncode($value);
     }
 
     /**

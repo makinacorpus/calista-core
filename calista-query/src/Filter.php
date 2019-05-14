@@ -10,6 +10,7 @@ namespace MakinaCorpus\Calista\Query;
 class Filter implements \Countable
 {
     private $arbitraryInput = false;
+    private $asLinks = false;
     private $boolean = false;
     private $choicesMap = [];
     private $description;
@@ -125,6 +126,24 @@ class Filter implements \Countable
     public function setArbitraryInput(bool $toggle = true): self
     {
         $this->arbitraryInput = $toggle;
+
+        return $this;
+    }
+
+    /**
+     * If this returns false, use form checkboxes or assimilate, else just write links.
+     */
+    public function isAsLinks(): bool
+    {
+        return $this->asLinks;
+    }
+
+    /**
+     * As facet like links instead of form checkbox
+     */
+    public function setAsLinks(bool $toggle = true): self
+    {
+        $this->asLinks = $toggle;
 
         return $this;
     }
@@ -275,6 +294,26 @@ class Filter implements \Countable
             }
 
             $ret[] = new Link($label, $route, $linkQuery, null, $isActive);
+        }
+
+        return $ret;
+    }
+
+    /**
+     * For the view build process, return the complete allowed choices map
+     * accompanied with the selected state.
+     *
+     * @return FilterValue[]
+     */
+    public function getChoicesState(Query $query): array
+    {
+        $ret = [];
+
+        $query = $query->all();
+        $selectedValues = $this->getSelectedValues($query);
+
+        foreach ($this->choicesMap as $value => $label) {
+            $ret[] = new FilterValue($value, $label, \in_array($value, $selectedValues));
         }
 
         return $ret;

@@ -36,17 +36,32 @@
 
 {%- block filter -%}
   {% if filter.isMultiple %}
-    {% set id = 'filter-' ~ filter.field %}
+    {% set name = filter.field %}
+    {% set id = 'filter-' ~ name %}
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button" id="{{ id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         {{ filter.title|e }}
       </button>
       <div class="dropdown-menu" aria-labelledby="{{ id }}">
-        {% for link in filter.links(query) %}
-          {% with {class: 'dropdown-item'} %}{{ block('filter_link') }}{% endwith %}
+        {% if filter.asLinks %}
+          {% for link in filter.links(query) %}
+            {% with {class: 'dropdown-item'} %}{{ block('filter_link') }}{% endwith %}
+          {% else %}
+            <a href="#" class="disabled dropdown-item" disabled="disabled">{{ "No values"|trans }}</a>
+          {% endfor %}
+          {# Avoid filter from being erased when user submits form #}
+          <input type="hidden" name="{{ name }}" value="{{ "test" }}"/>
         {% else %}
-          <a href="#" class="disabled" disabled="disabled">{{ "No values"|trans }}</a>
-        {% endfor %}
+          {% for value in filter.getChoicesState(query) %}
+            <div class="form-group form-check dropdown-item">
+              {% set input_id = id ~ '-' ~ name %}
+              <input type="checkbox" class="form-check-input" {% if value.selected %} checked="checked"{% endif %} id="{{ input_id }}" name="{{ name }}[]" value="{{ value.value }}"/>
+              <label class="form-check-label" for="{{ input_id }}">{{ value.label }}</label>
+            </div>
+          {% else %}
+            <a href="#" class="disabled dropdown-item" disabled="disabled">{{ "No values"|trans }}</a>
+          {% endfor %}
+        {% endif %}
       </div>
     </div>
   {% else %}
@@ -163,7 +178,7 @@
 {% endblock %}
 
 {% block filters %}
-  <form method="get" action="{{ path(query.route, query.routeParameters) }}">
+  <form method="get" action="{{ path(query.route, query.routeProtectedParameters) }}">
     <div class="form-row align-items-center">
       {% for filter in filters %}
         <div class="col-auto">

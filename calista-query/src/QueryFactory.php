@@ -141,13 +141,13 @@ class QueryFactory
     private function flattenQuery(array $query, array $needsImplode = [], bool $isRouteParameters = false): array
     {
         foreach ($query as $key => $values) {
-            if (is_array($values)) {
-                if (1 === count($values)) {
-                    $query[$key] = reset($values);
-                } else if (in_array($key, $needsImplode)) {
-                    $query[$key] = implode(' ', $values);
+            if (\is_array($values)) {
+                if (1 === \count($values)) {
+                    $query[$key] = \reset($values);
+                } else if (\in_array($key, $needsImplode)) {
+                    $query[$key] = \implode(' ', $values);
                 } else if ($isRouteParameters) {
-                    $query[$key] = implode(Query::URL_VALUE_SEP, $values);
+                    $query[$key] = Query::valuesEncode($values);
                 }
             }
         }
