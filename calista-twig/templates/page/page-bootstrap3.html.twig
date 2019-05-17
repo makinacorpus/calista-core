@@ -186,34 +186,28 @@
 {% endblock %}
 
 {% block filters %}
-  <form method="get" action="{{ path(query.route, query.routeProtectedParameters) }}">
-    <div class="form-row align-items-center">
-      {% for filter in filters %}
-        <div class="col-auto">
-          {% if filter.isBoolean %}
-            {{ block('filter_boolean') }}
-          {% elseif filter.isArbitraryInput %}
-            {{ block('filter_input') }}
-          {% elseif filter.isDate %}
-            {{ block('filter_date') }}
-          {% else %}
-            {{ block('filter') }}
-          {% endif %}
-        </div>
-      {% endfor %}
-      <div class="col-auto">
-        <div class="form-group">
-          <div class="input-group-btn">
-            <button type="submit" class="btn btn-primary">
-              <span class="glyphicon glyphicon-search"></span>
-              {{ "Filter"|trans }}
-            </button>
-            <a href="{{ path(query.route, query.routeProtectedParameters) }}" class="btn btn-default">
-              <span class="glyphicon glyphicon-remove"></span>
-              {{ "Reset"|trans }}
-            </a>
-          </div>
-        </div>
+  <form method="get" class="form-inline" action="{{ path(query.route, query.routeProtectedParameters) }}">
+    {% for filter in filters %}
+      {% if filter.isBoolean %}
+        {{ block('filter_boolean') }}
+      {% elseif filter.isArbitraryInput %}
+        {{ block('filter_input') }}
+      {% elseif filter.isDate %}
+        {{ block('filter_date') }}
+      {% else %}
+        {{ block('filter') }}
+      {% endif %}
+    {% endfor %}
+    <div class="form-group">
+      <div class="input-group-btn">
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-search"></span>
+          {{ "Filter"|trans }}
+        </button>
+        <a href="{{ path(query.route, query.routeProtectedParameters) }}" class="btn btn-default">
+          <span class="glyphicon glyphicon-remove"></span>
+          {{ "Reset"|trans }}
+        </a>
       </div>
     </div>
   </form>
