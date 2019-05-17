@@ -114,7 +114,7 @@ class Filter implements \Countable
     /**
      * Set the "None/All/N/A" option
      */
-    public function setNoneOption(?string $value): self
+    public function setNoneOption(/* ?string */ $value): self
     {
         $this->noneOption = $value;
 
@@ -124,7 +124,7 @@ class Filter implements \Countable
     /**
      * Get the none option
      */
-    public function getNoneOption(): ?string
+    public function getNoneOption() /* : ?string */
     {
         return $this->noneOption;
     }
@@ -238,7 +238,7 @@ class Filter implements \Countable
     /**
      * Remove selected choices
      */
-    public function removeChoices(array $choices): void
+    public function removeChoices(array $choices) /* : void */
     {
         $this->choicesMap = \array_diff_key($this->choicesMap, \array_flip($choices));
     }
@@ -246,7 +246,7 @@ class Filter implements \Countable
     /**
      * Remove selected choices
      */
-    public function removeChoicesNotIn(array $choices): void
+    public function removeChoicesNotIn(array $choices) /* : void */
     {
         $this->choicesMap = \array_intersect_key($this->choicesMap, \array_flip($choices));
     }
