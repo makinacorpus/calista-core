@@ -73,7 +73,7 @@
       </div>
     </div>
   {% else %}
-     <div class="form-group">
+     <div class="form-group form-inline">
       <label for="disabledTextInput">{{ filter.title|e }}</label>
       {% set selectedValues = filter.getSelectedValues(query.all) %}
       <select name="{{ filter.field|e }}">
