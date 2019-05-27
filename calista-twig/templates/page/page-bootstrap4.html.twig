@@ -62,7 +62,7 @@
         {% else %}
           {% for value in filter.getChoicesState(query) %}
             <div class="form-group form-check dropdown-item">
-              {% set input_id = id ~ '-' ~ name %}
+              {% set input_id = id ~ '-' ~ name ~ '--' ~ value.value %}
               <input type="checkbox" class="form-check-input" {% if value.selected %} checked="checked"{% endif %} id="{{ input_id }}" name="{{ name }}[]" value="{{ value.value }}"/>
               <label class="form-check-label" for="{{ input_id }}">{{ value.label }}</label>
             </div>
