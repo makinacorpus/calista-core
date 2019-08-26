@@ -90,16 +90,25 @@ class CsvStreamView extends AbstractView
         $delimiter = $viewDefinition->getExtraOptionValue('csv_delimiter', ',');
         $enclosure = $viewDefinition->getExtraOptionValue('csv_enclosure', '"');
         $escape = $viewDefinition->getExtraOptionValue('csv_escape_char', '\\');
+        $encoding = $viewDefinition->getExtraOptionValue('encoding', 'utf-8');
 
         $properties = $this->normalizeProperties($viewDefinition, $items);
 
         // Render the CSV header
         if ($viewDefinition->getExtraOptionValue('add_header', false)) {
-            fputcsv($resource, $this->createHeaderRow($items, $viewDefinition, $properties), $delimiter, $enclosure, $escape);
+            $row = $this->createHeaderRow($items, $viewDefinition, $properties);
+            if ($encoding !== 'utf-8') {
+                $row = mb_convert_encoding( $row, $encoding);
+            }
+            fputcsv($resource, $row, $delimiter, $enclosure, $escape);
         }
 
         foreach ($items as $item) {
-            fputcsv($resource, $this->createItemRow($items, $viewDefinition, $properties, $item), $delimiter, $enclosure, $escape);
+            $row = $this->createItemRow($items, $viewDefinition, $properties, $item);
+            if ($encoding !== 'utf-8') {
+                $row = mb_convert_encoding($row, $encoding);
+            }
+            fputcsv($resource, $row, $delimiter, $enclosure, $escape);
         }
     }
 
@@ -123,7 +132,7 @@ class CsvStreamView extends AbstractView
     public function renderAsResponse(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): Response
     {
         $response = new StreamedResponse();
-        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Type', sprintf('text/csv; charset=%s', $viewDefinition->getExtraOptionValue('encoding', 'utf-8')));
 
         $filename = $viewDefinition->getExtraOptionValue('filename');
         if ($filename) {
