@@ -31,27 +31,22 @@
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "config": {
-        "platform": {
-            "php": "7.0.20"
-        }
-    },
     "require": {
         "php": ">=7",
-        "symfony/event-dispatcher": "^3.4|^4",
-        "symfony/http-foundation": "^3.4|^4",
-        "symfony/options-resolver": "^3.4|^4",
-        "symfony/property-access": "^3.4|^4",
-        "symfony/property-info": "^3.4|^4"
+        "symfony/event-dispatcher": "^3.4 || ^4 || ^5",
+        "symfony/http-foundation": "^3.4 || ^4 || ^5",
+        "symfony/options-resolver": "^3.4 || ^4 || ^5",
+        "symfony/property-access": "^3.4 || ^4 || ^5",
+        "symfony/property-info": "^3.4 || ^4 || ^5"
     },
     "require-dev": {
         "box/spout": "^2.7",
         "phpunit/phpunit": "^6",
-        "symfony/config": "^3.4|^4",
-        "symfony/console": "^3.4|^4",
-        "symfony/dependency-injection": "^3.4|^4",
-        "symfony/framework-bundle": "^3.4|^4",
-        "symfony/http-kernel": "^3.4|^4",
+        "symfony/config": "^3.4 || ^4 || ^5",
+        "symfony/console": "^3.4 || ^4 || ^5",
+        "symfony/dependency-injection": "^3.4 || ^4 || ^5",
+        "symfony/framework-bundle": "^3.4 || ^4 || ^5",
+        "symfony/http-kernel": "^3.4 || ^4 || ^5",
         "twig/twig": "^2.5"
     },
     "replace": {
