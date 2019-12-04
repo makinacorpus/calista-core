@@ -140,39 +140,35 @@
  #
  #}
 {% block sort_link %}
-  {% spaceless %}
-    {% set isActive = (field == query.sortField) %}
-    {% if class is not defined %}
-      {% set class = '' %}
-    {% endif %}
-    {% if isActive %}
-      {% if 'desc' == query.sortOrder %}
-        {% set linkOrder = 'asc' %}
-      {% else %}
-        {% set linkOrder = 'desc' %}
-      {% endif %}
+  {% set isActive = (field == query.sortField) %}
+  {% if class is not defined %}
+    {% set class = '' %}
+  {% endif %}
+  {% if isActive %}
+    {% if 'desc' == query.sortOrder %}
+      {% set linkOrder = 'asc' %}
     {% else %}
-      {% set linkOrder = query.sortOrder %}
+      {% set linkOrder = 'desc' %}
     {% endif %}
-    {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
-    <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" class="{{ class }} sort-{{ linkOrder }}{% if isActive %} active{% endif %}" data-page-link>
-      {{ label|e }}
-    </a>
-  {% endspaceless %}
+  {% else %}
+    {% set linkOrder = query.sortOrder %}
+  {% endif %}
+  {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
+  <a href="{{ path(query.route, query.routeParameters|merge(mergeParams)) }}" class="{{ class }} sort-{{ linkOrder }}{% if isActive %} active{% endif %}" data-page-link>
+    {{ label|e }}
+  </a>
 {% endblock %}
 
 {% block sort_links_field %}
   {% set allowedSorts = input.allowedSorts %}
   <span class="text-muted">{{ "Sort by:"|trans }}</span>
   <a href="#" class="dropdown-toggle" title="{{ "Sort by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
-    {% spaceless %}
-      {% if query.hasSortField %}
-        {{ allowedSorts[(query.sortField)] }}
-      {% else %}
-        {{ "Select"|trans }}
-      {% endif %}
-      &nbsp;<span class="caret"></span>
-    {% endspaceless %}
+    {% if query.hasSortField %}
+      {{ allowedSorts[(query.sortField)] }}
+    {% else %}
+      {{ "Select"|trans }}
+    {% endif %}
+    &nbsp;<span class="caret"></span>
   </a>
   <ul class="dropdown-menu dropdown-menu-right">
     {% for field, label in allowedSorts %}

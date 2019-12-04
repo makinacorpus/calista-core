@@ -33,7 +33,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7",
-        "symfony/event-dispatcher": "^3.4|^4.2.0|^5.0",
+        "symfony/event-dispatcher": "^4.3.3|^5.0",
         "symfony/http-foundation": "^3.4|^4.2.0|^5.0",
         "symfony/options-resolver": "^3.4|^4.2.0|^5.0",
         "symfony/property-access": "^3.4|^4.2.0|^5.0",

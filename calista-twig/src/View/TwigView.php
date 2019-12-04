@@ -11,6 +11,7 @@ use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Event\ViewEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Environment;
 
 /**
  * Uses a view definition and proceed to an html page display via Twig
@@ -24,7 +25,7 @@ class TwigView extends AbstractView
     /**
      * Default constructor
      */
-    public function __construct(\Twig_Environment $twig, EventDispatcherInterface $dispatcher)
+    public function __construct(Environment $twig, EventDispatcherInterface $dispatcher)
     {
         $this->twig = $twig;
         $this->debug = $twig->isDebug();
@@ -155,7 +156,7 @@ class TwigView extends AbstractView
     public function createRenderer(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, array $arguments = []): TwigRenderer
     {
         $event = new ViewEvent($this);
-        $this->dispatcher->dispatch(ViewEvent::EVENT_VIEW, $event);
+        $this->dispatcher->dispatch($event, ViewEvent::EVENT_VIEW);
 
         $arguments = $this->createTemplateArguments($viewDefinition, $items, $query, $arguments);
 

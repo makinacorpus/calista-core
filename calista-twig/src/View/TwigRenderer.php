@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Twig\View;
 
+use Twig\Environment;
+
 /**
  * Context variable for twig templates and main renderer for pages
  */
@@ -16,7 +18,7 @@ class TwigRenderer
     /**
      * Default constructor
      */
-    public function __construct(\Twig_Environment $twig, string $template, array $arguments = [])
+    public function __construct(Environment $twig, string $template, array $arguments = [])
     {
         $this->twig = $twig;
         $this->template = $template;

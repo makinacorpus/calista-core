@@ -15,16 +15,20 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Environment;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
+use Twig\Loader\ArrayLoader;
 
 class TwigViewTest extends TestCase
 {
     /**
      * Create a twig environment with the bare minimum we need
      */
-    static public function createTwigEnv(): \Twig_Environment
+    static public function createTwigEnv(): Environment
     {
-        $twigEnv = new \Twig_Environment(
-            new \Twig_Loader_Array([
+        $twigEnv = new Environment(
+            new ArrayLoader([
                 '@calista/page/page-navbar.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page-navbar.html.twig'),
                 '@calista/page/page.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page.html.twig'),
             ]),
@@ -38,16 +42,16 @@ class TwigViewTest extends TestCase
             ]
         );
 
-        $twigEnv->addFunction(new \Twig_SimpleFunction('path', function ($route, $routeParameters = []) {
+        $twigEnv->addFunction(new TwigFunction('path', function ($route, $routeParameters = []) {
             return $route . '&' . \http_build_query($routeParameters);
         }), ['is_safe' => ['html']]);
-        $twigEnv->addFilter(new \Twig_SimpleFilter('trans', function ($string, $params = []) {
+        $twigEnv->addFilter(new TwigFilter('trans', function ($string, $params = []) {
             return \strtr($string, $params);
         }));
-        $twigEnv->addFilter(new \Twig_SimpleFilter('t', function ($string, $params = []) {
+        $twigEnv->addFilter(new TwigFilter('t', function ($string, $params = []) {
             return \strtr($string, $params);
         }));
-        $twigEnv->addFilter(new \Twig_SimpleFilter('time_diff', function ($value) {
+        $twigEnv->addFilter(new TwigFilter('time_diff', function ($value) {
             return (string)$value;
         }));
 

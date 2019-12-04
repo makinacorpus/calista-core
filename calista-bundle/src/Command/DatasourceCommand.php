@@ -6,7 +6,7 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\Command;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory;
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Introspect datasources
  */
-final class DatasourceCommand extends ContainerAwareCommand
+final class DatasourceCommand extends Command
 {
     protected static $defaultName = 'calista:datasource';
     private $viewFactory;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\Command;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Introspect views
  */
-final class ViewCommand extends ContainerAwareCommand
+final class ViewCommand extends Command
 {
     protected static $defaultName = 'calista:view';
     private $viewFactory;

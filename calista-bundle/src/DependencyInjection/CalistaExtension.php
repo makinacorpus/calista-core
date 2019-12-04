@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Twig\Environment;
 
 /**
  * @codeCoverageIgnore
@@ -56,10 +57,10 @@ final class CalistaExtension extends Extension
         $loader->load('services.yml');
         $loader->load('view.yml');
 
-        if (\class_exists(\Twig_Environment::class)) {
+        if (\class_exists(Environment::class)) {
             $loader->load('twig.yml');
         }
-        if (\class_exists(ContainerAwareCommand::class)) {
+        if (\class_exists(Application::class)) {
             $loader->load('commands.yml');
         }
         if (\class_exists('Box\\Spout\\Writer\\WriterFactory')) {

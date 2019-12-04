@@ -97,13 +97,11 @@
   {% set allowedSorts = input.allowedSorts %}
   <div class="dropdown">
     <button class="btn btn-default dropdown-toggle" title="{{ "Sort by:"|trans }}" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
-      {% spaceless %}
-        {% if query.hasSortField %}
-          {{ allowedSorts[(query.sortField)] }}
-        {% else %}
-          {{ "Select"|trans }}
-        {% endif %}
-      {% endspaceless %}
+      {% if query.hasSortField %}
+        {{ allowedSorts[(query.sortField)] }}
+      {% else %}
+        {{ "Select"|trans }}
+      {% endif %}
     </button>
     <div class="dropdown-menu">
       {% for field, label in allowedSorts %}

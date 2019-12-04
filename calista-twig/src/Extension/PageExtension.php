@@ -8,8 +8,11 @@ use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
-class PageExtension extends \Twig_Extension
+class PageExtension extends AbstractExtension
 {
     private $debug = false;
     private $pageRenderer;
@@ -41,17 +44,17 @@ class PageExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
+            new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
+            new TwigFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
         ];
     }
 
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('calista_filter_definition', [$this, 'getFilterDefinition'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFilter('calista_filter_query', [$this, 'getFilterQuery'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFilter('calista_query_param', [$this, 'flattenQueryParam']),
+            new TwigFilter('calista_filter_definition', [$this, 'getFilterDefinition'], ['is_safe' => ['html']]),
+            new TwigFilter('calista_filter_query', [$this, 'getFilterQuery'], ['is_safe' => ['html']]),
+            new TwigFilter('calista_query_param', [$this, 'flattenQueryParam']),
         ];
     }
 
