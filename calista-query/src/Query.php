@@ -42,7 +42,7 @@ class Query
      * @param string[] $routeParameters
      *   Route parameters (filters minus the default values)
      */
-    public function __construct(InputDefinition $inputDefinition, string $route, array $filters = [], array $routeParameters = [], array $routeProtectedParameters = [])
+    public function __construct(InputDefinition $inputDefinition, ?string $route = null, array $filters = [], array $routeParameters = [], array $routeProtectedParameters = [])
     {
         $this->inputDefinition = $inputDefinition;
         $this->filters = $filters;
@@ -62,6 +62,14 @@ class Query
                 unset($this->filters[$name]);
             }
         }
+    }
+
+    /**
+     * Create empty instance
+     */
+    public function empty(): self
+    {
+        return new self(new InputDefinition(), null);
     }
 
     /**
@@ -302,7 +310,7 @@ class Query
     /**
      * Get current route
      */
-    public function getRoute(): string
+    public function getRoute(): ?string
     {
         return $this->route;
     }

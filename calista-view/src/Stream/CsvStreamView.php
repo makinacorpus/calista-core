@@ -38,7 +38,7 @@ class CsvStreamView extends AbstractView
      *
      * @return string[]
      */
-    private function createHeaderRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties)
+    private function createHeaderRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties): array
     {
         $ret = [];
 
@@ -80,7 +80,7 @@ class CsvStreamView extends AbstractView
      * @param Query $query
      * @param resource $resource
      */
-    private function renderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource)
+    private function doRenderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
     {
         // Add the BOM for Excel to read correctly the file
         if ($viewDefinition->getExtraOptionValue('add_bom', false)) {
@@ -120,10 +120,22 @@ class CsvStreamView extends AbstractView
         ob_start();
 
         $resource = fopen('php://output', 'w+');
-        $this->renderInStream($viewDefinition, $items, $query, $resource);
+        $this->doRenderInStream($viewDefinition, $items, $query, $resource);
         fclose($resource);
 
         return ob_get_clean();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
+    {
+        if (!\is_resource($resource)) {
+            throw new \InvalidArgumentException("Given \$resource argument is not a resource");
+        }
+
+        $this->doRenderInStream($viewDefinition, $items, $query, $resource);
     }
 
     /**
@@ -141,7 +153,7 @@ class CsvStreamView extends AbstractView
 
         $response->setCallback(function () use ($viewDefinition, $items, $query) {
             $resource = fopen('php://output', 'w+');
-            $this->renderInStream($viewDefinition, $items, $query, $resource);
+            $this->doRenderInStream($viewDefinition, $items, $query, $resource);
             fclose($resource);
         });
 

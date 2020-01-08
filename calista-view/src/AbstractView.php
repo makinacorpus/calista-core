@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
+use MakinaCorpus\Calista\Query\Query;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
@@ -115,5 +116,41 @@ abstract class AbstractView implements ViewInterface
         }
 
         return $ret;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
+    {
+        \trigger_error(\sprintf("%s::%s uses default slow implementation, consider implementing it", static::class, __METHOD__), E_USER_NOTICE);
+
+        if (!\is_resource($resource)) {
+            throw new \InvalidArgumentException("Given \$resource argument is not a resource");
+        }
+
+        if (false === \fwrite($resource, $this->render($viewDefinition, $items, $query))) {
+            throw new \RuntimeException("Could not write in stream");
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renderInFile(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, string $filename): void
+    {
+        if (\file_exists($filename)) {
+            throw new \InvalidArgumentException(\sprintf("'%s' not overwrite existing file", $filename));
+        }
+        try {
+            if (!$resource = \fopen($filename, "wb+")) {
+                throw new \InvalidArgumentException(\sprintf("'%s' could not open file for writing", $filename));
+            }
+            $this->renderInStream($viewDefinition, $items, $query, $resource);
+        } finally {
+            if ($resource) {
+                @\fclose($resource);
+            }
+        }
     }
 }
