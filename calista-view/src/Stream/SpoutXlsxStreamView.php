@@ -74,14 +74,9 @@ class SpoutXlsxStreamView extends AbstractView
     }
 
     /**
-     * Render in stream
-     *
-     * @param ViewDefinition $viewDefinition
-     * @param DatasourceResultInterface $items
-     * @param Query $query
-     * @param resource $resource
+     * Render row in writer
      */
-    private function renderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, WriterInterface $writer)
+    private function renderInWriter(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, WriterInterface $writer)
     {
         $properties = $this->normalizeProperties($viewDefinition, $items);
 
@@ -105,7 +100,7 @@ class SpoutXlsxStreamView extends AbstractView
         $writer = WriterFactory::create(Type::XLSX);
         $writer->openToFile('php://output');
 
-        $this->renderInStream($viewDefinition, $items, $query, $writer);
+        $this->renderInWriter($viewDefinition, $items, $query, $writer);
 
         $writer->close();
 
@@ -130,7 +125,7 @@ class SpoutXlsxStreamView extends AbstractView
             $writer = WriterFactory::create(Type::XLSX);
             $writer->openToFile('php://output');
 
-            $this->renderInStream($viewDefinition, $items, $query, $writer);
+            $this->renderInWriter($viewDefinition, $items, $query, $writer);
 
             $writer->close();
         });
