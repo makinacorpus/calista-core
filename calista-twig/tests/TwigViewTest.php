@@ -29,7 +29,6 @@ class TwigViewTest extends TestCase
     {
         $twigEnv = new Environment(
             new ArrayLoader([
-                '@calista/page/page-navbar.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page-navbar.html.twig'),
                 '@calista/page/page.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page.html.twig'),
             ]),
             [
