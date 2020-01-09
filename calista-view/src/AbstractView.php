@@ -139,7 +139,7 @@ abstract class AbstractView implements ViewInterface
      */
     public function renderInFile(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, string $filename): void
     {
-        if (\file_exists($filename)) {
+        if (\file_exists($filename) && 0 !== \filesize($filename)) {
             throw new \InvalidArgumentException(\sprintf("'%s' not overwrite existing file", $filename));
         }
         try {

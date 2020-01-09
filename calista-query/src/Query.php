@@ -67,7 +67,7 @@ class Query
     /**
      * Create empty instance
      */
-    public function empty(): self
+    public static function empty(): self
     {
         return new self(new InputDefinition(), null);
     }
