@@ -17,30 +17,30 @@ class Query
     const SORT_DESC = 'desc';
     const URL_VALUE_SEP = '|';
 
-    private $currentDisplay = '';
-    private $filters = [];
-    private $inputDefinition;
-    private $limit = self::LIMIT_DEFAULT;
-    private $page = 1;
-    private $rawSearchString = '';
-    private $route = '';
+    private ?string $currentDisplay = null;
+    private array $filters = [];
+    private InputDefinition $inputDefinition;
+    private int $limit = self::LIMIT_DEFAULT;
+    private int $page = 1;
+    private ?string $rawSearchString = null;
+    private ?string $route = null;
     private $routeParameters = [];
     private $routeProtectedParameters = [];
-    private $searchString = '';
-    private $sortField = '';
+    private ?string $searchString = null;
+    private ?string $sortField = null;
     private $sortOrder = self::SORT_DESC;
 
     /**
-     * Default constructor
+     * Default constructor.
      *
      * @param InputDefinition $inputDefinition
-     *   Current configuration
+     *   Current configuration.
      * @param string $route
-     *   Current route
+     *   Current route.
      * @param string[] $filters
-     *   Current filters (including defaults)
+     *   Current filters (including defaults).
      * @param string[] $routeParameters
-     *   Route parameters (filters minus the default values)
+     *   Route parameters (filters minus the default values).
      */
     public function __construct(InputDefinition $inputDefinition, ?string $route = null, array $filters = [], array $routeParameters = [], array $routeProtectedParameters = [])
     {
@@ -73,9 +73,9 @@ class Query
     }
 
     /**
-     * Decode values from a single query parameter
+     * Decode values from a single query parameter.
      */
-    public static function valuesDecode($values)
+    public static function valuesDecode($values): array
     {
         if (!\is_array($values)) {
             if (\is_iterable($values)) {
@@ -90,9 +90,9 @@ class Query
     }
 
     /**
-     * Encode values to be used as a single query paramter
+     * Encode values to be used as a single query paramter.
      */
-    public static function valuesEncode($values)
+    public static function valuesEncode($values): string
     {
         if (\is_array($values)) {
             \sort($values);
@@ -107,9 +107,9 @@ class Query
     }
 
     /**
-     * Find range from query
+     * Find range from query.
      */
-    private function findRange()
+    private function findRange(): void
     {
         if (!$this->inputDefinition->isLimitAllowed()) {
             // Limit cannot be changed
@@ -142,9 +142,9 @@ class Query
     }
 
     /**
-     * Find sort from query
+     * Find sort from query.
      */
-    private function findSort()
+    private function findSort(): void
     {
         $this->sortField = $this->inputDefinition->getDefaultSortField();
         $this->sortOrder = $this->inputDefinition->getDefaultSortOrder();
@@ -164,9 +164,9 @@ class Query
     }
 
     /**
-     * Find search from query
+     * Find search from query.
      */
-    private function findSearch()
+    private function findSearch(): void
     {
         if ($this->inputDefinition->isSearchEnabled()) {
             $searchParameter = $this->inputDefinition->getSearchParameter();
@@ -180,9 +180,9 @@ class Query
     }
 
     /**
-     * Find current display from query
+     * Find current display from query.
      */
-    private function findCurrentDisplay()
+    private function findCurrentDisplay(): void
     {
         $displayParameter = $this->inputDefinition->getDisplayParameter();
         if ($displayParameter && isset($this->routeParameters[$displayParameter])) {
@@ -191,10 +191,7 @@ class Query
     }
 
     /**
-     * Get value from a filter, it might be an expanded array of values
-     *
-     * @param string $name
-     * @param string $default
+     * Get value from a filter, it might be an expanded array of values.
      *
      * @return string|string[]
      */
@@ -204,7 +201,7 @@ class Query
     }
 
     /**
-     * Does the filter is set
+     * Does the filter is set.
      */
     public function has(string $name): bool
     {
@@ -212,7 +209,7 @@ class Query
     }
 
     /**
-     * Get input definition
+     * Get input definition.
      */
     public function getInputDefinition(): InputDefinition
     {
@@ -220,15 +217,15 @@ class Query
     }
 
     /**
-     * Get current display switch
+     * Get current display switch.
      */
-    public function getCurrentDisplay(): string
+    public function getCurrentDisplay(): ?string
     {
         return $this->currentDisplay;
     }
 
     /**
-     * Is a sort field set
+     * Is a sort field set.
      */
     public function hasSortField(): bool
     {
@@ -236,15 +233,15 @@ class Query
     }
 
     /**
-     * Get sort field
+     * Get sort field.
      */
-    public function getSortField(): string
+    public function getSortField(): ?string
     {
         return $this->sortField;
     }
 
     /**
-     * Get sort order
+     * Get sort order.
      */
     public function getSortOrder(): string
     {
@@ -252,7 +249,7 @@ class Query
     }
 
     /**
-     * Is sort order ascending
+     * Is sort order ascending.
      */
     public function isSortAsc(): bool
     {
@@ -260,7 +257,7 @@ class Query
     }
 
     /**
-     * Get limit
+     * Get limit.
      */
     public function getLimit(): int
     {
@@ -268,7 +265,7 @@ class Query
     }
 
     /**
-     * Get offset
+     * Get offset.
      */
     public function getOffset(): int
     {
@@ -276,7 +273,7 @@ class Query
     }
 
     /**
-     * Get page number, starts with 1
+     * Get page number, starts with 1.
      */
     public function getPageNumber(): int
     {
@@ -284,23 +281,23 @@ class Query
     }
 
     /**
-     * Get raw search string, even if search parsing is enabled
+     * Get raw search string, even if search parsing is enabled.
      */
-    public function getRawSearchString(): string
+    public function getRawSearchString(): ?string
     {
         return $this->rawSearchString;
     }
 
     /**
-     * Get search string, after cleanup
+     * Get search string, after cleanup.
      */
-    public function getSearchString(): string
+    public function getSearchString(): ?string
     {
         return $this->searchString;
     }
 
     /**
-     * Get the complete filter array
+     * Get the complete filter array.
      */
     public function all(): array
     {
@@ -308,7 +305,7 @@ class Query
     }
 
     /**
-     * Get current route
+     * Get current route.
      */
     public function getRoute(): ?string
     {
@@ -316,7 +313,7 @@ class Query
     }
 
     /**
-     * Get the route parameters, including various non filter attributes
+     * Get the route parameters, including various non filter attributes.
      */
     public function getRouteParameters(): array
     {
@@ -324,7 +321,7 @@ class Query
     }
 
     /**
-     * Get the route parameters, including various non filter attributes
+     * Get the route parameters, including various non filter attributes.
      */
     public function getRouteProtectedParameters(): array
     {

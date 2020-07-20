@@ -8,6 +8,8 @@ final class TypeHelper
 {
     /**
      * Get internal type of value.
+     *
+     * @param mixed $value
      */
     public static function getValueType($value): string
     {

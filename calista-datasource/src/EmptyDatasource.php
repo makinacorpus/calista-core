@@ -10,17 +10,11 @@ use MakinaCorpus\Calista\Query\Query;
 /**
  * Empty datasource
  */
-class EmptyDatasource extends AbstractDatasource
+final class EmptyDatasource extends AbstractDatasource
 {
-    private $allowedFilters = [];
-    private $allowedSorts = [];
+    private array $allowedFilters = [];
+    private array $allowedSorts = [];
 
-    /**
-     * Default constructor
-     *
-     * @param string[] $allowedFilters
-     * @param string[] $allowedSorts
-     */
     public function __construct(array $allowedFilters = [], array $allowedSorts = [])
     {
         $this->allowedFilters = $allowedFilters;

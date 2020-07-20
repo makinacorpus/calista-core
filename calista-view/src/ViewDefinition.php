@@ -7,7 +7,7 @@ namespace MakinaCorpus\Calista\View;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * View definition sanitizer
+ * View definition sanitizer.
  *
  * Define the generic behavior of views. Not all implementations will react on
  * all options.
@@ -59,15 +59,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ViewDefinition
 {
-    private $allowedFilters = [];
-    private $allowedSorts = [];
-    private $options = [];
+    private array $allowedFilters = [];
+    private array $allowedSorts = [];
+    private array $options = [];
 
-    /**
-     * Build an instance from an array
-     *
-     * @param mixed[] $options
-     */
     public function __construct(array $options = [])
     {
         $resolver = new OptionsResolver();
@@ -88,12 +83,7 @@ class ViewDefinition
         }
     }
 
-    /**
-     * InputDefinition option resolver
-     *
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'default_display'   => null,
@@ -123,48 +113,48 @@ class ViewDefinition
     }
 
     /**
-     * Get extra options
+     * Get extra options.
      *
      * Extra options are backend specific options, they should be validated by
-     * the view implementation itself
+     * the view implementation itself.
      *
      * @return array
      */
-    public function getExtraOptions()
+    public function getExtraOptions(): array
     {
-        return $this->options['extra'];
+        return $this->options['extra'] ?? [];
     }
 
     /**
-     * Get extra option value
+     * Get extra option value.
      *
      * @param string $name
      * @param mixed $default
      *
      * @return mixed
      */
-    public function getExtraOptionValue($name, $default = null)
+    public function getExtraOptionValue(string $name, $default = null)
     {
         return \array_key_exists($name, $this->options['extra']) ? $this->options['extra'][$name] : $default;
     }
 
     /**
-     * Get default display
+     * Get default display.
      *
      * @return null|string
      */
-    public function getDefaultDisplay()
+    public function getDefaultDisplay(): ?string
     {
-        return $this->options['default_display'];
+        return $this->options['default_display'] ?? null;
     }
 
     /**
-     * Get displayed properties
+     * Get displayed properties.
      *
      * @return null|string[]
      *   Null means display everything
      */
-    public function getDisplayedProperties()
+    public function getDisplayedProperties(): ?array
     {
         if (!\is_array($this->options['properties'])) {
             return null;
@@ -174,13 +164,9 @@ class ViewDefinition
     }
 
     /**
-     * Get property specific display options
-     *
-     * @param string $name
-     *
-     * @return array
+     * Get property specific display options.
      */
-    public function getPropertyDisplayOptions($name)
+    public function getPropertyDisplayOptions(string $name): array
     {
          if (isset($this->options['properties'][$name])) {
               if (\is_string($this->options['properties'][$name])) {
@@ -194,97 +180,79 @@ class ViewDefinition
     }
 
     /**
-     * Should this property be displayed
-     *
-     * @param string $name
-     *
-     * @return bool
+     * Should this property be displayed.
      */
-    public function isPropertyDisplayed($name)
+    public function isPropertyDisplayed(string $name): bool
     {
         return null === $this->options['properties'] || (isset($this->options['properties'][$name]) && false !== $this->options['properties'][$name]);
     }
 
     /**
-     * Get enabled filters
+     * Get enabled filters.
      *
      * @return null|string[]
-     *   Null means enable everything
+     *   Null means enable everything.
      */
-    public function getEnabledFilters()
+    public function getEnabledFilters(): array
     {
         return $this->isFiltersEnabled() ? $this->options['enabled_filters'] : [];
     }
 
     /**
-     * Are filters enabled
-     *
-     * @param string $name
-     *
-     * @return bool
+     * Are filters enabled.
      */
-    public function isFilterDisplayed($name)
+    public function isFilterDisplayed(string $name): bool
     {
         return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || \in_array($name, $this->options['enabled_filters']));
     }
 
     /**
-     * Is filters enabled
-     *
-     * @return bool
+     * Is filters enabled.
      */
-    public function isFiltersEnabled()
+    public function isFiltersEnabled(): bool
     {
-        return $this->options['show_filters'];
+        return $this->options['show_filters'] ?? false;
     }
 
     /**
-     * Is search bar enabled
-     *
-     * @return bool
+     * Is search bar enabled.
      */
-    public function isSearchEnabled()
+    public function isSearchEnabled(): bool
     {
-        return $this->options['show_search'];
+        return $this->options['show_search'] ?? false;
     }
 
     /**
-     * Is sort enabled
-     *
-     * @return bool
+     * Is sort enabled.
      */
-    public function isSortEnabled()
+    public function isSortEnabled(): bool
     {
-        return $this->options['show_sort'];
+        return $this->options['show_sort'] ?? false;
     }
 
     /**
-     * Is pager enabled
-     *
-     * @return bool
+     * Is pager enabled.
      */
-    public function isPagerEnabled()
+    public function isPagerEnabled(): bool
     {
-        return $this->options['show_pager'];
+        return $this->options['show_pager'] ?? false;
     }
 
     /**
-     * Get templates
+     * Get templates.
      *
      * @return string[]
-     *   Keys are display identifiers, values are template names
+     *   Keys are display identifiers, values are template names.
      */
-    public function getTemplates()
+    public function getTemplates(): array
     {
-        return $this->options['templates'];
+        return $this->options['templates'] ?? [];
     }
 
     /**
-     * Get view type
-     *
-     * @return string
+     * Get view type.
      */
-    public function getViewType()
+    public function getViewType(): string
     {
         return $this->options['view_type'];
     }

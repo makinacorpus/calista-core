@@ -9,29 +9,21 @@ namespace MakinaCorpus\Calista\Query;
  */
 class Filter implements \Countable
 {
-    private $arbitraryInput = false;
-    private $asLinks = false;
-    private $attributes = [];
-    private $boolean = false;
-    private $choicesMap = [];
-    private $dateFormat = 'd/m/Y';
-    private $description;
-    private $isDate = false;
-    private $isSafe = false;
-    private $mandatory = false;
-    private $multiple = true;
-    private $noneOption;
-    private $queryParameter;
-    private $title;
+    private bool $arbitraryInput = false;
+    private bool $asLinks = false;
+    private array $attributes = [];
+    private bool $boolean = false;
+    private array $choicesMap = [];
+    private string $dateFormat = 'd/m/Y';
+    private ?string $description = null;
+    private bool $isDate = false;
+    private bool $isSafe = false;
+    private bool $mandatory = false;
+    private bool $multiple = true;
+    private ?string $noneOption = null;
+    private ?string $queryParameter = null;
+    private ?string $title = null;
 
-    /**
-     * Default constructor
-     *
-     * @param string $queryParameter
-     *   Query parameter name
-     * @param string $title
-     *   Filter title
-     */
     public function __construct(string $queryParameter, string $title = null, string $description = null)
     {
         $this->description = $description;
@@ -40,7 +32,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Set the "boolean" toggle
+     * Set the "boolean" toggle.
      */
     public function setBoolean(bool $toggle = true): self
     {
@@ -50,7 +42,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Is boolean
+     * Is boolean.
      */
     public function isBoolean(): bool
     {
@@ -58,7 +50,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Set the "date" mode
+     * Set the "date" mode.
      */
     public function setIsDate(bool $toggle): self
     {
@@ -68,7 +60,7 @@ class Filter implements \Countable
     }
 
     /**
-     * This filter represents a date
+     * This filter represents a date.
      */
     public function isDate(): bool
     {
@@ -76,7 +68,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Set arbitrary attributes over the widget
+     * Set arbitrary attributes over the widget.
      */
     public function setAttributes(array $attributes): self
     {
@@ -86,7 +78,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Get arbitrary attributes
+     * Get arbitrary attributes.
      */
     public function getAttributes(): array
     {
@@ -94,7 +86,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Set or unset the "multiple" flag, default is true
+     * Set or unset the "multiple" flag, default is true.
      */
     public function setMultiple(bool $toggle = true): self
     {
@@ -104,7 +96,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Does this filter allows multiple input
+     * Does this filter allows multiple input.
      */
     public function isMultiple(): bool
     {
@@ -112,9 +104,9 @@ class Filter implements \Countable
     }
 
     /**
-     * Set the "None/All/N/A" option
+     * Set the "None/All/N/A" option.
      */
-    public function setNoneOption(/* ?string */ $value): self
+    public function setNoneOption(?string $value): self
     {
         $this->noneOption = $value;
 
@@ -122,15 +114,15 @@ class Filter implements \Countable
     }
 
     /**
-     * Get the none option
+     * Get the none option.
      */
-    public function getNoneOption() /* : ?string */
+    public function getNoneOption(): ?string
     {
         return $this->noneOption;
     }
 
     /**
-     * Set or unset the mandatory flag
+     * Set or unset the mandatory flag.
      */
     public function setMandatory(bool $toggle = true): self
     {
@@ -140,7 +132,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Is this filter mandatory
+     * Is this filter mandatory.
      */
     public function isMandatory(): bool
     {
@@ -148,7 +140,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Is arbitrary input field
+     * Is arbitrary input field.
      */
     public function isArbitraryInput(): bool
     {
@@ -156,11 +148,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Set or unset the arbitrary input flag
-     *
-     * @param bool $toggle
-     *
-     * @return self
+     * Set or unset the arbitrary input flag.
      */
     public function setArbitraryInput(bool $toggle = true): self
     {
@@ -178,7 +166,7 @@ class Filter implements \Countable
     }
 
     /**
-     * As facet like links instead of form checkbox
+     * As facet like links instead of form checkbox.
      */
     public function setAsLinks(bool $toggle = true): self
     {
@@ -188,14 +176,14 @@ class Filter implements \Countable
     }
 
     /**
-     * Set choices map
+     * Set choices map.
      *
      * Choice map is a key-value array in which keys are indexed values and
      * values are human readable names that will supplant the indexed values
      * for end-user display, this has no effect on the query.
      *
      * @param string[] $choicesMap
-     *   Keys are filter value, values are human readable labels
+     *   Keys are filter value, values are human readable labels.
      *
      * @return $this
      */
@@ -208,7 +196,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Has this filter choices
+     * Has this filter choices.
      */
     public function hasChoices(): bool
     {
@@ -216,7 +204,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Get title
+     * Get title.
      */
     public function getTitle(): string
     {
@@ -228,31 +216,31 @@ class Filter implements \Countable
     }
 
     /**
-     * Get description
+     * Get description.
      */
-    public function getDescription() /* : ?string */
+    public function getDescription(): string
     {
         return $this->description;
     }
 
     /**
-     * Remove selected choices
+     * Remove selected choices.
      */
-    public function removeChoices(array $choices) /* : void */
+    public function removeChoices(array $choices): void
     {
         $this->choicesMap = \array_diff_key($this->choicesMap, \array_flip($choices));
     }
 
     /**
-     * Remove selected choices
+     * Remove selected choices.
      */
-    public function removeChoicesNotIn(array $choices) /* : void */
+    public function removeChoicesNotIn(array $choices): void
     {
         $this->choicesMap = \array_intersect_key($this->choicesMap, \array_flip($choices));
     }
 
     /**
-     * Get field
+     * Get field.
      */
     public function getField(): string
     {
@@ -260,7 +248,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Get selected values from query
+     * Get selected values from query.
      *
      * @param string[] $query
      *
@@ -272,17 +260,17 @@ class Filter implements \Countable
     }
 
     /**
-     * Get query parameters for a singe link
+     * Get query parameters for a singe link.
      *
      * @param string[] $query
-     *   Contextual query that represents the current page state
+     *   Contextual query that represents the current page state.
      * @param string $value
-     *   Value for the given link
+     *   Value for the given link.
      * @param boolean $remove
-     *   Instead of adding the value, it must removed from the query
+     *   Instead of adding the value, it must removed from the query.
      *
      * @return string[]
-     *   New query with value added or removed
+     *   New query with value added or removed.
      */
     private function getParametersForLink(array $query, string $value, bool $remove = false): array
     {
@@ -307,7 +295,7 @@ class Filter implements \Countable
     }
 
     /**
-     * Get links
+     * Get links.
      *
      * @param Query $query
      *
@@ -376,4 +364,3 @@ class Filter implements \Countable
         return $this->choicesMap;
     }
 }
-

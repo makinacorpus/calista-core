@@ -18,9 +18,9 @@ use Twig\Environment;
  */
 class TwigView extends AbstractView
 {
-    private $debug = false;
-    private $dispatcher;
-    private $twig;
+    private bool $debug = false;
+    private EventDispatcherInterface $dispatcher;
+    private Environment $twig;
 
     /**
      * Default constructor
@@ -53,7 +53,7 @@ class TwigView extends AbstractView
     /**
      * Get template for given display name
      */
-    private function getTemplateFor(ViewDefinition $viewDefinition, $displayName = null): string
+    private function getTemplateFor(ViewDefinition $viewDefinition, ?string $displayName = null): string
     {
         $templates = $this->getTemplates($viewDefinition);
 

@@ -11,8 +11,9 @@ use MakinaCorpus\Calista\Query\Query;
  */
 trait DatasourceResultTrait /* implements DatasourceResultInterface */
 {
-    private $properties = [];
-    private $totalCount;
+    /** @var PropertyDescription[] */
+    private array $properties = [];
+    private ?int $totalCount = null;
 
     /**
      * {@inheritdoc}
@@ -33,7 +34,7 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
     /**
      * {@inheritdoc}
      */
-    public function setTotalItemCount(int $count)
+    public function setTotalItemCount(int $count): void
     {
         $this->totalCount = $count;
     }

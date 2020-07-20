@@ -25,12 +25,7 @@ class PropertyView
         $this->type = $type ?? $options['type'] ?? null;
     }
 
-    /**
-     * InputDefinition option resolver
-     *
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'bool_as_int'           => false,

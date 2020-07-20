@@ -7,13 +7,13 @@ namespace MakinaCorpus\Calista\Twig\View;
 use Twig\Environment;
 
 /**
- * Context variable for twig templates and main renderer for pages
+ * Context variable for twig templates and main renderer for pages.
  */
-class TwigRenderer
+final class TwigRenderer
 {
-    private $twig;
-    private $template;
-    private $arguments;
+    private Environment $twig;
+    private string $template;
+    private array $arguments;
 
     /**
      * Default constructor

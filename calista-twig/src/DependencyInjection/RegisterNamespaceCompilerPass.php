@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 class RegisterNamespaceCompilerPass implements CompilerPassInterface
 {
-    private $twigLoaderId;
+    private string $twigLoaderId;
 
     /**
      * Default constructor

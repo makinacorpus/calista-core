@@ -8,12 +8,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * Parses and cleanups the incomming query from a Symfony request
+ * Parses and cleanups the incomming query from a Symfony request.
  */
-class QueryFactory
+final class QueryFactory
 {
     /**
-     * Create query from array
+     * Create query from array.
      */
     public function fromArray(InputDefinition $inputDefinition, array $input, string $route = '', array $protected = []): Query
     {
@@ -63,7 +63,7 @@ class QueryFactory
     }
 
     /**
-     * Create a query from array
+     * Create a query from array.
      */
     public function fromArbitraryArray(array $input): Query
     {
@@ -156,13 +156,13 @@ class QueryFactory
     }
 
     /**
-     * Merge all queries altogether
+     * Merge all queries altogether.
      *
      * @param array[][] $queries
-     *   Array of queries to merge
+     *   Array of queries to merge.
      *
      * @return string[][]
-     *   Merged queries
+     *   Merged queries.
      */
     private function mergeQueries(array $queries): array
     {
@@ -225,7 +225,7 @@ class QueryFactory
 
     /**
      * From the given prepared but unfiltered query, drop all values that are
-     * not in base query boundaries
+     * not in base query boundaries.
      */
     private function applyBaseQuery(array $query, array $baseQuery, bool $isRouteParameters = false): array
     {

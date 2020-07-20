@@ -52,6 +52,10 @@ abstract class AbstractView implements ViewInterface
         }
 
         foreach ($properties as $name) {
+            // $name can be numeric, if you have a datasource returning rows
+            // as arrays, such as the CSV datasource.
+            $name = (string)$name;
+
             if (!$viewDefinition->isPropertyDisplayed($name)) {
                 continue;
             }
@@ -65,8 +69,6 @@ abstract class AbstractView implements ViewInterface
                 ] + $definitions[$name]->getDefaultDisplayOptions();
             }
 
-            // $name can be numeric, if you have a datasource returning rows
-            // as arrays, such as the CSV datasource.
             $ret[$name] = new PropertyView((string)$name, $options['type'] ?? null, $options);
         }
 

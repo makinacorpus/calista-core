@@ -12,38 +12,38 @@ use MakinaCorpus\Calista\Query\Query;
 interface DatasourceInterface
 {
     /**
-     * Get ready to display filters
+     * Get ready to display filters.
      *
      * @return \MakinaCorpus\Calista\Query\Filter[]
-     *   Keys do not matter
+     *   Keys do not matter.
      */
     public function getFilters(): array;
 
     /**
-     * Get sort fields
+     * Get sort fields.
      *
      * @return string
-     *   Keys are fields, values are human readable labels
+     *   Keys are fields, values are human readable labels.
      */
     public function getSorts(): array;
 
     /**
-     * Does this datasource streams data
+     * Does this datasource streams data.
      */
     public function supportsStreaming(): bool;
 
     /**
-     * Does this datasource supports pagination
+     * Does this datasource supports pagination.
      */
     public function supportsPagination(): bool;
 
     /**
-     * Does this datasource supports full text search
+     * Does this datasource supports full text search.
      */
     public function supportsFulltextSearch(): bool;
 
     /**
-     * Get items to display
+     * Get items to display.
      *
      * This should NOT return rendered items but loaded items or item
      * identifiers depending upon your implementation: only the Display

@@ -9,14 +9,14 @@ namespace MakinaCorpus\Calista\Query;
  */
 class Link
 {
-    private $icon;
+    private ?string $icon = null;
     private $isActive = false;
-    private $route;
-    private $routeParameters;
-    private $target;
-    private $title;
+    private ?string $route = null;
+    private array $routeParameters = [];
+    private ?string $target = null;
+    private ?string $title = null;
 
-    public function __construct(string $title, string $route, array $routeParameters = [], string $target = null, bool $isActive = false, string $icon = null)
+    public function __construct(?string $title, ?string $route, array $routeParameters = [], ?string $target = null, bool $isActive = false, ?string $icon = null)
     {
         $this->icon = $icon;
         $this->isActive = $isActive;
@@ -26,9 +26,9 @@ class Link
         $this->title = $title;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
-        return $this->title ?? '';
+        return $this->title;
     }
 
     public function hasTarget(): bool
@@ -36,14 +36,14 @@ class Link
         return !empty($this->target);
     }
 
-    public function getTarget(): string
+    public function getTarget(): ?string
     {
-        return $this->target ?? '';
+        return $this->target;
     }
 
-    public function getRoute(): string
+    public function getRoute(): ?string
     {
-        return $this->route ?? '';
+        return $this->route;
     }
 
     public function getRouteParameters(): array
@@ -56,8 +56,8 @@ class Link
         return $this->isActive;
     }
 
-    public function getIcon(): string
+    public function getIcon(): ?string
     {
-        return $this->icon ?? '';
+        return $this->icon;
     }
 }

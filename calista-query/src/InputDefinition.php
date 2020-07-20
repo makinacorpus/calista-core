@@ -15,9 +15,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class InputDefinition
 {
-    private $filterLabels = [];
-    private $filters = [];
-    private $options = [];
+    private array $filterLabels = [];
+    private array $filters = [];
+    private array $options = [];
 
     /**
      * Create instance from datasource.

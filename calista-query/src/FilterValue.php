@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Query;
 
 /**
- * Filter value
+ * Filter value.
  */
 final class FilterValue
 {
-    private $label;
-    private $selected = false;
-    private $value;
+    private ?string $label = null;
+    private bool $selected = false;
+    private ?string $value = null;
 
-    /**
-     * Default constructor
-     */
-    public function __construct($value, string $label = null, bool $selected = false)
+    public function __construct(?string $value, ?string $label = null, bool $selected = false)
     {
         $this->label = $label;
         $this->selected = $selected;
@@ -24,7 +21,7 @@ final class FilterValue
     }
 
     /**
-     * Is selected in current query
+     * Is selected in current query.
      */
     public function isSelected(): bool
     {
@@ -32,17 +29,17 @@ final class FilterValue
     }
 
     /**
-     * Get human readable label for display
+     * Get human readable label for display.
      */
-    public function getLabel()
+    public function getLabel(): ?string
     {
         return $this->label ?? $this->value;
     }
 
     /**
-     * Get value for query
+     * Get value for query.
      */
-    public function getValue()
+    public function getValue(): ?string
     {
         return $this->value;
     }

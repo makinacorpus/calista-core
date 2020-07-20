@@ -15,7 +15,7 @@ use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 class PropertyRenderer
 {
     /**
-     * Display when rendering is not possible
+     * Display when rendering is not possible.
      */
     const RENDER_NOT_POSSIBLE = '<em>N/A</em>';
 
@@ -23,42 +23,34 @@ class PropertyRenderer
     private PropertyAccessor $propertyAccess;
     private array $renderers = [];
 
-    /**
-     * Default constructor
-     *
-     * @param PropertyAccessor $propertyAccess
-     */
     public function __construct(PropertyAccessor $propertyAccess)
     {
         $this->propertyAccess = $propertyAccess;
     }
 
     /**
-     * Append a property renderer
+     * Append a property renderer.
      *
      * @param object $renderer
      */
-    public function addRenderer($renderer)
+    public function addRenderer($renderer): void
     {
         $this->renderers[] = $renderer;
     }
 
     /**
-     * Enable or disable debug mode
+     * Enable or disable debug mode.
      *
-     * Mostly useful for unit tests
-     *
-     * @param string $debug
      */
-    public function setDebug($debug = true)
+    public function setDebug($debug = true): void
     {
         $this->debug = (bool)$debug;
     }
 
     /**
-     * Render a date
+     * Render a date.
      */
-    public function renderDate($value, array $options = [])
+    public function renderDate($value, array $options = []): ?string
     {
         if (!$value) {
             return null;
@@ -86,25 +78,25 @@ class PropertyRenderer
     }
 
     /**
-     * Render an integer value
+     * Render an integer value.
      */
-    public function renderInt($value, array $options = [])
+    public function renderInt($value, array $options = []): ?string
     {
         return null === $value ? '' : \number_format($value, 0, '.', $options['thousand_separator']);
     }
 
     /**
-     * Render a float value
+     * Render a float value.
      */
-    public function renderFloat($value, array $options = [])
+    public function renderFloat($value, array $options = []): ?string
     {
         return \number_format($value, $options['decimal_precision'], $options['decimal_separator'], $options['thousand_separator']);
     }
 
     /**
-     * Render a boolean value
+     * Render a boolean value.
      */
-    public function renderBool($value, array $options = [])
+    public function renderBool($value, array $options = []): ?string
     {
         if ($options['bool_as_int']) {
             return $value ? "1" : "0";
@@ -127,9 +119,9 @@ class PropertyRenderer
     }
 
     /**
-     * Render a string value
+     * Render a string value.
      */
-    public function renderString($value, array $options = [])
+    public function renderString($value, array $options = []): ?string
     {
         $value = \strip_tags($value);
 
@@ -149,9 +141,9 @@ class PropertyRenderer
     }
 
     /**
-     * Render a single value
+     * Render a single value.
      */
-    private function renderValue($value, ?string $type = null, array $options = [])
+    private function renderValue($value, ?string $type = null, array $options = []): ?string
     {
         if (null === $value) {
             return '';
@@ -189,9 +181,9 @@ class PropertyRenderer
     }
 
     /**
-     * Render a collection of values
+     * Render a collection of values.
      */
-    private function renderValueCollection(iterable $values, ?string $type, array $options = [])
+    private function renderValueCollection(iterable $values, ?string $type, array $options = []): ?string
     {
         $ret = [];
         foreach ($values as $value) {

@@ -11,17 +11,10 @@ use MakinaCorpus\Calista\Query\Query;
  */
 class CsvStreamDatasource extends AbstractDatasource
 {
-    private $filename;
-    private $options;
+    private string $filename;
+    private array $options;
 
-    /**
-     * Default constructor
-     *
-     * @param string $filename
-     * @param string[] $options
-     *   Options for the CsvStreamReader constructor
-     */
-    public function __construct($filename, array $options = [])
+    public function __construct(string $filename, array $options = [])
     {
         $this->filename = $filename;
         $this->options = $options;
