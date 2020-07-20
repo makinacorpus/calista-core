@@ -20,7 +20,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Loader\ArrayLoader;
 
-class TwigViewTest extends TestCase
+final class TwigViewTest extends TestCase
 {
     /**
      * Create a twig environment with the bare minimum we need
@@ -62,7 +62,7 @@ class TwigViewTest extends TestCase
     /**
      * Tests basics
      */
-    public function testBasics()
+    public function testBasics(): void
     {
         $request = new Request([
             'odd_or_even' => 'odd',
@@ -88,30 +88,30 @@ class TwigViewTest extends TestCase
 
         // Ensure filters etc
         $filters = $inputDefinition->getFilters();
-        $this->assertSame('odd_or_even', \reset($filters)->getField());
-        $this->assertSame('Odd or Even', \reset($filters)->getTitle());
+        self::assertSame('odd_or_even', \reset($filters)->getField());
+        self::assertSame('Odd or Even', \reset($filters)->getTitle());
 
         $query = $inputDefinition->createQueryFromRequest($request);
         $items = $datasource->getItems($query);
 
-        $this->assertCount(7, $items);
-        $this->assertSame(3, $query->getPageNumber());
-        $this->assertSame(128, $items->getTotalCount());
+        self::assertCount(7, $items);
+        self::assertSame(3, $query->getPageNumber());
+        self::assertSame(128, $items->getTotalCount());
 
         // Ensure sorting was OK
         $itemsArray = iterator_to_array($items);
         // FIXMe
-        // $this->assertGreaterThan($itemsArray[1], $itemsArray[0]);
+        // self::assertGreaterThan($itemsArray[1], $itemsArray[0]);
 
         // Build a page, for fun
         $response = $view->renderAsResponse($viewDefinition, $items, $query);
-        $this->assertInstanceOf(Response::class, $response);
+        self::assertInstanceOf(Response::class, $response);
     }
 
     /**
      * Tests basics
      */
-    public function testDynamicTablePageTemplate()
+    public function testDynamicTablePageTemplate(): void
     {
         $request = new Request([
             'odd_or_even' => 'odd',

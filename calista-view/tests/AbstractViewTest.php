@@ -9,7 +9,6 @@ use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Tests\Mock\DummyView;
-use MakinaCorpus\Calista\View\Tests\Mock\IntItem;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,7 +19,7 @@ class AbstractViewTest extends TestCase
     /**
      * Tests property normalization without the property info component
      */
-    public function testPropertyNormalizationWithoutContainer()
+    public function testPropertyNormalizationWithoutContainer(): void
     {
         $view = new DummyView();
 
@@ -29,7 +28,7 @@ class AbstractViewTest extends TestCase
         // No property info, no properties.
         $viewDefinition = new ViewDefinition(['view_type' => $view]);
         $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
-        $this->assertCount(0, $properties);
+        self::assertCount(0, $properties);
 
         // If a list of properties is defined, the algorithm should not
         // attempt to use the property info component for retrieving the
@@ -58,18 +57,18 @@ class AbstractViewTest extends TestCase
         foreach ($properties as $property) {
             $name = $property->getName();
             if ('foo' === $name) {
-                $this->assertSame("The Foo property", $property->getLabel());
+                self::assertSame("The Foo property", $property->getLabel());
             } else {
-                $this->assertSame($property->getName(), $property->getLabel());
+                self::assertSame($property->getName(), $property->getLabel());
             }
-            $this->assertFalse($property->isVirtual());
+            self::assertFalse($property->isVirtual());
         }
     }
 
     /**
      * Tests that datasource result driven properties takes precedence over property info
      */
-    public function testDatasourceResultProperty()
+    public function testDatasourceResultProperty(): void
     {
         $view = new DummyView();
 
@@ -89,16 +88,16 @@ class AbstractViewTest extends TestCase
         // 'foo' is the first
         /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         $property = current($properties);
-        $this->assertInstanceOf(PropertyView::class, $property);
-        $this->assertSame('a', $property->getName());
-        $this->assertSame('The A property', $property->getLabel());
-        $this->assertSame('int', $property->getType());
+        self::assertInstanceOf(PropertyView::class, $property);
+        self::assertSame('a', $property->getName());
+        self::assertSame('The A property', $property->getLabel());
+        self::assertSame('int', $property->getType());
 
         // Then 'id', which exists on the class
         $property = next($properties);
-        $this->assertInstanceOf(PropertyView::class, $property);
-        $this->assertSame('b', $property->getName());
-        $this->assertSame('The B property', $property->getLabel());
-        $this->assertSame('string', $property->getType());
+        self::assertInstanceOf(PropertyView::class, $property);
+        self::assertSame('b', $property->getName());
+        self::assertSame('The B property', $property->getLabel());
+        self::assertSame('string', $property->getType());
     }
 }

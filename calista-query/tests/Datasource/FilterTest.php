@@ -13,18 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Tests the page query parsing
  */
-class FilterTest extends TestCase
+final class FilterTest extends TestCase
 {
     /**
      * Tests basics
      */
-    public function testBasics()
+    public function testBasics(): void
     {
         $filter = new Filter('foo', 'The foo filter');
 
-        $this->assertSame('foo', $filter->getField());
-        $this->assertSame('The foo filter', $filter->getTitle());
-        $this->assertFalse($filter->isSafe());
+        self::assertSame('foo', $filter->getField());
+        self::assertSame('The foo filter', $filter->getTitle());
+        self::assertFalse($filter->isSafe());
 
         $filter->setChoicesMap([
             'a' => "The A option",
@@ -33,14 +33,14 @@ class FilterTest extends TestCase
             'd' => "La réponse D",
         ]);
 
-        $this->assertSame(4, $filter->count());
-        $this->assertCount(4, $filter->getChoicesMap());
+        self::assertSame(4, $filter->count());
+        self::assertCount(4, $filter->getChoicesMap());
 
         $request = new Request(['foo' => 'a|c'], [], ['_route' => 'where/should/I/go']);
         $query = (new QueryFactory())->fromRequest(new InputDefinition(['filter_list' => [$filter]]), $request);
 
         $links = $filter->getLinks($query);
-        $this->assertCount(4, $links);
+        self::assertCount(4, $links);
 
         // Get individual links, they should be ordered
         $aLink = $links[0];
@@ -49,15 +49,15 @@ class FilterTest extends TestCase
         $dLink = $links[3];
 
         // Just for fun, test the link class
-        $this->assertSame($aLink->getRouteParameters(), $aLink->getRouteParameters());
-        $this->assertSame('The A option', $aLink->getTitle());
-        $this->assertSame('where/should/I/go', $aLink->getRoute());
+        self::assertSame($aLink->getRouteParameters(), $aLink->getRouteParameters());
+        self::assertSame('The A option', $aLink->getTitle());
+        self::assertSame('where/should/I/go', $aLink->getRoute());
 
         // Active state
-        $this->assertTrue($aLink->isActive());
-        $this->assertFalse($bLink->isActive());
-        $this->assertTrue($cLink->isActive());
-        $this->assertFalse($dLink->isActive());
+        self::assertTrue($aLink->isActive());
+        self::assertFalse($bLink->isActive());
+        self::assertTrue($cLink->isActive());
+        self::assertFalse($dLink->isActive());
 
         // Should test the parameters too, but I'm too lazy.
     }
@@ -65,9 +65,9 @@ class FilterTest extends TestCase
     /**
      * Very simple edge case: when no title, use the field name
      */
-    public function testTitleFallback()
+    public function testTitleFallback(): void
     {
         $filter = new Filter('my_filter');
-        $this->assertSame('my_filter', $filter->getTitle());
+        self::assertSame('my_filter', $filter->getTitle());
     }
 }
