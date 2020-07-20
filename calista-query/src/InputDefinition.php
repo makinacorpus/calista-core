@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Query;
 
+use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -19,7 +20,26 @@ class InputDefinition
     private $options = [];
 
     /**
-     * Default constructor
+     * Create instance from datasource.
+     */
+    public static function datasource(DatasourceInterface $datasource, array $options = []): self
+    {
+        $options['filter_list'] = $datasource->getFilters();
+        $options['sort_allowed_list'] =  $datasource->getSorts();
+
+        if (!$datasource->supportsFulltextSearch() && ($options['search_enable'] ?? false) && !($options['search_parse'] ?? false)) {
+            throw new \InvalidArgumentException("datasource cannot do fulltext search, yet it is enabled, but search parse is disabled");
+        }
+
+        if (!$datasource->supportsPagination() && !empty($options['pager_enable'])) {
+            throw new \InvalidArgumentException("datasource cannot do paging, yet it is enabled");
+        }
+
+        return new self($options);
+    }
+
+    /**
+     * Default constructor.
      */
     public function __construct(array $options = [])
     {

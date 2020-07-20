@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use MakinaCorpus\Calista\Datasource\DatasourceInputDefinition;
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\View\ViewDefinition;
@@ -14,18 +13,17 @@ use MakinaCorpus\Calista\View\ViewDefinition;
  */
 final class ConfigPageDefinition implements PageDefinitionInterface
 {
-    private $config;
-    private $datasource;
-    private $id;
-    private $input;
-    private $viewFactory;
+    private string $id;
+    private array $config;
+    private ViewFactory $viewFactory;
+    private ?DatasourceInterface $datasource = null;
 
     /**
      * Default constructor
      *
      * @param array $config
      */
-    public function __construct(array $config, ViewFactory $viewFactory)
+    public function __construct(string $id, array $config, ViewFactory $viewFactory)
     {
         if (empty($config['datasource'])) {
             throw new \InvalidArgumentException("datasource is missing");
@@ -34,16 +32,9 @@ final class ConfigPageDefinition implements PageDefinitionInterface
             throw new \InvalidArgumentException("view:view_type is missing");
         }
 
+        $this->id = $id;
         $this->config = $config;
         $this->viewFactory = $viewFactory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setId(string $id)
-    {
-        $this->id = $id;
     }
 
     /**
@@ -59,7 +50,7 @@ final class ConfigPageDefinition implements PageDefinitionInterface
      */
     public function getInputDefinition(array $options = []): InputDefinition
     {
-        return new DatasourceInputDefinition($this->getDatasource(), $options + ($this->config['input'] ?? []));
+        return InputDefinition::datasource($this->getDatasource(), $options + ($this->config['input'] ?? []));
     }
 
     /**

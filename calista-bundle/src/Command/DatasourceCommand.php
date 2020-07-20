@@ -55,15 +55,9 @@ final class DatasourceCommand extends Command
         }
 
         $table = new Table($output);
-        $table->setHeaders(['identifier', 'service', 'datasource/item classes']);
+        $table->setHeaders(['identifier', 'service', 'datasource']);
         foreach ($index as $id => $data) {
-            try {
-                $datasource = $this->viewFactory->getDatasource($id);
-                $itemClass = $datasource->getItemClass();
-            } catch (\Exception $e) {
-                $itemClass = '<error>broken</error>';
-            }
-            $row = [$id, $data['service'], $data['class']."\n".$itemClass];
+            $row = [$id, $data['service'], $data['class']];
             $table->addRow($row);
         }
         $table->render();
@@ -87,7 +81,6 @@ final class DatasourceCommand extends Command
     {
         $table = new Table($output);
         $table->addRow(["datasource class", \get_class($datasource)]);
-        $table->addRow(["item class", $datasource->getItemClass()]);
         $table->addRow(["can stream data", $this->renderYesOrNo($datasource->supportsStreaming())]);
         $table->addRow(["supports pagination", $this->renderYesOrNo($datasource->supportsPagination())]);
         $table->addRow(["supports fulltext search", $this->renderYesOrNo($datasource->supportsFulltextSearch())]);

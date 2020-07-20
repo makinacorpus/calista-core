@@ -10,13 +10,9 @@ use MakinaCorpus\Calista\Query\QueryFactory;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Stream\CsvStreamView;
-use MakinaCorpus\Calista\View\Tests\Mock\IntProperyIntoExtractor;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
-use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 
 /**
  * Tests both the CSV stream reader and stream viewer
@@ -26,24 +22,6 @@ class CsvStreamTest extends TestCase
     private function createPropertyAccessor()
     {
         return new PropertyAccessor();
-    }
-
-    private function createPropertyInfoExtractor()
-    {
-        return new PropertyInfoExtractor([
-            new IntProperyIntoExtractor(),
-            new ReflectionExtractor(),
-        ], [
-            new IntProperyIntoExtractor(),
-            new ReflectionExtractor(),
-            new PhpDocExtractor(),
-        ], [
-            new IntProperyIntoExtractor(),
-            new PhpDocExtractor(),
-        ], [
-            new IntProperyIntoExtractor(),
-            new ReflectionExtractor(),
-        ]);
     }
 
     public function testReaderWithoutHeader()
@@ -150,7 +128,7 @@ class CsvStreamTest extends TestCase
             ],
         ]);
 
-        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor(), $this->createPropertyInfoExtractor()));
+        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor()));
         $output = $view->render($viewDefinition, $items, $query);
 
         $reference = <<<EOT
@@ -188,7 +166,7 @@ EOT;
             ],
         ]);
 
-        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor(), $this->createPropertyInfoExtractor()));
+        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor()));
         $output = $view->render($viewDefinition, $items, $query);
 
         $reference = <<<EOT

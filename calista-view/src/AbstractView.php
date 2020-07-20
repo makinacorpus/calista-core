@@ -6,20 +6,12 @@ namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Query\Query;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
  * Boilerplate code for view implementations.
  */
 abstract class AbstractView implements ViewInterface
 {
-    private $propertyInfoExtractor;
-
-    public function setPropertyInfoExtractor(PropertyInfoExtractorInterface $propertyInfoExtractor)
-    {
-        $this->propertyInfoExtractor = $propertyInfoExtractor;
-    }
-
     /**
      * Aggregate properties from the ViewDefinition
      *
@@ -35,7 +27,6 @@ abstract class AbstractView implements ViewInterface
     {
         $ret = [];
 
-        $class = $items->getItemClass();
         $definitions = [];
 
         // First attempt to fetch arbitrary list of properties given by the page
@@ -55,15 +46,6 @@ abstract class AbstractView implements ViewInterface
             }
         }
 
-        // Last resort options, if nothing was found attempt using the property
-        // info component, we do it last not because it's not accurate, in the
-        // opposite, but because it's definitely the slowest one
-        if (!$properties) {
-            if ($this->propertyInfoExtractor) {
-                $properties = $this->propertyInfoExtractor->getProperties($class);
-            }
-        }
-
         // The property info extractor might return null if nothing was found
         if (!$properties) {
             $properties = [];
@@ -74,7 +56,6 @@ abstract class AbstractView implements ViewInterface
                 continue;
             }
 
-            $type = null;
             $options = $viewDefinition->getPropertyDisplayOptions($name);
 
             if (isset($definitions[$name])) {
@@ -84,35 +65,9 @@ abstract class AbstractView implements ViewInterface
                 ] + $definitions[$name]->getDefaultDisplayOptions();
             }
 
-            if (empty($options['label'])) {
-                if ($this->propertyInfoExtractor) {
-                    $options['label'] = $this->propertyInfoExtractor->getShortDescription($class, $name);
-                }
-                // Property info component might still return null here, give
-                // the user a sensible fallback
-                if (empty($options['label'])) {
-                    $options['label'] = $name;
-                }
-            }
-
-            // Determine data type from whatever we can find, still type can be
-            // enforced by the user, at his own risks
-            if (!empty($options['type'])) {
-                $type = TypeHelper::getTypeInstance($options['type']);
-
-            } else if ($this->propertyInfoExtractor) {
-                $types = $this->propertyInfoExtractor->getTypes($class, $name);
-
-                if ($types) {
-                    if (\is_array($types)) {
-                        $type = \reset($types);
-                    } else {
-                        $type = $types;
-                    }
-                }
-            }
-
-            $ret[$name] = new PropertyView($name, $type, $options);
+            // $name can be numeric, if you have a datasource returning rows
+            // as arrays, such as the CSV datasource.
+            $ret[$name] = new PropertyView((string)$name, $options['type'] ?? null, $options);
         }
 
         return $ret;

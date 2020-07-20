@@ -12,18 +12,6 @@ use MakinaCorpus\Calista\Query\Query;
 interface DatasourceInterface
 {
     /**
-     * Get item class
-     *
-     * Item class will enable the ProperyInfo component usage over your objects.
-     * Whenever you have very specific classes you also should write your own
-     * property extractors.
-     *
-     * @return null|string
-     *   Empty string means we don't know the data type
-     */
-    public function getItemClass(): string;
-
-    /**
      * Get ready to display filters
      *
      * @return \MakinaCorpus\Calista\Query\Filter[]

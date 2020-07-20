@@ -5,24 +5,25 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Twig\Extension;
 
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
+use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 
 class PageExtension extends AbstractExtension
 {
-    private $debug = false;
-    private $pageRenderer;
-    private $propertyRenderer;
-    private $requestStack;
+    private bool $debug = false;
+    private PropertyRenderer $propertyRenderer;
+    private RequestStack $requestStack;
+    private ?PageRenderer $pageRenderer = null;
 
     /**
      * Default constructor
      */
-    public function __construct(RequestStack $requestStack, PropertyRenderer $propertyRenderer, PageRenderer $pageRenderer = null)
+    public function __construct(RequestStack $requestStack, PropertyRenderer $propertyRenderer, ?PageRenderer $pageRenderer = null)
     {
         $this->requestStack = $requestStack;
         $this->propertyRenderer = $propertyRenderer;
@@ -123,8 +124,9 @@ class PageExtension extends AbstractExtension
     {
         $filterQuery = [];
 
-        /** @var \MakinaCorpus\Calista\Datasource\Filter $filter */
         foreach ($filters as $filter) {
+            \assert($filter instanceof Filter);
+
             $field = $filter->getField();
             if (isset($query[$field])) {
                 $filterQuery[$field] = $query[$field];

@@ -135,5 +135,7 @@ class TwigViewTest extends TestCase
         $items = $datasource->getItems($query);
 
         $output = $view->render($viewDefinition, $items, $query);
+
+        self::expectNotToPerformAssertions();
     }
 }

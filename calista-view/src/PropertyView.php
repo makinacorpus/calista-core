@@ -5,32 +5,24 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\PropertyInfo\Type;
 
 /**
- * Represents a property, uses the property info to display it
+ * Represents a property, uses the property info to display it.
  */
 class PropertyView
 {
-    private $name = '';
-    private $options = [];
-    private $type;
+    private string $name;
+    private ?string $type = null;
+    private array $options = [];
 
-    /**
-     * Default constructor
-     *
-     * @param string $name
-     * @param Type $type
-     * @param array $options
-     */
-    public function __construct($name, Type $type = null, array $options = [])
+    public function __construct(string $name, ?string $type = null, array $options = [])
     {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
 
         $this->name = $name;
-        $this->type = $type;
+        $this->type = $type ?? $options['type'] ?? null;
     }
 
     /**
@@ -86,66 +78,49 @@ class PropertyView
     }
 
     /**
-     * Get name
-     *
-     * @return string
+     * Get name.
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * Get label, return property name if missing
-     *
-     * @return string
+     * Get label, return property name if missing.
      */
-    public function getLabel()
+    public function getLabel(): string
     {
-        return $this->options['label'] ? $this->options['label'] : $this->name;
+        return $this->options['label'] ?? $this->name;
     }
 
     /**
-     * Is this property virtual
-     *
-     * @return bool
+     * Is this property virtual.
      */
-    public function isVirtual()
+    public function isVirtual(): bool
     {
-        return $this->options['virtual'];
+        return (bool)$this->options['virtual'] ?? false;
     }
 
     /**
-     * Has this property a type
-     *
-     * @return bool
+     * Has this property a type.
      */
-    public function hasType()
+    public function hasType(): bool
     {
-        return isset($this->type);
+        return null !== $this->type;
     }
 
     /**
-     * Get property type
-     *
-     * @return Type
+     * Get property type.
      */
-    public function getType()
+    public function getType(): ?string
     {
-        if (!$this->type) {
-            // Allow graceful runtime degradation in case of erroneous template
-            return TypeHelper::getNullType();
-        }
-
         return $this->type;
     }
 
     /**
-     * Get display options
-     *
-     * @return array
+     * Get display options.
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options + ['name' => $this->name];
     }

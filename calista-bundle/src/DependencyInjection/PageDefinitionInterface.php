@@ -19,11 +19,6 @@ use MakinaCorpus\Calista\View\ViewDefinition;
 interface PageDefinitionInterface
 {
     /**
-     * Set identifier
-     */
-    public function setId(string $id);
-
-    /**
      * Get identifier
      */
     public function getId(): string;

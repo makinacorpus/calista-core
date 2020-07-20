@@ -44,7 +44,7 @@ final class CalistaExtension extends Extension
 
                     $definition = new Definition();
                     $definition->setClass(ConfigPageDefinition::class);
-                    $definition->setArguments([$array, new Reference('calista.view_factory')]);
+                    $definition->setArguments([$pageId, $array, new Reference('calista.view_factory')]);
                     $definition->setPublic(true); // Lazy loading...
                     $definition->addTag('calista.page_definition', ['id' => $pageId]);
 

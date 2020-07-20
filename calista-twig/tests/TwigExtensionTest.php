@@ -11,7 +11,6 @@ use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\Tests\Mock\IntItem;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\PropertyInfo\Type;
 
 class TwigExtensionTest extends TestCase
 {
@@ -185,7 +184,7 @@ class TwigExtensionTest extends TestCase
         $this->assertFalse($propertyView->isVirtual());
 
         // Property exists, is not virtual, has a type: displayed property
-        $propertyView = new PropertyView('id', new Type(Type::BUILTIN_TYPE_INT));
+        $propertyView = new PropertyView('id', 'int');
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
         $this->assertSame("1", $output);
         $this->assertFalse($propertyView->isVirtual());
@@ -198,7 +197,7 @@ class TwigExtensionTest extends TestCase
         $this->assertFalse($propertyView->isVirtual());
 
         // Property does not exists so has no value, has a type, it should just display normally
-        $propertyView = new PropertyView('neverSet', new Type(Type::BUILTIN_TYPE_INT));
+        $propertyView = new PropertyView('neverSet', 'int');
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
         $this->assertSame('', $output);
         $this->assertFalse($propertyView->isVirtual());

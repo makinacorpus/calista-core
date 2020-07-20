@@ -13,33 +13,33 @@ namespace MakinaCorpus\Calista\Datasource;
  */
 class PropertyDescription
 {
-    private $defaultDisplayOptions = [];
-    private $label;
-    private $name;
-    private $type;
+    private array $defaultDisplayOptions = [];
+    private string $name;
+    private ?string $label = null;
+    private ?string $type = null;
 
     /**
-     * Default constructor
+     * Default constructor.
      *
      * @param string $name
-     *   Datasource item property name
+     *   Datasource item property name.
      * @param string $label
-     *   Human readable label
+     *   Human readable label.
      * @param string $type
-     *   Valid class name or PHP internal type
+     *   Valid class name or PHP internal type.
      * @param array $defaultDisplayOptions
-     *   Default view options for this property
+     *   Default view options for this property.
      */
-    public function __construct(string $name, string $label = '', string $type = '', array $defaultViewOptions = [])
+    public function __construct(string $name, ?string $label = null, ?string $type = null, array $defaultViewOptions = [])
     {
-        $this->name = $name ?? '';
-        $this->label = $label ?? '';
-        $this->type = $type ?? '';
+        $this->name = $name;
+        $this->label = $label;
+        $this->type = $type;
         $this->defaultDisplayOptions = $defaultViewOptions ?? [];
     }
 
     /**
-     * Get datasource item property name
+     * Get datasource item property name.
      */
     public function getName(): string
     {
@@ -47,23 +47,23 @@ class PropertyDescription
     }
 
     /**
-     * Get human readable label
+     * Get human readable label.
      */
     public function getLabel(): string
     {
-        return $this->label;
+        return $this->label ?? $this->name;
     }
 
     /**
-     * Get property PHP class or PHP internal type
+     * Get property PHP class or PHP internal type.
      */
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * Get default display options for this property
+     * Get default display options for this property.
      */
     public function getDefaultDisplayOptions(): array
     {

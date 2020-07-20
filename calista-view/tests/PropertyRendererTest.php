@@ -7,13 +7,8 @@ namespace MakinaCorpus\Calista\Tests\View;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\Tests\Mock\FooPropertyRenderer;
-use MakinaCorpus\Calista\View\Tests\Mock\IntProperyIntoExtractor;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
-use Symfony\Component\PropertyInfo\Type;
-use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 
 /**
  * Test property renderer basic render methods and renderers introspection
@@ -22,23 +17,7 @@ class PropertyRendererTest extends TestCase
 {
     public static function createPropertyRenderer(): PropertyRenderer
     {
-        return new PropertyRenderer(
-            new PropertyAccessor(),
-            new PropertyInfoExtractor([
-                new IntProperyIntoExtractor(),
-                new ReflectionExtractor(),
-            ], [
-                new IntProperyIntoExtractor(),
-                new ReflectionExtractor(),
-                new PhpDocExtractor(),
-            ], [
-                new IntProperyIntoExtractor(),
-                new PhpDocExtractor(),
-            ], [
-                new IntProperyIntoExtractor(),
-                new ReflectionExtractor(),
-            ])
-        );
+        return new PropertyRenderer(new PropertyAccessor());
     }
 
     public function testRenderString()
@@ -166,12 +145,11 @@ class PropertyRendererTest extends TestCase
         $propertyRenderer = self::createPropertyRenderer();
 
         $item = (object)['my_prop' => range(1, 5)];
-        $type = new Type(Type::BUILTIN_TYPE_ARRAY, false, null, true, null, new Type(Type::BUILTIN_TYPE_INT));
 
-        $propertyView = new PropertyView('my_prop', $type);
+        $propertyView = new PropertyView('my_prop', 'int');
         $this->assertSame("1, 2, 3, 4, 5", $propertyRenderer->renderProperty($item, $propertyView));
 
-        $propertyView = new PropertyView('my_prop', $type, [
+        $propertyView = new PropertyView('my_prop', 'int', [
             'collection_separator' => ' and ',
         ]);
         $this->assertSame("1 and 2 and 3 and 4 and 5", $propertyRenderer->renderProperty($item, $propertyView));
@@ -179,22 +157,29 @@ class PropertyRendererTest extends TestCase
 
     public function testRenderCallbackWithDebug()
     {
-//         $propertyRenderer = $this->createPropertyRenderer();
-//         $propertyRenderer->addRenderer(new FooPropertyRenderer());
-//         $propertyRenderer->setDebug(true);
+        self::markTestIncomplete();
 
-//         $item = (object)['my_prop' => "12345789"];
-//         $type = new Type(Type::BUILTIN_TYPE_STRING);
+        /*
+        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer->addRenderer(new FooPropertyRenderer());
+        $propertyRenderer->setDebug(true);
 
-//         $propertyView = new PropertyView('my_prop', $type, ['callback' => '']);
-//         $this->assertSame("123457", $propertyRenderer->renderProperty($item, $propertyView));
+        $item = (object)['my_prop' => "12345789"];
+        $type = new Type(Type::BUILTIN_TYPE_STRING);
 
+        $propertyView = new PropertyView('my_prop', $type, ['callback' => '']);
+        $this->assertSame("123457", $propertyRenderer->renderProperty($item, $propertyView));
+         */
     }
 
     public function testRenderCallbackWithoutDebug()
     {
-//         $propertyRenderer = $this->createPropertyRenderer();
-//         $propertyRenderer->addRenderer(new FooPropertyRenderer());
+        self::markTestIncomplete();
+
+        /*
+        $propertyRenderer = $this->createPropertyRenderer();
+        $propertyRenderer->addRenderer(new FooPropertyRenderer());
+         */
     }
 
     public function testRendererMethodWithDebug()
@@ -204,25 +189,24 @@ class PropertyRendererTest extends TestCase
         $propertyRenderer->setDebug(true);
 
         $item = (object)['my_prop' => "123456789"];
-        $type = new Type(Type::BUILTIN_TYPE_STRING);
 
-        $propertyView = new PropertyView('my_prop', $type, ['callback' => 'publicRenderFunction']);
+        $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'publicRenderFunction']);
         $this->assertSame("23456", $propertyRenderer->renderProperty($item, $propertyView));
 
         try {
-            $propertyView = new PropertyView('my_prop', $type, ['callback' => 'protectedRenderFunction']);
+            $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'protectedRenderFunction']);
             $this->assertSame(PropertyRenderer::RENDER_NOT_POSSIBLE, $propertyRenderer->renderProperty($item, $propertyView));
             $this->fail();
         } catch (\InvalidArgumentException $e) {
-            $this->assertContains("is not public", $e->getMessage());
+            $this->assertMatchesRegularExpression("/is not public/", $e->getMessage());
         }
 
         try {
-            $propertyView = new PropertyView('my_prop', $type, ['callback' => 'privateRenderFunction']);
+            $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'privateRenderFunction']);
             $this->assertSame(PropertyRenderer::RENDER_NOT_POSSIBLE, $propertyRenderer->renderProperty($item, $propertyView));
             $this->fail();
         } catch (\InvalidArgumentException $e) {
-            $this->assertContains("is not public", $e->getMessage());
+            $this->assertMatchesRegularExpression("/is not public/", $e->getMessage());
         }
     }
 
@@ -232,15 +216,14 @@ class PropertyRendererTest extends TestCase
         $propertyRenderer->addRenderer(new FooPropertyRenderer());
 
         $item = (object)['my_prop' => "123456789"];
-        $type = new Type(Type::BUILTIN_TYPE_STRING);
 
-        $propertyView = new PropertyView('my_prop', $type, ['callback' => 'publicRenderFunction']);
+        $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'publicRenderFunction']);
         $this->assertSame("23456", $propertyRenderer->renderProperty($item, $propertyView));
 
-        $propertyView = new PropertyView('my_prop', $type, ['callback' => 'protectedRenderFunction']);
+        $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'protectedRenderFunction']);
         $this->assertSame(PropertyRenderer::RENDER_NOT_POSSIBLE, $propertyRenderer->renderProperty($item, $propertyView));
 
-        $propertyView = new PropertyView('my_prop', $type, ['callback' => 'privateRenderFunction']);
+        $propertyView = new PropertyView('my_prop', 'string', ['callback' => 'privateRenderFunction']);
         $this->assertSame(PropertyRenderer::RENDER_NOT_POSSIBLE, $propertyRenderer->renderProperty($item, $propertyView));
     }
 }

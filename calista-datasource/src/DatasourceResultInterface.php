@@ -15,18 +15,6 @@ use MakinaCorpus\Calista\Query\Query;
 interface DatasourceResultInterface extends \Traversable, \Countable
 {
     /**
-     * Get item class
-     *
-     * Item class will enable the ProperyInfo component usage over your objects.
-     * Whenever you have very specific classes you also should write your own
-     * property extractors.
-     *
-     * @return null|string
-     *   Empty string means we don't know the data type
-     */
-    public function getItemClass(): string;
-
-    /**
      * Datasource can provide its own set of known properties, useful for view
      * introspection if you don't want to or can't rely upon the property info
      * component introspection

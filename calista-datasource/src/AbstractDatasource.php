@@ -14,14 +14,6 @@ abstract class AbstractDatasource implements DatasourceInterface
     /**
      * {@inheritdoc}
      */
-    public function getItemClass(): string
-    {
-        return '';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getFilters(): array
     {
         return [];
@@ -72,7 +64,7 @@ abstract class AbstractDatasource implements DatasourceInterface
      */
     protected function createEmptyResult(): DatasourceResultInterface
     {
-        return new DefaultDatasourceResult($this->getItemClass(), []);
+        return new DefaultDatasourceResult();
     }
 
     /**
@@ -89,7 +81,7 @@ abstract class AbstractDatasource implements DatasourceInterface
             throw new \LogicException("given items are nor an array nor a \Traversable instance nor a callable");
         }
 
-        $result = new DefaultDatasourceResult($this->getItemClass(), $items);
+        $result = new DefaultDatasourceResult($items);
 
         if (null !== $totalCount) {
             $result->setTotalItemCount($totalCount);

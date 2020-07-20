@@ -5,25 +5,27 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Datasource;
 
 /**
- * Basics for the datasource result interface implementation
+ * Basics for the datasource result interface implementation.
  */
 class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInterface
 {
     use DatasourceResultTrait;
 
-    private $items;
-    private $count;
+    private iterable $items;
+    private ?int $count = null;
 
     /**
      * Default constructor
      *
-     * @param string $itemClass
-     * @param iterable $items
+     * @param iterable|callable $items
      * @param array PropertyDescription[]
      */
-    public function __construct(string $itemClass = '', $items = [], array $properties = [])
+    public function __construct($items = [], array $properties = [])
     {
-        $this->itemClass = $itemClass;
+        if (!\is_iterable($items) && !\is_callable($items)) {
+            throw new \InvalidArgumentException("Items must be iterable or callable");
+        }
+
         $this->items = $items;
 
         foreach ($properties as $index => $property) {
@@ -54,12 +56,12 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
             return \call_user_func($this->items);
         }
 
-        if ($this->items instanceof \Traversable || $this->items instanceof \Generator) {
-            return $this->items;
-        }
-
         if (\is_array($this->items)) {
             return new \ArrayIterator($this->items);
+        }
+
+        if (\is_iterable($this->items)) {
+            return $this->items;
         }
 
         return new \EmptyIterator();
@@ -68,13 +70,13 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         if (null !== $this->count) {
             return $this->count;
         }
 
-        if (\is_array($this->items) || $this->items instanceof \Countable) {
+        if (\is_countable($this->items)) {
             return $this->count = \count($this->items);
         }
 

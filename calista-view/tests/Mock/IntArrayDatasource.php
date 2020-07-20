@@ -28,14 +28,6 @@ class IntArrayDatasource extends AbstractDatasource
     /**
      * {@inheritdoc}
      */
-    public function getItemClass(): string
-    {
-        return IntItem::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getFilters(): array
     {
         return [
@@ -131,7 +123,7 @@ class IntArrayDatasource extends AbstractDatasource
         $items = \array_slice($allowedValues, $offset, $limit);
         $items = \array_map(function ($value) { return new IntItem($value); }, $items);
 
-        $result = new DefaultDatasourceResult(IntItem::class, $items);
+        $result = new DefaultDatasourceResult($items);
         $result->setTotalItemCount(\count($allowedValues));
 
         return $result;

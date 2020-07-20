@@ -30,11 +30,6 @@ class EmptyDatasource extends AbstractDatasource
     /**
      * {@inheritdoc}
      */
-    public function getItemClass(): string
-    {
-        return \stdClass::class;
-    }
-
     public function getFilters(): array
     {
         return \array_map(

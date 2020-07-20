@@ -17,14 +17,6 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
     /**
      * {@inheritdoc}
      */
-    public function getItemClass(): string
-    {
-        return $this->itemClass ?? '';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getProperties(): array
     {
         return $this->properties ?? [];

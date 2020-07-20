@@ -32,32 +32,31 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7",
-        "symfony/event-dispatcher": "^4.3.3|^5.0",
-        "symfony/http-foundation": "^3.4|^4.2.0|^5.0",
-        "symfony/options-resolver": "^3.4|^4.2.0|^5.0",
-        "symfony/property-access": "^3.4|^4.2.0|^5.0",
-        "symfony/property-info": "^3.4|^4.2.0|^5.0"
+        "php": ">=7.4",
+        "symfony/event-dispatcher": ">=4.4",
+        "symfony/http-foundation": ">=4.4",
+        "symfony/options-resolver": ">=4.4"
     },
     "require-dev": {
         "box/spout": "^2.7",
-        "phpunit/phpunit": ">=6 <9",
-        "symfony/config": "^3.4|^4.2.0|^5.0",
-        "symfony/console": "^3.4|^4.2.0|^5.0",
-        "symfony/dependency-injection": "^3.4|^4.2.0|^5.0",
-        "symfony/framework-bundle": "^3.4|^4.2.0|^5.0",
-        "symfony/http-kernel": "^3.4|^4.2.0|^5.0",
-        "twig/twig": "^2.5"
+        "phpunit/phpunit": "^9",
+        "symfony/config": ">=4.4",
+        "symfony/console": ">=4.4",
+        "symfony/dependency-injection": ">=4.4",
+        "symfony/framework-bundle": ">=4.4",
+        "symfony/http-kernel": ">=4.4",
+        "symfony/property-access": ">=4.4",
+        "twig/twig": ">=2.5"
     },
     "replace": {
         "makinacorpus/calista-datasource": "self.version",
         "makinacorpus/calista-query": "self.version",
+        "makinacorpus/calista-twig": "self.version",
         "makinacorpus/calista-view": "self.version"
     },
     "suggest": {
         "box/spout": "For XLSX (Excel) stream view support",
-        "symfony/property-access": "For dynamic property access in view component",
-        "symfony/property-info": "For dynamic property introspection in view component"
+        "symfony/property-access": "For dynamic property access in view component"
     },
     "autoload": {
         "psr-4": {

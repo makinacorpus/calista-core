@@ -6,6 +6,10 @@ namespace MakinaCorpus\Calista\Datasource;
 
 use MakinaCorpus\Calista\Query\InputDefinition;
 
+/**
+ * @deprecated
+ *   Please use InputDefinition::datasource() instead.
+ */
 class DatasourceInputDefinition extends InputDefinition
 {
     /**
