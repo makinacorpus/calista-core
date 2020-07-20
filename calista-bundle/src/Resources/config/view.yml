@@ -2,6 +2,6 @@ services:
 
     calista.view.csv_stream:
         public: true
-        class: MakinaCorpus\Calista\View\Stream\CsvStreamView
+        class: MakinaCorpus\Calista\View\Stream\CsvStreamViewRenderer
         arguments: ['@calista.property_renderer']
         tags: [{name: calista.view, id: csv_stream}]

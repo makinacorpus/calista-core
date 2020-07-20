@@ -7,7 +7,7 @@ namespace MakinaCorpus\Calista\Tests\View;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\Twig\Extension\PageExtension;
-use MakinaCorpus\Calista\Twig\View\TwigView;
+use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Tests\Mock\IntArrayDatasource;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Loader\ArrayLoader;
 
-final class TwigViewTest extends TestCase
+final class TwigViewRendererTest extends TestCase
 {
     /**
      * Create a twig environment with the bare minimum we need
@@ -78,13 +78,9 @@ final class TwigViewTest extends TestCase
         ]);
 
         $viewDefinition = new ViewDefinition([
-            'default_display' => 'page',
             'enabled_filters' => ['odd_or_even'],
-            'templates' => [
-                'page' => '@calista/page/page.html.twig',
-            ],
         ]);
-        $view = new TwigView(self::createTwigEnv(), new EventDispatcher());
+        $view = new TwigViewRenderer(self::createTwigEnv(), new EventDispatcher());
 
         // Ensure filters etc
         $filters = $inputDefinition->getFilters();
@@ -124,12 +120,10 @@ final class TwigViewTest extends TestCase
         $inputDefinition = new InputDefinition(['limit_default' => 7]);
 
         $viewDefinition = new ViewDefinition([
-            'default_display' => 'page',
             'enabled_filters' => ['odd_or_even'],
-            'templates' => ['page' => '@calista/page/page.html.twig'],
         ]);
 
-        $view = new TwigView(self::createTwigEnv(), new EventDispatcher());
+        $view = new TwigViewRenderer(self::createTwigEnv(), new EventDispatcher());
 
         $query = $inputDefinition->createQueryFromRequest($request);
         $items = $datasource->getItems($query);

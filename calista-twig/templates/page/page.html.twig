@@ -7,7 +7,6 @@
  #    filters: Filter[]
  #    filters.ID.title: string (title)
  #    filters.ID.links: Link[]
- #    displays: Link[]
  #    input: InputDefinition
  #    definition: ViewDefinition
  #    query: Query
@@ -20,25 +19,6 @@
  #    hasPager: should we show pager or not
  #    items: DatasourceResultInterface|mixed[] the items
  #}
-
-{%- block display_mode_link -%}
-  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title|e }}" data-page-link>
-    <span class="glyphicon glyphicon-{{ link.icon|e }}" aria-hidden="true"></span>
-    <span class="sr-only">{{ link.title|e }}</span>
-  </a>
-{%- endblock -%}
-
-{%- block display_mode -%}
-  {% if 1 < displays|length %}
-    <div class="clearfix">
-      <div class="btn-group" role="group" aria-label="{{ "Change display"|trans }}">
-        {% for link in displays %}
-          {{ block('display_mode_link') }}
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
-{%- endblock -%}
 
 {%- block filter_link -%}
   <div class="checkbox">
@@ -372,28 +352,19 @@
 
 {% block page_layout %}
   <div class="row">
-    {% if 1 < displays|length or filters %}
-      <div class="col-md-2">
-        {% if displays %}
-          <div data-page-block="display_mode">
-            {% if 1 < displays|length %}
-              {{ block('display_mode') }}
-            {% endif %}
-          </div>
-        {% endif %}
-        {% if filters %}
-          <div data-page-block="filters">
-            {{ block('filters') }}
-          </div>
-        {% endif %}
+    {% if filters %}
+    <div class="col-md-2">
+      <div data-page-block="filters">
+        {{ block('filters') }}
       </div>
-      <div id="calista-results" class="col-md-10">
-        {{ block('page_content') }}
-      </div>
+    </div>
+    <div id="calista-results" class="col-md-10">
+      {{ block('page_content') }}
+    </div>
     {% else %}
-      <div id="calista-results" class="col-md-12">
-        {{ block('page_content') }}
-      </div>
+    <div id="calista-results" class="col-md-12">
+      {{ block('page_content') }}
+    </div>
     {% endif %}
   </div>
 {% endblock %}

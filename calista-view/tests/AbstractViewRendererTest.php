@@ -8,20 +8,17 @@ use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\ViewDefinition;
-use MakinaCorpus\Calista\View\Tests\Mock\DummyView;
+use MakinaCorpus\Calista\View\Tests\Mock\DummyViewRenderer;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Tests the views
- */
-class AbstractViewTest extends TestCase
+final class AbstractViewRendererTest extends TestCase
 {
     /**
      * Tests property normalization without the property info component
      */
     public function testPropertyNormalizationWithoutContainer(): void
     {
-        $view = new DummyView();
+        $view = new DummyViewRenderer();
 
         $items = new DefaultDatasourceResult([]);
 
@@ -70,7 +67,7 @@ class AbstractViewTest extends TestCase
      */
     public function testDatasourceResultProperty(): void
     {
-        $view = new DummyView();
+        $view = new DummyViewRenderer();
 
         $items = new DefaultDatasourceResult([], [
             new PropertyDescription('a', 'The A property', 'int'),

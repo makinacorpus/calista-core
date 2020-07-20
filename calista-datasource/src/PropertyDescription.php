@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Datasource;
 
 /**
- * Represents a single property as defined by a datasource
+ * Represents a single property as defined by a datasource.
  *
- * All this object properties referes to the PropertyView available options
+ * All this object properties referes to the PropertyView available options.
  *
  * @see \MakinaCorpus\Calista\View\PropertyView
  */
 class PropertyDescription
 {
-    private array $defaultDisplayOptions = [];
+    private array $defaultViewOptions = [];
     private string $name;
     private ?string $label = null;
     private ?string $type = null;
@@ -27,7 +27,7 @@ class PropertyDescription
      *   Human readable label.
      * @param string $type
      *   Valid class name or PHP internal type.
-     * @param array $defaultDisplayOptions
+     * @param array $defaultViewOptions
      *   Default view options for this property.
      */
     public function __construct(string $name, ?string $label = null, ?string $type = null, array $defaultViewOptions = [])
@@ -35,7 +35,7 @@ class PropertyDescription
         $this->name = $name;
         $this->label = $label;
         $this->type = $type;
-        $this->defaultDisplayOptions = $defaultViewOptions ?? [];
+        $this->defaultViewOptions = $defaultViewOptions ?? [];
     }
 
     /**
@@ -65,8 +65,8 @@ class PropertyDescription
     /**
      * Get default display options for this property.
      */
-    public function getDefaultDisplayOptions(): array
+    public function getDefaultViewOptions(): array
     {
-        return $this->defaultDisplayOptions;
+        return $this->defaultViewOptions;
     }
 }

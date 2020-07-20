@@ -9,7 +9,7 @@ use MakinaCorpus\Calista\Datasource\Stream\CsvStreamReader;
 use MakinaCorpus\Calista\Query\QueryFactory;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewDefinition;
-use MakinaCorpus\Calista\View\Stream\CsvStreamView;
+use MakinaCorpus\Calista\View\Stream\CsvStreamViewRenderer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
@@ -128,7 +128,7 @@ final class CsvStreamTest extends TestCase
             ],
         ]);
 
-        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor()));
+        $view = new CsvStreamViewRenderer(new PropertyRenderer($this->createPropertyAccessor()));
         $output = $view->render($viewDefinition, $items, $query);
 
         $reference = <<<EOT
@@ -166,7 +166,7 @@ EOT;
             ],
         ]);
 
-        $view = new CsvStreamView(new PropertyRenderer($this->createPropertyAccessor()));
+        $view = new CsvStreamViewRenderer(new PropertyRenderer($this->createPropertyAccessor()));
         $output = $view->render($viewDefinition, $items, $query);
 
         $reference = <<<EOT

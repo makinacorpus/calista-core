@@ -10,7 +10,7 @@ use MakinaCorpus\Calista\Query\Query;
 /**
  * Boilerplate code for view implementations.
  */
-abstract class AbstractView implements ViewInterface
+abstract class AbstractViewRenderer implements ViewRenderer
 {
     /**
      * Aggregate properties from the ViewDefinition
@@ -66,7 +66,7 @@ abstract class AbstractView implements ViewInterface
                 $options += [
                     'label' => $definitions[$name]->getLabel(),
                     'type' => $definitions[$name]->getType(),
-                ] + $definitions[$name]->getDefaultDisplayOptions();
+                ] + $definitions[$name]->getDefaultViewOptions();
             }
 
             $ret[$name] = new PropertyView((string)$name, $options['type'] ?? null, $options);

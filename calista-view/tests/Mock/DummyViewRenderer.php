@@ -6,14 +6,14 @@ namespace MakinaCorpus\Calista\View\Tests\Mock;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\View\AbstractView;
+use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Used to test the abstract view
  */
-class DummyView extends AbstractView
+class DummyViewRenderer extends AbstractViewRenderer
 {
     /**
      * Passthrougth for normalizeProperties().

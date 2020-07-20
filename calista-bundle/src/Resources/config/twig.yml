@@ -2,7 +2,7 @@ services:
 
     calista.view.twig_page:
         public: true
-        class: MakinaCorpus\Calista\Twig\View\TwigView
+        class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
         arguments: ['@twig', '@event_dispatcher']
         tags: [{name: calista.view, id: twig_page}]
 

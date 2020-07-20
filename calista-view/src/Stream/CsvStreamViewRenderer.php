@@ -6,8 +6,9 @@ namespace MakinaCorpus\Calista\View\Stream;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\View\AbstractView;
+use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -15,35 +16,25 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Turn your data stream to CSV file
  */
-class CsvStreamView extends AbstractView
+class CsvStreamViewRenderer extends AbstractViewRenderer
 {
-    private $propertyRenderer;
+    private PropertyRenderer $propertyRenderer;
 
-    /**
-     * Default constructor
-     *
-     * @param PropertyRenderer $propertyRenderer
-     */
     public function __construct(PropertyRenderer $propertyRenderer)
     {
         $this->propertyRenderer = $propertyRenderer;
     }
 
     /**
-     * Create header row
-     *
-     * @param DatasourceResultInterface $items
-     * @param ViewDefinition $viewDefinition
-     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
-     *
-     * @return string[]
+     * Create header row.
      */
     private function createHeaderRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties): array
     {
         $ret = [];
 
-        /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         foreach ($properties as $property) {
+            \assert($property instanceof PropertyView);
+
             $ret[] = $property->getLabel();
         }
 
@@ -51,21 +42,15 @@ class CsvStreamView extends AbstractView
     }
 
     /**
-     * Create item row
-     *
-     * @param DatasourceResultInterface $items
-     * @param ViewDefinition $viewDefinition
-     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
-     * @param mixed $current
-     *
-     * @return string[]
+     * Create item row.
      */
     private function createItemRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties, $current): array
     {
         $ret = [];
 
-        /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         foreach ($properties as $property) {
+            \assert($property instanceof PropertyView);
+
             $ret[] = $this->propertyRenderer->renderItemProperty($current, $property);
         }
 
@@ -73,18 +58,13 @@ class CsvStreamView extends AbstractView
     }
 
     /**
-     * Render in stream
-     *
-     * @param ViewDefinition $viewDefinition
-     * @param DatasourceResultInterface $items
-     * @param Query $query
-     * @param resource $resource
+     * Render in stream.
      */
     private function doRenderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
     {
         // Add the BOM for Excel to read correctly the file
         if ($viewDefinition->getExtraOptionValue('add_bom', false)) {
-            fwrite($resource, "\xEF\xBB\xBF");
+            \fwrite($resource, "\xEF\xBB\xBF");
         }
 
         $delimiter = $viewDefinition->getExtraOptionValue('csv_delimiter', ',');
@@ -98,17 +78,17 @@ class CsvStreamView extends AbstractView
         if ($viewDefinition->getExtraOptionValue('add_header', false)) {
             $row = $this->createHeaderRow($items, $viewDefinition, $properties);
             if ($encoding !== 'utf-8') {
-                $row = mb_convert_encoding( $row, $encoding);
+                $row = \mb_convert_encoding( $row, $encoding);
             }
-            fputcsv($resource, $row, $delimiter, $enclosure, $escape);
+            \fputcsv($resource, $row, $delimiter, $enclosure, $escape);
         }
 
         foreach ($items as $item) {
             $row = $this->createItemRow($items, $viewDefinition, $properties, $item);
             if ($encoding !== 'utf-8') {
-                $row = mb_convert_encoding($row, $encoding);
+                $row = \mb_convert_encoding($row, $encoding);
             }
-            fputcsv($resource, $row, $delimiter, $enclosure, $escape);
+            \fputcsv($resource, $row, $delimiter, $enclosure, $escape);
         }
     }
 
@@ -117,13 +97,13 @@ class CsvStreamView extends AbstractView
      */
     public function render(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): string
     {
-        ob_start();
+        \ob_start();
 
-        $resource = fopen('php://output', 'w+');
+        $resource = \fopen('php://output', 'w+');
         $this->doRenderInStream($viewDefinition, $items, $query, $resource);
-        fclose($resource);
+        \fclose($resource);
 
-        return ob_get_clean();
+        return \ob_get_clean();
     }
 
     /**
@@ -152,9 +132,9 @@ class CsvStreamView extends AbstractView
         }
 
         $response->setCallback(function () use ($viewDefinition, $items, $query) {
-            $resource = fopen('php://output', 'w+');
+            $resource = \fopen('php://output', 'w+');
             $this->doRenderInStream($viewDefinition, $items, $query, $resource);
-            fclose($resource);
+            \fclose($resource);
         });
 
         return $response;

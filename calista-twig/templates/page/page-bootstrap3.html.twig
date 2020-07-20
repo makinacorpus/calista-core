@@ -1,11 +1,5 @@
 {% extends '@calista/page/page.html.twig' %}
 
-{%- block display_mode_link -%}
-  <a class="{% if link.isActive %}active {% endif %}btn btn-default" href="{{ path(link.route, link.routeParameters) }}" title="{{ link.title|e }}" data-page-link>
-    <span class="sr-only">{{ link.title|e }}</span>
-  </a>
-{%- endblock -%}
-
 {%- block filter_link -%}
   {% if class is not defined %}
     {% set class = '' %}
@@ -212,23 +206,14 @@
 {% endblock %}
 
 {% block page_layout %}
-  {% if 1 < displays|length or filters %}
-    <div class="row">
-      <div class="col">
-        {% if displays %}
-          <div data-page-block="display_mode">
-            {% if 1 < displays|length %}
-              {{ block('display_mode') }}
-            {% endif %}
-          </div>
-        {% endif %}
-        {% if filters %}
-          <div data-page-block="filters">
-            {{ block('filters') }}
-          </div>
-        {% endif %}
+  {% if filters %}
+  <div class="row">
+    <div class="col">
+      <div data-page-block="filters">
+        {{ block('filters') }}
       </div>
     </div>
+  <div>
   {% endif %}
   {{ block('page_content') }}
 {% endblock %}

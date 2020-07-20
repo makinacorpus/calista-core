@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\Event;
 
-use MakinaCorpus\Calista\View\ViewInterface;
+use MakinaCorpus\Calista\View\ViewRenderer;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -17,12 +17,12 @@ final class ViewEvent extends Event
 
     private $view;
 
-    public function __construct(ViewInterface $view)
+    public function __construct(ViewRenderer $view)
     {
         $this->view = $view;
     }
 
-    public function getView(): ViewInterface
+    public function getView(): ViewRenderer
     {
         return $this->view;
     }

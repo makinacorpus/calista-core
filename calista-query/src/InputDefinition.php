@@ -150,28 +150,28 @@ class InputDefinition
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'base_query'          => [],
-            'display_param'       => 'display',
+            'base_query' => [],
+            'display_param' => 'display',
             // Must be a list of \MakinaCorpus\Calista\Query\Filter
             //   or a list of Key/value pairs, each key is a field name
             //   and value is the human readable label
-            'filter_list'         => [],
-            'limit_allowed'       => false,
-            'limit_default'       => Query::LIMIT_DEFAULT,
-            'limit_param'         => 'limit',
-            'limit_max'           => Query::LIMIT_MAX,
-            'pager_enable'        => true,
-            'pager_param'         => 'page',
-            'search_enable'       => false,
-            'search_field'        => null,
-            'search_param'        => 's',
-            'search_parse'        => false,
+            'filter_list' => [],
+            'limit_allowed' => false,
+            'limit_default' => Query::LIMIT_DEFAULT,
+            'limit_param'    => 'limit',
+            'limit_max' => Query::LIMIT_MAX,
+            'pager_enable' => true,
+            'pager_param' => 'page',
+            'search_enable' => false,
+            'search_field' => null,
+            'search_param' => 's',
+            'search_parse' => false,
             // Keys are field names, values are labels
-            'sort_allowed_list'   => [],
-            'sort_default_field'  => '',
-            'sort_default_order'  => Query::SORT_DESC,
-            'sort_field_param'    => 'st',
-            'sort_order_param'    => 'by',
+            'sort_allowed_list' => [],
+            'sort_default_field' => '',
+            'sort_default_order' => Query::SORT_DESC,
+            'sort_field_param' => 'st',
+            'sort_order_param' => 'by',
         ]);
 
         $resolver->setAllowedTypes('base_query', ['array']);

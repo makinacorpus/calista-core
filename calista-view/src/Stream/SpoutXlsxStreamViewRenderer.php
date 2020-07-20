@@ -9,7 +9,7 @@ use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\WriterInterface;
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\View\AbstractView;
+use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Turn your data stream to an XLSX (Excel) file
  */
-class SpoutXlsxStreamView extends AbstractView
+class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 {
     private $propertyRenderer;
 

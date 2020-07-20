@@ -17,7 +17,6 @@ class Query
     const SORT_DESC = 'desc';
     const URL_VALUE_SEP = '|';
 
-    private ?string $currentDisplay = null;
     private array $filters = [];
     private InputDefinition $inputDefinition;
     private int $limit = self::LIMIT_DEFAULT;
@@ -50,7 +49,6 @@ class Query
         $this->routeParameters = $routeParameters;
         $this->routeProtectedParameters = $routeProtectedParameters;
 
-        $this->findCurrentDisplay();
         $this->findRange();
         $this->findSearch();
         $this->findSort();
@@ -180,17 +178,6 @@ class Query
     }
 
     /**
-     * Find current display from query.
-     */
-    private function findCurrentDisplay(): void
-    {
-        $displayParameter = $this->inputDefinition->getDisplayParameter();
-        if ($displayParameter && isset($this->routeParameters[$displayParameter])) {
-            $this->currentDisplay = (string)$this->routeParameters[$displayParameter];
-        }
-    }
-
-    /**
      * Get value from a filter, it might be an expanded array of values.
      *
      * @return string|string[]
@@ -214,14 +201,6 @@ class Query
     public function getInputDefinition(): InputDefinition
     {
         return $this->inputDefinition;
-    }
-
-    /**
-     * Get current display switch.
-     */
-    public function getCurrentDisplay(): ?string
-    {
-        return $this->currentDisplay;
     }
 
     /**
