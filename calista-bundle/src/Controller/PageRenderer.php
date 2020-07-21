@@ -6,6 +6,7 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\Controller;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\PageDefinitionInterface;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory;
+use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,13 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class PageRenderer
 {
-    private $viewFactory;
+    private ViewFactory $viewFactory;
 
-    /**
-     * Default constructor
-     *
-     * @param ViewFactory $viewFactory
-     */
     public function __construct(ViewFactory $viewFactory)
     {
         $this->viewFactory = $viewFactory;
@@ -50,7 +46,7 @@ final class PageRenderer
         $query = $page->getInputDefinition($inputOptions)->createQueryFromRequest($request);
         $items = $page->getDatasource()->getItems($query);
 
-        return $view->render($viewDefinition, $items, $query);
+        return $view->render(new View($viewDefinition, $items, $query));
     }
 
     /**
@@ -81,6 +77,6 @@ final class PageRenderer
         $query = $page->getInputDefinition($inputOptions)->createQueryFromRequest($request);
         $items = $page->getDatasource()->getItems($query);
 
-        return $view->renderAsResponse($viewDefinition, $items, $query);
+        return $view->renderAsResponse(new View($viewDefinition, $items, $query));
     }
 }
