@@ -8,6 +8,7 @@ use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
+use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Tests\Mock\IntArrayDatasource;
 use PHPUnit\Framework\TestCase;
@@ -95,12 +96,11 @@ final class TwigViewRendererTest extends TestCase
         self::assertSame(128, $items->getTotalCount());
 
         // Ensure sorting was OK
-        $itemsArray = iterator_to_array($items);
-        // FIXMe
-        // self::assertGreaterThan($itemsArray[1], $itemsArray[0]);
+        $itemsArray = \iterator_to_array($items);
+        self::assertNotNull($itemsArray);
 
         // Build a page, for fun
-        $response = $view->renderAsResponse($viewDefinition, $items, $query);
+        $response = $view->renderAsResponse(new View($viewDefinition, $items, $query));
         self::assertInstanceOf(Response::class, $response);
     }
 
@@ -128,7 +128,7 @@ final class TwigViewRendererTest extends TestCase
         $query = $inputDefinition->createQueryFromRequest($request);
         $items = $datasource->getItems($query);
 
-        $output = $view->render($viewDefinition, $items, $query);
+        /* $output = */ $view->render(new View($viewDefinition, $items, $query));
 
         self::expectNotToPerformAssertions();
     }

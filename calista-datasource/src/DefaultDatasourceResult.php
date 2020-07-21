@@ -38,6 +38,18 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     }
 
     /**
+     * Wrap incomming items.
+     */
+    public static function wrap($items): DatasourceResultInterface
+    {
+        if ($items instanceof DatasourceResultInterface) {
+            return $items;
+        }
+
+        return new self($items);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function canStream(): bool

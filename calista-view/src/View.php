@@ -5,65 +5,123 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
+use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
+use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\Query\Query;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Volatile data value object that you will use to proceed to final rendering.
+ * View definition holder and normalizer.
  */
-interface View
+final class View
 {
-    /**
-     * Render the view.
-     *
-     * @param ViewDefinition $viewDefinition
-     *   The view configuration.
-     * @param DatasourceResultInterface $items
-     *   Items from a datasource.
-     * @param Query $query
-     *   Incoming query that was given to the datasource.
-     */
-    public function render($items): string;
+    private ViewDefinition $definition;
+    private DatasourceResultInterface $items;
+    private Query $query;
+    private ?array $normalizedProperties = null;
 
     /**
-     * Render the view.
-     *
-     * @param ViewDefinition $viewDefinition
-     *   The view configuration.
-     * @param DatasourceResultInterface $items
-     *   Items from a datasource.
-     * @param Query $query
-     *   Incoming query that was given to the datasource.
-     * @param resource $resource
-     *   A valid open stream, at least opened in "w" mode.
+     * @param iterable|callable|DatasourceResultInterface $items
      */
-    public function renderInStream($items, $resource): void;
+    public function __construct(ViewDefinition $definition, $items, ?Query $query = null)
+    {
+        $this->definition = $definition;
+        $this->items = DefaultDatasourceResult::wrap($items);
+        $this->query = $query ?? Query::empty();
+    }
 
     /**
-     * Render the view.
+     * Create arbitrary instance from given items.
      *
-     * @param ViewDefinition $viewDefinition
-     *   The view configuration.
-     * @param DatasourceResultInterface $items
-     *   Items from a datasource.
-     * @param Query $query
-     *   Incoming query that was given to the datasource.
-     * @param resource $resource
-     *   A valid open stream, at least opened in "w" mode.
+     * @param iterable|callable|DatasourceResultInterface $items
      */
-    public function renderInFile($items, string $filename): void;
+    public static function createFromItems($items): self
+    {
+        return new self(ViewDefinition::empty(), $items, Query::empty());
+    }
+
+    public function getDefinition(): ViewDefinition
+    {
+        return $this->definition;
+    }
+
+    public function getResult(): DatasourceResultInterface
+    {
+        return $this->items;
+    }
+
+    public function getQuery(): Query
+    {
+        return $this->query;
+    }
 
     /**
-     * Render the view as a response.
-     *
-     * @param ViewDefinition $viewDefinition
-     *   The view configuration.
-     * @param DatasourceResultInterface $items
-     *   Items from a datasource.
-     * @param Query $query
-     *   Incoming query that was given to the datasource.
-     *
-     * @return Response
+     * @return PropertyView[]
      */
-    public function renderAsResponse($items): Response;
+    public function getNormalizedProperties(): array
+    {
+        return $this->normalizedProperties ?? ($this->normalizedProperties = $this->normalizeProperties());
+    }
+
+    /**
+     * Aggregate properties from the view definition.
+     *
+     * @todo this method is ugly and needs cleanup, but at least it is well tested;
+     *   it MUST NOT be more complex, it should be split in smaller pieces!
+     *
+     * @return PropertyView[]
+     */
+    private function normalizeProperties(): array
+    {
+        $ret = [];
+
+        $definitions = [];
+
+        // First attempt to fetch arbitrary list of properties given by the page
+        // definition or view configuration
+        $properties = $this->definition->getDisplayedProperties();
+
+        // If nothing was given, use the properties the datasource result
+        // interface may carry, attention thought, the returned objects are
+        // no string and must be normalized, hence the $definition array that
+        // will be re-used later
+        if (!$properties) {
+            $properties = [];
+
+            foreach ($this->items->getProperties() as $definition) {
+                \assert($definition instanceof PropertyDescription);
+
+                $name = $definition->getName();
+                $definitions[$name]= $definition;
+                $properties[] = $name;
+            }
+        }
+
+        // The property info extractor might return null if nothing was found
+        if (!$properties) {
+            return [];
+        }
+
+        foreach ($properties as $name) {
+            // $name can be numeric, if you have a datasource returning rows
+            // as arrays, such as the CSV datasource.
+            $name = (string)$name;
+
+            if (!$this->definition->isPropertyDisplayed($name)) {
+                continue;
+            }
+
+            $options = $this->definition->getPropertyDisplayOptions($name);
+
+            if (isset($definitions[$name])) {
+                $options += [
+                    'label' => $definitions[$name]->getLabel(),
+                    'type' => $definitions[$name]->getType(),
+                ] + $definitions[$name]->getDefaultViewOptions();
+            }
+
+            $ret[$name] = new PropertyView((string)$name, $options['type'] ?? null, $options);
+        }
+
+        return $ret;
+    }
 }

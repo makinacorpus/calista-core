@@ -58,6 +58,11 @@ class ViewDefinition
         $this->options = $resolver->resolve($options);
     }
 
+    public static function empty(): self
+    {
+        return new self(['view_type' => '']);
+    }
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

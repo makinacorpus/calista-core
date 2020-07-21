@@ -8,6 +8,7 @@ use MakinaCorpus\Calista\Datasource\Stream\CsvStreamDatasource;
 use MakinaCorpus\Calista\Datasource\Stream\CsvStreamReader;
 use MakinaCorpus\Calista\Query\QueryFactory;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewDefinition;
 use MakinaCorpus\Calista\View\Stream\CsvStreamViewRenderer;
 use PHPUnit\Framework\TestCase;
@@ -129,7 +130,7 @@ final class CsvStreamTest extends TestCase
         ]);
 
         $view = new CsvStreamViewRenderer(new PropertyRenderer($this->createPropertyAccessor()));
-        $output = $view->render($viewDefinition, $items, $query);
+        $output = $view->render(new View($viewDefinition, $items, $query));
 
         $reference = <<<EOT
 ﻿"The first column","The second column","The third column"
@@ -144,7 +145,7 @@ EOT;
         self::assertSame($reference, rtrim($output));
 
         // And now as a reponse
-        $response = $view->renderAsResponse($viewDefinition, $items, $query);
+        $response = $view->renderAsResponse(new View($viewDefinition, $items, $query));
         self::assertInstanceOf(StreamedResponse::class, $response);
 
         ob_start();
@@ -167,7 +168,7 @@ EOT;
         ]);
 
         $view = new CsvStreamViewRenderer(new PropertyRenderer($this->createPropertyAccessor()));
-        $output = $view->render($viewDefinition, $items, $query);
+        $output = $view->render(new View($viewDefinition, $items, $query));
 
         $reference = <<<EOT
 a;b;c

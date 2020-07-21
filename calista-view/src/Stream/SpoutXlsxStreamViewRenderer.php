@@ -7,11 +7,9 @@ namespace MakinaCorpus\Calista\View\Stream;
 use Box\Spout\Common\Type;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\WriterInterface;
-use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
-use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
-use MakinaCorpus\Calista\View\ViewDefinition;
+use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -20,28 +18,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 {
-    private $propertyRenderer;
+    private PropertyRenderer $propertyRenderer;
 
-    /**
-     * Default constructor
-     *
-     * @param PropertyRenderer $propertyRenderer
-     */
     public function __construct(PropertyRenderer $propertyRenderer)
     {
         $this->propertyRenderer = $propertyRenderer;
     }
 
     /**
-     * Create header row
-     *
-     * @param DatasourceResultInterface $items
-     * @param ViewDefinition $viewDefinition
-     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
-     *
-     * @return string[]
+     * Create header row.
      */
-    private function createHeaderRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties): array
+    private function createHeaderRow(array $properties): array
     {
         $ret = [];
 
@@ -53,16 +40,9 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
     }
 
     /**
-     * Create item row
-     *
-     * @param DatasourceResultInterface $items
-     * @param ViewDefinition $viewDefinition
-     * @param \MakinaCorpus\Calista\View\PropertyView[] $properties
-     * @param mixed $current
-     *
-     * @return string[]
+     * Create item row.
      */
-    private function createItemRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties, $current): array
+    private function createItemRow(array $properties, $current): array
     {
         $ret = [];
 
@@ -76,42 +56,45 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
     /**
      * Render row in writer
      */
-    private function renderInWriter(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, WriterInterface $writer)
+    private function renderInWriter(View $view, WriterInterface $writer)
     {
-        $properties = $this->normalizeProperties($viewDefinition, $items);
+        $viewDefinition = $view->getDefinition();
+        $properties = $view->getNormalizedProperties();
 
         // Render the CSV header
         if ($viewDefinition->getExtraOptionValue('add_header', false)) {
-            $writer->addRow($this->createHeaderRow($items, $viewDefinition, $properties));
+            $writer->addRow($this->createHeaderRow($properties));
         }
 
-        foreach ($items as $item) {
-            $writer->addRow($this->createItemRow($items, $viewDefinition, $properties, $item));
+        foreach ($view->getResult() as $item) {
+            $writer->addRow($this->createItemRow($properties, $item));
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function render(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): string
+    public function render(View $view): string
     {
-        ob_start();
+        \ob_start();
 
         $writer = WriterFactory::create(Type::XLSX);
         $writer->openToFile('php://output');
 
-        $this->renderInWriter($viewDefinition, $items, $query, $writer);
+        $this->renderInWriter($view, $writer);
 
         $writer->close();
 
-        return ob_get_clean();
+        return \ob_get_clean();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderAsResponse(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): Response
+    public function renderAsResponse(View $view): Response
     {
+        $viewDefinition = $view->getDefinition();
+
         $response = new StreamedResponse();
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8');
 
@@ -120,12 +103,12 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
             $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
         }
 
-        $response->setCallback(function () use ($viewDefinition, $items, $query) {
+        $response->setCallback(function () use ($view) {
 
             $writer = WriterFactory::create(Type::XLSX);
             $writer->openToFile('php://output');
 
-            $this->renderInWriter($viewDefinition, $items, $query, $writer);
+            $this->renderInWriter($view, $writer);
 
             $writer->close();
         });

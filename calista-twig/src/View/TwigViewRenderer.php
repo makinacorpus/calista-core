@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Twig\View;
 
-use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
-use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\View\AbstractViewRenderer;
-use MakinaCorpus\Calista\View\ViewDefinition;
+use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\Event\ViewEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,14 +31,14 @@ class TwigViewRenderer extends AbstractViewRenderer
     /**
      * Create the renderer.
      */
-    public function createRenderer(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, array $arguments = []): TwigRenderer
+    public function createRenderer(View $view): TwigRenderer
     {
         $event = new ViewEvent($this);
         $this->dispatcher->dispatch($event, ViewEvent::EVENT_VIEW);
 
-        $arguments = $this->createTemplateArguments($viewDefinition, $items, $query, $arguments);
+        $arguments = $this->createTemplateArguments($view);
 
-        $template = $viewDefinition->getExtraOptionValue('template', '@calista/page/page.html.twig');
+        $template = $view->getDefinition()->getExtraOptionValue('template', '@calista/page/page.html.twig');
 
         return new TwigRenderer($this->twig, $template, $arguments);
     }
@@ -47,46 +46,54 @@ class TwigViewRenderer extends AbstractViewRenderer
     /**
      * {@inheritdoc}
      */
-    public function render(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): string
+    public function render(View $view): string
     {
-        return $this->createRenderer($viewDefinition, $items, $query)->render();
+        return $this->createRenderer($view)->render();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderAsResponse(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): Response
+    public function renderAsResponse(View $view): Response
     {
-        return new Response($this->render($viewDefinition, $items, $query));
+        return new Response($this->render($view));
     }
 
     /**
      * Create template arguments.
      */
-    protected function createTemplateArguments(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, array $arguments = []): array
+    protected function createTemplateArguments(View $view): array
     {
+        $viewDefinition = $view->getDefinition();
+        $query = $view->getQuery();
         $inputDefinition = $query->getInputDefinition();
 
         // Build allowed filters arrays
         $enabledFilters = [];
         if ($viewDefinition->isFiltersEnabled()) {
             $baseQuery = $inputDefinition->getBaseQuery();
-            /** @var \MakinaCorpus\Calista\Query\Filter $filter */
+
             foreach ($inputDefinition->getFilters() as $filter) {
+                \assert($filter instanceof Filter);
+
                 // Only considers filters with choices.
                 if (!$filter->hasChoices() && !$filter->isArbitraryInput() && !$filter->isBoolean() && !$filter->isDate()) {
                     continue;
                 }
+
                 $field = $filter->getField();
+
                 // Checks that the filter must be displayed.
                 if (!$viewDefinition->isFilterDisplayed($field)) {
                     continue;
                 }
+
                 // If the value of the filter is fixed by the base query and is
                 // not multiple, it becomes useless to display the filter.
                 if (isset($baseQuery[$field]) && (!\is_array($baseQuery[$field]) || \count($baseQuery[$field]) < 2)) {
                     continue;
                 }
+
                 $enabledFilters[] = $filter;
             }
         }
@@ -95,14 +102,14 @@ class TwigViewRenderer extends AbstractViewRenderer
             'pageId' => 'foo', /* $this->getId() */
             'input' => $inputDefinition,
             'definition' => $viewDefinition,
-            'properties' => $this->normalizeProperties($viewDefinition, $items),
-            'items' => $items,
+            'properties' => $view->getNormalizedProperties(),
+            'items' => $view->getResult(),
             'filters' => $enabledFilters,
             'sorts' => $viewDefinition->isSortEnabled() ? $inputDefinition->getAllowedSorts() : [],
             'sortsEnabled' => $viewDefinition->isSortEnabled(),
             'query' => $query,
             'hasPager' => $viewDefinition->isPagerEnabled(),
             'pagerEnabled' => $viewDefinition->isPagerEnabled(),
-        ] + $arguments;
+        ];
     }
 }

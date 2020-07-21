@@ -7,26 +7,23 @@ namespace MakinaCorpus\Calista\View\Tests;
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\View\PropertyView;
+use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewDefinition;
-use MakinaCorpus\Calista\View\Tests\Mock\DummyViewRenderer;
 use PHPUnit\Framework\TestCase;
 
 final class AbstractViewRendererTest extends TestCase
 {
-    /**
-     * Tests property normalization without the property info component
-     */
-    public function testPropertyNormalizationWithoutContainer(): void
+    public function testViewWithoutPropertiesNormalizesNothing(): void
     {
-        $view = new DummyViewRenderer();
-
-        $items = new DefaultDatasourceResult([]);
+        $view = View::createFromItems([]);
 
         // No property info, no properties.
-        $viewDefinition = new ViewDefinition(['view_type' => $view]);
-        $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
+        $properties = $view->getNormalizedProperties();
         self::assertCount(0, $properties);
+    }
 
+    public function testViewWithArbitraryDefinitionGivesDefinitionProperties(): void
+    {
         // If a list of properties is defined, the algorithm should not
         // attempt to use the property info component for retrieving the
         // property list
@@ -44,10 +41,11 @@ final class AbstractViewRendererTest extends TestCase
                     }
                 ],
             ],
-            'view_type' => $view,
         ]);
 
-        $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
+        $view = new View($viewDefinition, []);
+
+        $properties = $view->getNormalizedProperties();
         \reset($properties);
 
         // Trust the user, display everything
@@ -67,8 +65,6 @@ final class AbstractViewRendererTest extends TestCase
      */
     public function testDatasourceResultProperty(): void
     {
-        $view = new DummyViewRenderer();
-
         $items = new DefaultDatasourceResult([], [
             new PropertyDescription('a', 'The A property', 'int'),
             new PropertyDescription('b', 'The B property', 'string'),
@@ -77,14 +73,15 @@ final class AbstractViewRendererTest extends TestCase
         // If a list of properties is defined, the algorithm should not
         // attempt to use the property info component for retrieving the
         // property list
-        $viewDefinition = new ViewDefinition(['view_type' => $view]);
-        $properties = $view->normalizePropertiesPassthrought($viewDefinition, $items);
+        $viewDefinition = new ViewDefinition();
+        $view = new View($viewDefinition, $items);
+        $properties = $view->getNormalizedProperties();
         \reset($properties);
 
         // Order is the same, we have all properties we defined
         // 'foo' is the first
-        /** @var \MakinaCorpus\Calista\View\PropertyView $property */
         $property = current($properties);
+        \assert($property instanceof PropertyView);
         self::assertInstanceOf(PropertyView::class, $property);
         self::assertSame('a', $property->getName());
         self::assertSame('The A property', $property->getLabel());
@@ -92,6 +89,7 @@ final class AbstractViewRendererTest extends TestCase
 
         // Then 'id', which exists on the class
         $property = next($properties);
+        \assert($property instanceof PropertyView);
         self::assertInstanceOf(PropertyView::class, $property);
         self::assertSame('b', $property->getName());
         self::assertSame('The B property', $property->getLabel());

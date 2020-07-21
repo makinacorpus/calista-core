@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\Stream;
 
-use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
-use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
-use MakinaCorpus\Calista\View\ViewDefinition;
+use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -28,7 +26,7 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
     /**
      * Create header row.
      */
-    private function createHeaderRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties): array
+    private function createHeaderRow(array $properties): array
     {
         $ret = [];
 
@@ -44,7 +42,7 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
     /**
      * Create item row.
      */
-    private function createItemRow(DatasourceResultInterface $items, ViewDefinition $viewDefinition, array $properties, $current): array
+    private function createItemRow(array $properties, $current): array
     {
         $ret = [];
 
@@ -60,8 +58,11 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
     /**
      * Render in stream.
      */
-    private function doRenderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
+    private function doRenderInStream(View $view, $resource): void
     {
+        $viewDefinition = $view->getDefinition();
+        $properties = $view->getNormalizedProperties();
+
         // Add the BOM for Excel to read correctly the file
         if ($viewDefinition->getExtraOptionValue('add_bom', false)) {
             \fwrite($resource, "\xEF\xBB\xBF");
@@ -72,19 +73,17 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
         $escape = $viewDefinition->getExtraOptionValue('csv_escape_char', '\\');
         $encoding = $viewDefinition->getExtraOptionValue('encoding', 'utf-8');
 
-        $properties = $this->normalizeProperties($viewDefinition, $items);
-
         // Render the CSV header
         if ($viewDefinition->getExtraOptionValue('add_header', false)) {
-            $row = $this->createHeaderRow($items, $viewDefinition, $properties);
+            $row = $this->createHeaderRow($properties);
             if ($encoding !== 'utf-8') {
                 $row = \mb_convert_encoding( $row, $encoding);
             }
             \fputcsv($resource, $row, $delimiter, $enclosure, $escape);
         }
 
-        foreach ($items as $item) {
-            $row = $this->createItemRow($items, $viewDefinition, $properties, $item);
+        foreach ($view->getResult() as $item) {
+            $row = $this->createItemRow($properties, $item);
             if ($encoding !== 'utf-8') {
                 $row = \mb_convert_encoding($row, $encoding);
             }
@@ -95,12 +94,12 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
     /**
      * {@inheritdoc}
      */
-    public function render(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): string
+    public function render(View $view): string
     {
         \ob_start();
 
         $resource = \fopen('php://output', 'w+');
-        $this->doRenderInStream($viewDefinition, $items, $query, $resource);
+        $this->doRenderInStream($view, $resource);
         \fclose($resource);
 
         return \ob_get_clean();
@@ -109,20 +108,22 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
     /**
      * {@inheritdoc}
      */
-    public function renderInStream(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query, $resource): void
+    public function renderInStream(View $view, $resource): void
     {
         if (!\is_resource($resource)) {
             throw new \InvalidArgumentException("Given \$resource argument is not a resource");
         }
 
-        $this->doRenderInStream($viewDefinition, $items, $query, $resource);
+        $this->doRenderInStream($view, $resource);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderAsResponse(ViewDefinition $viewDefinition, DatasourceResultInterface $items, Query $query): Response
+    public function renderAsResponse(View $view): Response
     {
+        $viewDefinition = $view->getDefinition();
+
         $response = new StreamedResponse();
         $response->headers->set('Content-Type', sprintf('text/csv; charset=%s', $viewDefinition->getExtraOptionValue('encoding', 'utf-8')));
 
@@ -131,9 +132,9 @@ class CsvStreamViewRenderer extends AbstractViewRenderer
             $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
         }
 
-        $response->setCallback(function () use ($viewDefinition, $items, $query) {
+        $response->setCallback(function () use ($view) {
             $resource = \fopen('php://output', 'w+');
-            $this->doRenderInStream($viewDefinition, $items, $query, $resource);
+            $this->doRenderInStream($view, $resource);
             \fclose($resource);
         });
 
