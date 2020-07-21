@@ -66,8 +66,9 @@ final class View
     /**
      * Aggregate properties from the view definition.
      *
-     * @todo this method is ugly and needs cleanup, but at least it is well tested;
-     *   it MUST NOT be more complex, it should be split in smaller pieces!
+     * @todo
+     *    - test property view object, dealing with properties
+     *    - test this method throughoutly
      *
      * @return PropertyView[]
      */
@@ -75,10 +76,6 @@ final class View
     {
         $ret = [];
 
-        $definitions = [];
-
-        // First attempt to fetch arbitrary list of properties given by the page
-        // definition or view configuration
         $properties = $this->definition->getDisplayedProperties();
 
         // If nothing was given, use the properties the datasource result
@@ -86,41 +83,46 @@ final class View
         // no string and must be normalized, hence the $definition array that
         // will be re-used later
         if (!$properties) {
-            $properties = [];
-
-            foreach ($this->items->getProperties() as $definition) {
-                \assert($definition instanceof PropertyDescription);
-
-                $name = $definition->getName();
-                $definitions[$name]= $definition;
-                $properties[] = $name;
-            }
-        }
-
-        // The property info extractor might return null if nothing was found
-        if (!$properties) {
-            return [];
+            return $this->normalizePropertiesUsingDatasource();
         }
 
         foreach ($properties as $name) {
-            // $name can be numeric, if you have a datasource returning rows
-            // as arrays, such as the CSV datasource.
-            $name = (string)$name;
-
             if (!$this->definition->isPropertyDisplayed($name)) {
                 continue;
             }
 
-            $options = $this->definition->getPropertyDisplayOptions($name);
+            $value = $this->definition->getProperty($name);
 
-            if (isset($definitions[$name])) {
-                $options += [
-                    'label' => $definitions[$name]->getLabel(),
-                    'type' => $definitions[$name]->getType(),
-                ] + $definitions[$name]->getDefaultViewOptions();
+            if ($value instanceof PropertyDescription) {
+                $ret[] = $value;
+            } else if ($value instanceof PropertyView) {
+                $ret[] = $value;
+            } else if (\is_array($value)) {
+                $ret[] = new PropertyView($name, $value['type'] ?? null, $value);
+            } else {
+                $ret[] = new PropertyView($name);
             }
+        }
 
-            $ret[$name] = new PropertyView((string)$name, $options['type'] ?? null, $options);
+        return $ret;
+    }
+
+    /**
+     * @return PropertyView[]
+     */
+    private function normalizePropertiesUsingDatasource(): array
+    {
+        $ret = [];
+
+        foreach ($this->items->getProperties() as $description) {
+            \assert($description instanceof PropertyDescription);
+
+            $name = $description->getName();
+
+            $ret[$name] = PropertyView::fromDescription(
+                $description,
+                $this->definition->getPropertyDisplayOptions($name)
+            );
         }
 
         return $ret;

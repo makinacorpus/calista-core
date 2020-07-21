@@ -307,7 +307,7 @@ class PropertyRenderer
         if (isset($options['callback'])) {
 
             try {
-                $options['callback'] = $this->findRenderCallback($property, $options['callback']);
+                $callback = $this->findRenderCallback($property, $options['callback']);
             } catch (\InvalidArgumentException $e) {
                 if ($this->debug) {
                     throw $e;
@@ -316,11 +316,11 @@ class PropertyRenderer
                 return self::RENDER_NOT_POSSIBLE;
             }
 
-            if (!$propertyView->isVirtual()) {
-                $value = $this->getValue($item, $property, $options);
+            if ($propertyView->isVirtual()) {
+                return $callback($item, $property, $options);
+            } else {
+                return $callback($this->getValue($item, $property, $options), $options, $item);
             }
-
-            return \call_user_func($options['callback'], $value, $options, $item);
         }
 
         // A virtual property with no callback should not be displayable at all

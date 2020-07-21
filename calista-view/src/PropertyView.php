@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
+use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -23,6 +24,15 @@ class PropertyView
 
         $this->name = $name;
         $this->type = $type ?? $options['type'] ?? null;
+    }
+
+    public static function fromDescription(PropertyDescription $description, array $options = []): self
+    {
+        return new self(
+            $description->getName(),
+            $description->getType(),
+            $options + $description->getDefaultViewOptions(),
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -70,6 +80,18 @@ class PropertyView
         $resolver->setAllowedTypes('type', ['null', 'string']);
         $resolver->setAllowedTypes('value_accessor', ['null', 'string', 'callable']);
         $resolver->setAllowedTypes('virtual', ['bool']);
+    }
+
+    /**
+     * Create clone with new name.
+     */
+    public function rename(string $name): self
+    {
+        $ret = clone $this;
+        $ret->options = $this->options;
+        $ret->name = $name;
+
+        return $ret;
     }
 
     /**

@@ -145,6 +145,14 @@ class ViewDefinition
     }
 
     /**
+     * @return null|bool|array|PropertyView
+     */
+    public function getProperty(string $name)
+    {
+        return $this->options['properties'][$name] ?? null;
+    }
+
+    /**
      * Get property specific display options.
      */
     public function getPropertyDisplayOptions(string $name): array
@@ -165,7 +173,7 @@ class ViewDefinition
      */
     public function isPropertyDisplayed(string $name): bool
     {
-        return null === $this->options['properties'] || (isset($this->options['properties'][$name]) && false !== $this->options['properties'][$name]);
+        return null === $this->options['properties'] || ($this->options['properties'][$name] ?? false);
     }
 
     /**

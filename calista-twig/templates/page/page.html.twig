@@ -370,8 +370,9 @@
 {% endblock %}
 
 {%- block page -%}
-  <div class="calista-page" {% if pageId %} data-page="{{ pageId|e }}"
-      data-page-route="{{ path(query.route, query.routeParameters) }}"
+  <div class="calista-page"
+      {% if pageId %}data-page="{{ pageId|e }}"
+      {% if query.route %}data-page-route="{{ path(query.route, query.routeParameters) }}"{% endif %}
       data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
       data-page-search="{{ input.searchParameter|e }}"
       data-renderer="{{ definition.rendererName|e }}">

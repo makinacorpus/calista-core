@@ -69,7 +69,6 @@ final class QueryFactory
     {
         return $this->fromArray(new InputDefinition([
             'base_query'          => [],
-            'display_param'       => 'display',
             'limit_allowed'       => true,
             'limit_default'       => Query::LIMIT_DEFAULT,
             'limit_param'         => 'limit',

@@ -39,6 +39,18 @@ class PropertyDescription
     }
 
     /**
+     * Create clone with new name.
+     */
+    public function rename(string $name): self
+    {
+        $ret = clone $this;
+        $ret->options = $this->options;
+        $ret->name = $name;
+
+        return $ret;
+    }
+
+    /**
      * Get datasource item property name.
      */
     public function getName(): string

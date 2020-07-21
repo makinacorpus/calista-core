@@ -151,14 +151,13 @@ class InputDefinition
     {
         $resolver->setDefaults([
             'base_query' => [],
-            'display_param' => 'display',
             // Must be a list of \MakinaCorpus\Calista\Query\Filter
             //   or a list of Key/value pairs, each key is a field name
             //   and value is the human readable label.
             'filter_list' => [],
             'limit_allowed' => false,
             'limit_default' => Query::LIMIT_DEFAULT,
-            'limit_param'    => 'limit',
+            'limit_param' => 'limit',
             'limit_max' => Query::LIMIT_MAX,
             'pager_enable' => true,
             'pager_param' => 'page',
@@ -175,7 +174,6 @@ class InputDefinition
         ]);
 
         $resolver->setAllowedTypes('base_query', ['array']);
-        $resolver->setAllowedTypes('display_param', ['string']);
         $resolver->setAllowedTypes('limit_allowed', ['numeric', 'bool']);
         $resolver->setAllowedTypes('limit_default', ['numeric']);
         $resolver->setAllowedTypes('limit_param', ['string']);
@@ -248,14 +246,6 @@ class InputDefinition
     public function isSortAllowed(string $name): bool
     {
         return isset($this->options['sort_allowed_list'][$name]);
-    }
-
-    /**
-     * Get display parameter name.
-     */
-    public function getDisplayParameter(): string
-    {
-        return $this->options['display_param'];
     }
 
     /**
