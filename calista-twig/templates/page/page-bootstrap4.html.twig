@@ -229,7 +229,7 @@
       data-page-route="{{ path(query.route, query.routeParameters) }}"
       data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
       data-page-search="{{ input.searchParameter|e }}"
-      data-view-type="{{ definition.viewType|e }}">
+      data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}

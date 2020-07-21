@@ -20,11 +20,12 @@ final class View
     private ?array $normalizedProperties = null;
 
     /**
+     * @param null|array|ViewDefinition $definition
      * @param iterable|callable|DatasourceResultInterface $items
      */
-    public function __construct(ViewDefinition $definition, $items, ?Query $query = null)
+    public function __construct($definition, $items, ?Query $query = null)
     {
-        $this->definition = $definition;
+        $this->definition = ViewDefinition::wrap($definition ?? []);
         $this->items = DefaultDatasourceResult::wrap($items);
         $this->query = $query ?? Query::empty();
     }
@@ -36,7 +37,7 @@ final class View
      */
     public static function createFromItems($items): self
     {
-        return new self(ViewDefinition::empty(), $items, Query::empty());
+        return new self(ViewDefinition::empty(), $items);
     }
 
     public function getDefinition(): ViewDefinition

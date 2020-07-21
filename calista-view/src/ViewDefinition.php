@@ -39,7 +39,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *  - show_search: if set to false, search bar if enabled will not be displayed.
  *  - show_sort: if set to false, sort links will not be displayed.
  *
- *  - view_type: class name or service identifier of the view implementation to
+ *  - renderer: class name or service identifier of the view implementation to
  *    use which will do the rendering and to which this ViewDefinition instance
  *    will be given to.
  *
@@ -53,6 +53,9 @@ class ViewDefinition
 
     public function __construct(array $options = [])
     {
+        // Backward compatibility fixes.
+        $options = $this->fixOptionsBackwardCompatibility($options);
+
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
@@ -60,7 +63,19 @@ class ViewDefinition
 
     public static function empty(): self
     {
-        return new self(['view_type' => '']);
+        return new self(['renderer' => '']);
+    }
+
+    public static function wrap($data): self
+    {
+        if ($data instanceof self) {
+            return $data;
+        }
+        if (!\is_array($data)) {
+            throw new \InvalidArgumentException("\$data must be either an array of options, or an instanceof %s", self::class);
+        }
+
+        return new self($data);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -69,23 +84,23 @@ class ViewDefinition
             'enabled_filters' => null,
             'extra' => [],
             'properties' => null,
+            'renderer' => '',
             'show_filters' => true,
             'show_pager' => true,
             'show_search' => true,
             'show_sort' => true,
-            'view_type' => '',
         ]);
 
-        $resolver->setRequired('view_type');
+        $resolver->setRequired('renderer');
 
         $resolver->setAllowedTypes('enabled_filters', ['null', 'array']);
         $resolver->setAllowedTypes('extra', ['array']);
         $resolver->setAllowedTypes('properties', ['null', 'array']);
+        $resolver->setAllowedTypes('renderer', ['string', ViewRenderer::class]);
         $resolver->setAllowedTypes('show_filters', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_pager', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_search', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_sort', ['numeric', 'bool']);
-        $resolver->setAllowedTypes('view_type', ['string', ViewRenderer::class]);
     }
 
     /**
@@ -205,10 +220,35 @@ class ViewDefinition
     }
 
     /**
-     * Get view type.
+     * Get renderer name.
      */
-    public function getViewType(): string
+    public function getRendererName(): string
     {
-        return $this->options['view_type'];
+        return $this->options['renderer'];
+    }
+
+    /**
+     * Option BC fixes.
+     */
+    private function fixOptionsBackwardCompatibility(array $options): array
+    {
+        if (isset($options['view_type'])) {
+            @\trigger_error("Using 'view_type' is deprecated, please use 'renderer' instead.", E_USER_DEPRECATED);
+            $options['renderer'] = $options['view_type'];
+            unset($options['view_type']);
+        }
+        if (isset($options['templates'])) {
+            if (1 < \count($options['templates'])) {
+                throw new \InvalidArgumentException("Using an array in 'templates' is not allowed anymore, 1 page = 1 'template' now.");
+            }
+            @\trigger_error("Using 'templates' (array) is deprecated, please use 'extra:template' (string) instead.", E_USER_DEPRECATED);
+            if (isset($options['templates']['default'])) {
+                $options['extra']['template'] = $options['templates']['default'];
+            } else {
+                $options['extra']['template'] = \reset($options['templates']['default']);
+            }
+            unset($options['templates']);
+        }
+        return $options;
     }
 }

@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use Symfony\Bundle\FrameworkBundle\Console\Application;
+use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
+use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\ViewManager;
+use MakinaCorpus\Calista\View\ViewRendererRegistry;
+use MakinaCorpus\Calista\View\ViewRendererRegistry\ContainerViewRendererRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -28,44 +32,103 @@ final class CalistaExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        // From the configured pages, build services
+        // From the configured pages, build services.
+        $pageDefinitions = [];
         foreach ($configs as $config) {
-            // Do not process everything at once, it will erase array keys
-            // of all pages definitions except those from the very first config
-            // file, and break all our services identifiers
+            // This was a side effect due to Drupal 7 with sf_dic module was
+            // loading multiple configuration files without proper merging,
+            // this should not exist. But it works, so let's keep it.
             $config = $this->processConfiguration($configuration, [$config]);
-
             if (isset($config['pages'])) {
                 foreach ($config['pages'] as $id => $array) {
-
-                    // Determine both service and page identifier
-                    $serviceId = 'calista.config_page.' . $id;
-                    $pageId = empty($array['id']) ? $id : $array['id'];
-
-                    $definition = new Definition();
-                    $definition->setClass(ConfigPageDefinition::class);
-                    $definition->setArguments([$pageId, $array, new Reference('calista.view_factory')]);
-                    $definition->setPublic(true); // Lazy loading...
-                    $definition->addTag('calista.page_definition', ['id' => $pageId]);
-
-                    $container->addDefinitions([$serviceId => $definition]);
+                    $pageDefinitions[$array['id'] ?? $id] = $array;
                 }
             }
         }
 
+        $this->registerPropertyRenderer($container);
+        $this->registerViewRendererRegistry($container);
+        $this->registerViewManager($container);
+        $this->registerViewFactory($container, $pageDefinitions);
+        $this->registerPageRenderer($container);
+
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
-        $loader->load('services.yml');
         $loader->load('view.yml');
 
         if (\class_exists(Environment::class)) {
             $loader->load('twig.yml');
         }
-        if (\class_exists(Application::class)) {
-            $loader->load('commands.yml');
-        }
         if (\class_exists('Box\\Spout\\Writer\\WriterFactory')) {
             $loader->load('spout.yml');
         }
+    }
+
+    private function registerViewRendererRegistry(ContainerBuilder $container): void
+    {
+        $definition = new Definition();
+        $definition->setClass(ContainerViewRendererRegistry::class);
+        // Will be populated using a compiler pass.
+        $definition->setArguments([[]]);
+        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
+        $definition->setPrivate(true);
+
+        $container->setDefinition('calista.view.renderer_registry.container', $definition);
+        $container->setAlias('calista.view.renderer_registry', 'calista.view.renderer_registry.container');
+        $container->setAlias(ViewRendererRegistry::class, 'calista.view.renderer_registry');
+    }
+
+    private function registerViewManager(ContainerBuilder $container): void
+    {
+        $definition = new Definition();
+        $definition->setClass(ViewManager::class);
+        $definition->setArguments([new Reference('calista.view.renderer_registry')]);
+        $definition->setPrivate(true);
+
+        $container->setDefinition('calista.view.manager', $definition);
+        $container->setAlias(ViewManager::class, 'calista.view.manager');
+    }
+
+    private function registerPropertyRenderer(ContainerBuilder $container): void
+    {
+        $definition = new Definition();
+        $definition->setClass(PropertyRenderer::class);
+        $definition->setArguments([new Reference('property_accessor')]);
+        $definition->setPrivate(true);
+
+        $container->setDefinition('calista.property_renderer', $definition);
+        $container->setAlias(PropertyRenderer::class, 'calista.property_renderer');
+    }
+
+    /**
+     * @deprecated
+     */
+    private function registerViewFactory(ContainerBuilder $container, array $pageDefinitions): void
+    {
+        $definition = new Definition();
+        $definition->setClass(ViewFactory::class);
+        $definition->setArguments([
+            new Reference('calista.view.renderer_registry'),
+            $pageDefinitions,
+        ]);
+        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
+        $definition->setPrivate(true);
+
+        $container->setDefinition('calista.view.factory', $definition);
+        $container->setAlias(ViewFactory::class, 'calista.view.factory');
+
+        // Kept for backward compatibility, but you should stop using this.
+        $container->setAlias('calista.view_factory', 'calista.view.factory');
+    }
+
+    private function registerPageRenderer(ContainerBuilder $container): void
+    {
+        $definition = new Definition();
+        $definition->setClass(PageRenderer::class);
+        $definition->setArguments([new Reference('calista.view.factory')]);
+        $definition->setPrivate(true);
+
+        $container->setDefinition('calista.page_renderer', $definition);
+        $container->setAlias(PageRenderer::class, 'calista.page_renderer');
     }
 
     /**

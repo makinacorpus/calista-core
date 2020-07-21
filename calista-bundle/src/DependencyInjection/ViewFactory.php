@@ -6,247 +6,65 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\View\ViewRenderer;
+use MakinaCorpus\Calista\View\ViewRendererRegistry;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
- * God I hate to register more factories to the DIC, but we have some
- * dependencies that we should inject into pages, and only this allows
- * us to do it properly
+ * @codeCoverageIgnore
+ * @deprecated
+ *   Please do not use this anymore. Legal variant is to use the view manager
+ *   and use the View class or the ViewBuilder instead now. This class only
+ *   exists as a bridge and will be removed soon.
+ * @see \MakinaCorpus\Calista\View\View
+ * @see \MakinaCorpus\Calista\View\ViewManager
  */
-final class ViewFactory
+final class ViewFactory implements ContainerAwareInterface
 {
-    private $container;
-    private $datasourceClasses = [];
-    private $datasourceServices = [];
-    private $pageClasses = [];
-    private $pageServices = [];
-    private $viewClasses = [];
-    private $viewServices = [];
+    use ContainerAwareTrait;
 
-    /**
-     * Default constructor
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    private ViewRendererRegistry $viewRendererRegistry;
+    private array $pageDefinitions = [];
+
+    public function __construct(ViewRendererRegistry $viewRendererRegistry, array $pageDefinitions = [])
     {
-        $this->container = $container;
+        $this->viewRendererRegistry = $viewRendererRegistry;
+        $this->pageDefinitions = $pageDefinitions;
     }
 
     /**
-     * Register page types
-     *
-     * @param string[] $services
-     *   Keys are names, values are service identifiers
-     * @param string[] $classes
-     *   Keys are class names, values are service identifiers
-     */
-    public function registerDatasources(array $services, array $classes = [])
-    {
-        $this->datasourceServices = $services;
-        $this->datasourceClasses = $classes;
-    }
-
-    /**
-     * Register page types
-     *
-     * @param string[] $services
-     *   Keys are names, values are service identifiers
-     */
-    public function registerPageDefinitions(array $services, array $classes = [])
-    {
-        $this->pageServices = $services;
-        $this->pageClasses = $classes;
-    }
-
-    /**
-     * Register page types
-     *
-     * @param string[] $services
-     *   Keys are names, values are service identifiers
-     * @param string[] $classes
-     *   Keys are class names, values are service identifiers
-     */
-    public function registerViews(array $services, array $classes = [])
-    {
-        $this->viewServices = $services;
-        $this->viewClasses = $classes;
-    }
-
-    /**
-     * Create instance
-     *
-     * @param string $class
-     * @param string $name
-     * @param string[] $services
-     * @param string[] $classes
-     *
-     * @return object
-     */
-    private function createInstance($class, $name, array $services, array $classes, $break = false)
-    {
-        if (isset($classes[$name]) && !$break) {
-            // Only attempt with the first, class lookup is not always a good move
-            return $this->createInstance($class, \reset($classes[$name]), $services, $classes, true);
-        }
-
-        if (isset($services[$name])) {
-            $id = $services[$name];
-        } else {
-            $id = $name;
-        }
-
-        try {
-            $instance = $this->container->get($id);
-
-            if (!\is_a($instance, $class)) {
-                throw new ServiceNotFoundException(\sprintf("service '%s' with id '%s' does not implement %s", $name, $id, $class));
-            }
-        } catch (ServiceNotFoundException $e) {
-
-            if (\class_exists($name)) {
-                $instance = new $name();
-
-                if (!\is_a($instance, $class)) {
-                    throw new ServiceNotFoundException(\sprintf("class '%s' does not implement %s", $name, $class));
-                }
-            } else {
-                throw new ServiceNotFoundException(\sprintf("service '%s' service id '%s' does not exist in container or class does not exists", $name, $id));
-            }
-        }
-
-        if ($instance instanceof ContainerAwareInterface) {
-            $instance->setContainer($this->container);
-        }
-
-        return $instance;
-    }
-
-    /**
-     * List found components in
-     */
-    private function listComponents(array $services, array $classes)
-    {
-        $ret = [];
-
-        foreach ($services as $id => $serviceId) {
-            foreach ($classes as $class => $map) {
-                if (isset($map[$id])) {
-                    $ret[$id] = [
-                        'service' => $serviceId,
-                        'class'   => $class,
-                    ];
-                }
-            }
-        }
-
-        return $ret;
-    }
-
-    /**
-     * List datasources
-     *
-     * @return array
-     *   Keys are datasource identifiers, values are an array of:
-     *     - service: service identifier, might be the same as the identifier
-     *     - class: datasource class
-     */
-    public function listDatasources()
-    {
-        return $this->listComponents($this->datasourceServices, $this->datasourceClasses);
-    }
-
-    /**
-     * List pages
-     *
-     * @return array
-     *   Keys are page identifiers, values are an array of:
-     *     - service: service identifier, might be the same as the identifier
-     *     - class: datasource class
-     */
-    public function listPages()
-    {
-        return $this->listComponents($this->pageServices, $this->pageClasses);
-    }
-
-    /**
-     * List views
-     *
-     * @return array
-     *   Keys are view identifiers, values are an array of:
-     *     - service: service identifier, might be the same as the identifier
-     *     - class: datasource class
-     */
-    public function listViews()
-    {
-        return $this->listComponents($this->viewServices, $this->viewClasses);
-    }
-
-    /**
-     * Get pages implementing the given class
-     *
-     * I am not proud of this one, but as of now it helps dynamic driven
-     * frameworks such as Drupal finding out page definitions and register
-     * them to its own router.
-     *
-     * @param string $class
-     *
-     * @return PageDefinitionInterface[]
-     *
-     * @deprecated
-     *   You should not use this method.
-     */
-    public function getPageDefinitionList($class)
-    {
-        $ret = [];
-
-        $isInterface = false;
-        if (!class_exists($class)) {
-            throw new \BadMethodCallException(\sprintf("class %s does not exists"));
-        }
-
-        foreach ($this->pageClasses as $pageClass => $names) {
-            foreach ($names as $name) {
-                $refClass = new \ReflectionClass($pageClass);
-
-                if ($isInterface) {
-                    if ($refClass->implementsInterface($class)) {
-                        $ret[$name] = $this->getPageDefinition($name);
-                    }
-                } else {
-                    if ($refClass->name === $class || $refClass->isSubclassOf($class)) {
-                        $ret[$name] = $this->getPageDefinition($name);
-                    }
-                }
-            }
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Get datasource
+     * Get datasource.
      */
     public function getDatasource(string $name): DatasourceInterface
     {
-        return $this->createInstance(DatasourceInterface::class, $name, $this->datasourceServices, $this->datasourceClasses);
+        @\trigger_error(\sprintf("You should not be using %s", self::class), E_USER_DEPRECATED);
+
+        return $this->container->get($name);
     }
 
     /**
-     * Get page definition
+     * Get page definition.
      */
-    public function getPageDefinition(string $name): PageDefinitionInterface
+    public function getPageDefinition(string $name): PageDefinition
     {
-        return $this->createInstance(PageDefinitionInterface::class, $name, $this->pageServices, $this->pageClasses);
+        @\trigger_error(\sprintf("You should not be using %s", self::class), E_USER_DEPRECATED);
+
+        $config = $this->pageDefinitions[$name] ?? null;
+
+        if (!$config) {
+            throw new \InvalidArgumentException(\sprintf("Page with name '%s' does not exist.", $name));
+        }
+
+        return new PageDefinition($config['id'] ?? $name, $config, $this);
     }
 
     /**
-     * Get view
+     * Get view.
      */
     public function getView(string $name): ViewRenderer
     {
-        return $this->createInstance(ViewRenderer::class, $name, $this->viewServices, $this->viewClasses);
+        @\trigger_error(\sprintf("You should not be using %s", self::class), E_USER_DEPRECATED);
+
+        return $this->viewRendererRegistry->getViewRenderer($name);
     }
 }

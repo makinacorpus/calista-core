@@ -1,6 +1,15 @@
 services:
 
-    calista.view.twig_page:
+    calista.view_renderer.twig:
+        public: true
+        class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
+        arguments: ['@twig', '@event_dispatcher']
+        tags: [{name: calista.view, id: twig}]
+
+    # Obsolete name variant of the service, but kept for backward compatibility.
+    # Please note that the correct renderer name is now simply "twig", you must
+    # now use the new name as "twig_page" will soon be removed.
+    calista.view_renderer.twig_page:
         public: true
         class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
         arguments: ['@twig', '@event_dispatcher']

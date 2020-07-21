@@ -9,9 +9,10 @@ use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\View\ViewDefinition;
 
 /**
- * Uses a raw config array
+ * @deprecated
+ * @codeCoverageIgnore
  */
-final class ConfigPageDefinition implements PageDefinitionInterface
+final class PageDefinition
 {
     private string $id;
     private array $config;
@@ -28,8 +29,8 @@ final class ConfigPageDefinition implements PageDefinitionInterface
         if (empty($config['datasource'])) {
             throw new \InvalidArgumentException("datasource is missing");
         }
-        if (empty($config['view']['view_type'])) {
-            throw new \InvalidArgumentException("view:view_type is missing");
+        if (empty($config['view']['renderer']) && empty($config['view']['view_type'])) {
+            throw new \InvalidArgumentException("view:renderer is missing");
         }
 
         $this->id = $id;
@@ -38,7 +39,7 @@ final class ConfigPageDefinition implements PageDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Get identifier.
      */
     public function getId(): string 
     {
@@ -46,7 +47,10 @@ final class ConfigPageDefinition implements PageDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Create configuration.
+     *
+     * @param mixed[] $options = []
+     *   Options overrides from the controller or per site configuration.
      */
     public function getInputDefinition(array $options = []): InputDefinition
     {
@@ -54,7 +58,10 @@ final class ConfigPageDefinition implements PageDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Create view definition for this page.
+     *
+     * @param mixed[] $options = []
+     *   Options overrides from the controller or per site configuration.
      */
     public function getViewDefinition(array $options = []): ViewDefinition
     {
@@ -62,7 +69,7 @@ final class ConfigPageDefinition implements PageDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Get the associated datasource.
      */
     public function getDatasource(): DatasourceInterface
     {
