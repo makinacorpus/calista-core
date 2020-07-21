@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Query;
 
 /**
- * Sanitized version of an incomming query
+ * Sanitized version of an incomming query.
  *
  * @todo support maximum limit
  */

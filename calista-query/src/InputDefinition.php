@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Input query definition and sanitizer
+ * Input query definition and sanitizer.
  *
  * @codeCoverageIgnore
  */
@@ -54,10 +54,10 @@ class InputDefinition
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
 
-        // Normalize filters and sorts
+        // Normalize filters and sorts.
         foreach ($this->options['filter_list'] as $filter) {
             $name = $filter->getField();
-            // Filter out non allowed (outside of base query) filter choices
+            // Filter out non allowed (outside of base query) filter choices.
             if (isset($this->options['base_query'][$name])) {
                 $choices = $this->options['base_query'][$name];
                 if (!\is_array($choices)) {
@@ -68,7 +68,7 @@ class InputDefinition
             $this->filterLabels[$name] = $filter->getTitle();
         }
 
-        // Do a few consistency checks based upon the advertised capabilities
+        // Do a few consistency checks based upon the advertised capabilities.
         $searchFields = $this->getSearchFields();
         if ($this->options['search_enable']) {
             if ($searchFields) {
@@ -80,7 +80,7 @@ class InputDefinition
             }
         }
 
-        // Ensure given base query only contains legitimate field names
+        // Ensure given base query only contains legitimate field names.
         if ($this->options['base_query']) {
             foreach (\array_keys($this->options['base_query']) as $name) {
                 if (!$this->isFilterAllowed($name)) {
@@ -90,7 +90,7 @@ class InputDefinition
         }
 
         // Set the default sort if none was given by the user, yell if user
-        // gave one which is not supported
+        // gave one which is not supported.
         if (empty($this->options['sort_default_field'])) {
             $this->options['sort_default_field'] = key($this->options['sort_allowed_list']);
         } else {
@@ -101,7 +101,7 @@ class InputDefinition
     }
 
     /**
-     * Convert in given array all values to Filter instance if they are not
+     * Convert in given array all values to Filter instance if they are not.
      */
     private function fixFilters(array $values): array
     {
@@ -124,7 +124,7 @@ class InputDefinition
     }
 
     /**
-     * Convert given array to (id => name) pairs
+     * Convert given array to (id => name) pairs.
      */
     private function fixAllowedSorts(array $values): array
     {
@@ -145,7 +145,7 @@ class InputDefinition
     }
 
     /**
-     * Build options resolver
+     * Build options resolver.
      */
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -154,7 +154,7 @@ class InputDefinition
             'display_param' => 'display',
             // Must be a list of \MakinaCorpus\Calista\Query\Filter
             //   or a list of Key/value pairs, each key is a field name
-            //   and value is the human readable label
+            //   and value is the human readable label.
             'filter_list' => [],
             'limit_allowed' => false,
             'limit_default' => Query::LIMIT_DEFAULT,
@@ -166,7 +166,7 @@ class InputDefinition
             'search_field' => null,
             'search_param' => 's',
             'search_parse' => false,
-            // Keys are field names, values are labels
+            // Keys are field names, values are labels.
             'sort_allowed_list' => [],
             'sort_default_field' => '',
             'sort_default_order' => Query::SORT_DESC,
@@ -193,7 +193,7 @@ class InputDefinition
     }
 
     /**
-     * Get base query
+     * Get base query.
      *
      * @return string[]
      */
@@ -203,10 +203,10 @@ class InputDefinition
     }
 
     /**
-     * Get allowed filterable field list
+     * Get allowed filterable field list.
      *
      * @return string[]
-     *   Keys are field name, values are human readable labels
+     *   Keys are field name, values are human readable labels.
      */
     public function getAllowedFilters(): array
     {
@@ -214,7 +214,7 @@ class InputDefinition
     }
 
     /**
-     * Get filter instances
+     * Get filter instances.
      *
      * @return Filter[]
      */
@@ -224,7 +224,7 @@ class InputDefinition
     }
 
     /**
-     * Is the given filter field allowed
+     * Is the given filter field allowed.
      */
     public function isFilterAllowed(string $name): bool
     {
@@ -232,10 +232,10 @@ class InputDefinition
     }
 
     /**
-     * Get allowed sort field list
+     * Get allowed sort field list.
      *
      * @return string[]
-     *   Keys are field name, values are human readable labels
+     *   Keys are field name, values are human readable labels.
      */
     public function getAllowedSorts(): array
     {
@@ -243,7 +243,7 @@ class InputDefinition
     }
 
     /**
-     * Is the given sort field allowed
+     * Is the given sort field allowed.
      */
     public function isSortAllowed(string $name): bool
     {
@@ -251,7 +251,7 @@ class InputDefinition
     }
 
     /**
-     * Get display parameter name
+     * Get display parameter name.
      */
     public function getDisplayParameter(): string
     {
@@ -259,7 +259,7 @@ class InputDefinition
     }
 
     /**
-     * Can the query change the limit
+     * Can the query change the limit.
      */
     public function isLimitAllowed(): bool
     {
@@ -267,7 +267,7 @@ class InputDefinition
     }
 
     /**
-     * Get the default limit
+     * Get the default limit.
      */
     public function getDefaultLimit(): int
     {
@@ -275,7 +275,7 @@ class InputDefinition
     }
 
     /**
-     * Get the limit parameter name
+     * Get the limit parameter name.
      */
     public function getLimitParameter(): string
     {
@@ -283,7 +283,7 @@ class InputDefinition
     }
 
     /**
-     * Is paging enabled
+     * Is paging enabled.
      */
     public function isPagerEnabled(): bool
     {
@@ -291,7 +291,7 @@ class InputDefinition
     }
 
     /**
-     * Get page parameter
+     * Get page parameter.
      */
     public function getPagerParameter(): string
     {
@@ -299,7 +299,7 @@ class InputDefinition
     }
 
     /**
-     * Is full search enabled
+     * Is full search enabled.
      */
     public function isSearchEnabled(): bool
     {
@@ -307,7 +307,7 @@ class InputDefinition
     }
 
     /**
-     * Is search parsed
+     * Is search parsed.
      */
     public function isSearchParsed(): bool
     {
@@ -315,7 +315,7 @@ class InputDefinition
     }
 
     /**
-     * Is there a specifically configured search field
+     * Is there a specifically configured search field.
      */
     public function hasSearchField(): bool
     {
@@ -323,7 +323,7 @@ class InputDefinition
     }
 
     /**
-     * Get search fields
+     * Get search fields.
      *
      * @return string[]
      */
@@ -333,7 +333,7 @@ class InputDefinition
     }
 
     /**
-     * Get search parameter name
+     * Get search parameter name.
      */
     public function getSearchParameter(): string
     {
@@ -341,7 +341,7 @@ class InputDefinition
     }
 
     /**
-     * Get sort field parameter
+     * Get sort field parameter.
      */
     public function getSortFieldParameter(): string
     {
@@ -349,7 +349,7 @@ class InputDefinition
     }
 
     /**
-     * Get sort order parameter
+     * Get sort order parameter.
      */
     public function getSortOrderParameter(): string
     {
@@ -357,7 +357,7 @@ class InputDefinition
     }
 
     /**
-     * Get default sort field
+     * Get default sort field.
      */
     public function getDefaultSortField(): string
     {
@@ -365,7 +365,7 @@ class InputDefinition
     }
 
     /**
-     * Get default sort order
+     * Get default sort order.
      */
     public function getDefaultSortOrder(): string
     {
@@ -373,7 +373,7 @@ class InputDefinition
     }
 
     /**
-     * Create query from array
+     * Create query from array.
      */
     public function createQueryFromArray(array $input): Query
     {
@@ -381,7 +381,7 @@ class InputDefinition
     }
 
     /**
-     * Create query from request
+     * Create query from request.
      */
     public function createQueryFromRequest(Request $request): Query
     {

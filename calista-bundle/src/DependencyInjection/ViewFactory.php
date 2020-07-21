@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
-use MakinaCorpus\Calista\View\ViewInterface;
+use MakinaCorpus\Calista\View\ViewRenderer;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -245,8 +245,8 @@ final class ViewFactory
     /**
      * Get view
      */
-    public function getView(string $name): ViewInterface
+    public function getView(string $name): ViewRenderer
     {
-        return $this->createInstance(ViewInterface::class, $name, $this->viewServices, $this->viewClasses);
+        return $this->createInstance(ViewRenderer::class, $name, $this->viewServices, $this->viewClasses);
     }
 }

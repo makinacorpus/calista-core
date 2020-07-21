@@ -6,7 +6,7 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\PageDefinitionInterface;
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
-use MakinaCorpus\Calista\View\ViewInterface;
+use MakinaCorpus\Calista\View\ViewRenderer;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
@@ -73,7 +73,7 @@ final class PageDefinitionRegisterPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $this->registerServices($container, 'calista.page_definition', 'registerPageDefinitions', PageDefinitionInterface::class);
-        $this->registerServices($container, 'calista.view', 'registerViews', ViewInterface::class);
+        $this->registerServices($container, 'calista.view', 'registerViews', ViewRenderer::class);
         $this->registerServices($container, 'calista.datasource', 'registerDatasources', DatasourceInterface::class);
     }
 }
