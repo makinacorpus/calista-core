@@ -19,15 +19,7 @@ class CsvStreamDatasource extends AbstractDatasource
         $this->filename = $filename;
         $this->options = $options;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsStreaming(): bool
-    {
-        return true;
-    }
-
+    
     /**
      * {@inheritdoc}
      */

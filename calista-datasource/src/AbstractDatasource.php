@@ -30,25 +30,9 @@ abstract class AbstractDatasource implements DatasourceInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsStreaming(): bool
-    {
-        return false; // Sensible default
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsPagination(): bool
     {
         return true; // Sensible default
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function validateItems(Query $query, array $idList): bool
-    {
-        return false;
     }
 
     /**

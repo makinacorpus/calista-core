@@ -76,9 +76,7 @@ final class CsvStreamTest extends TestCase
         $query = (new QueryFactory())->fromArbitraryArray([]);
         $items = $datasource->getItems($query);
 
-        self::assertTrue($datasource->supportsStreaming());
         self::assertFalse($datasource->supportsPagination());
-        self::assertFalse($datasource->validateItems($query, ['any']));
 
         foreach ($items as $index => $item) {
             switch ($index) {

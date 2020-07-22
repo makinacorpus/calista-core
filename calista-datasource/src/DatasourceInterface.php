@@ -28,11 +28,6 @@ interface DatasourceInterface
     public function getSorts(): array;
 
     /**
-     * Does this datasource streams data.
-     */
-    public function supportsStreaming(): bool;
-
-    /**
      * Does this datasource supports pagination.
      */
     public function supportsPagination(): bool;
@@ -46,18 +41,4 @@ interface DatasourceInterface
      * depending upon current context
      */
     public function getItems(Query $query): DatasourceResultInterface;
-
-    /**
-     * Given an arbitrary list of identifiers that this datasource should
-     * understand, return false if any of the given item identifiers are part
-     * of this datasource data set.
-     *
-     * Item identifiers are given in an arbitrary fashion, the datasource might
-     * not even understand the concept of identifiers.
-     *
-     * This can be used by external code to implement complex form widget using
-     * administration screens as item selectors, for example, but this module
-     * does not care about it.
-     */
-    public function validateItems(Query $query, array $idList): bool;
 }
