@@ -28,11 +28,6 @@ interface DatasourceInterface
     public function getSorts(): array;
 
     /**
-     * Does this datasource supports pagination.
-     */
-    public function supportsPagination(): bool;
-
-    /**
      * Get items to display.
      *
      * This should NOT return rendered items but loaded items or item

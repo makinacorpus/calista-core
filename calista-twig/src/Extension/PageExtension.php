@@ -9,6 +9,7 @@ use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Extension\AbstractExtension;
@@ -19,15 +20,21 @@ class PageExtension extends AbstractExtension
     private PropertyRenderer $propertyRenderer;
     private RequestStack $requestStack;
     private ?PageRenderer $pageRenderer = null;
+    private ?UrlGeneratorInterface $urlGenerator = null;
 
     /**
      * Default constructor
      */
-    public function __construct(RequestStack $requestStack, PropertyRenderer $propertyRenderer, ?PageRenderer $pageRenderer = null)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        PropertyRenderer $propertyRenderer,
+        ?PageRenderer $pageRenderer = null,
+        ?UrlGeneratorInterface $urlGenerator = null
+    ) {
         $this->requestStack = $requestStack;
         $this->propertyRenderer = $propertyRenderer;
         $this->pageRenderer = $pageRenderer;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -48,6 +55,9 @@ class PageExtension extends AbstractExtension
             new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page_range', [$this, 'computePageRange'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
+            // Pass-thgouth to URL generator, because sometime, we have a null
+            // path, and we will just ignore errors and use '#' as route.
+            new TwigFunction('calista_path', [$this, 'renderPath'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -58,6 +68,21 @@ class PageExtension extends AbstractExtension
             new TwigFilter('calista_filter_query', [$this, 'getFilterQuery'], ['is_safe' => ['html']]),
             new TwigFilter('calista_query_param', [$this, 'flattenQueryParam']),
         ];
+    }
+
+    /**
+     * Render URL.
+     */
+    public function renderPath(?string $name = null, array $parameters = [], bool $relative = false): string
+    {
+        if (!$name) {
+            return '#' . \http_build_query($parameters);
+        }
+        if (!$this->urlGenerator) {
+            return $name . '#' . \http_build_query($parameters);
+        }
+
+        return $this->urlGenerator->generate($name, $parameters, $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH);
     }
 
     /**

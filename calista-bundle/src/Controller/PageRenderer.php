@@ -6,6 +6,7 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\Controller;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\PageDefinition;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\ViewFactory;
+use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +41,8 @@ final class PageRenderer
         $viewDefinition = $page->getViewDefinition($viewOptions);
         $view = $this->viewFactory->getView($viewDefinition->getRendererName());
 
-        $query = $page->getInputDefinition($inputOptions)->createQueryFromRequest($request);
+        $inputDefinition = $page->getInputDefinition($inputOptions);
+        $query = Query::fromRequest($inputDefinition, $request);
         $items = $page->getDatasource()->getItems($query);
 
         return $view->render(new View($viewDefinition, $items, $query));
@@ -71,7 +73,8 @@ final class PageRenderer
         $viewDefinition = $page->getViewDefinition($viewOptions);
         $view = $this->viewFactory->getView($viewDefinition->getRendererName());
 
-        $query = $page->getInputDefinition($inputOptions)->createQueryFromRequest($request);
+        $inputDefinition = $page->getInputDefinition($inputOptions);
+        $query = $query = Query::fromRequest($inputDefinition, $request);
         $items = $page->getDatasource()->getItems($query);
 
         return $view->renderAsResponse(new View($viewDefinition, $items, $query));

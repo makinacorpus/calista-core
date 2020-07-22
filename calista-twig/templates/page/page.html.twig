@@ -22,7 +22,7 @@
 {%- block filter_link -%}
   <div class="checkbox">
     <label>
-      <a{% if link.isActive %} class="active"{% endif %} href="{{ path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
+      <a{% if link.isActive %} class="active"{% endif %} href="{{ calista_path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
         <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
         {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
       </a>
@@ -109,7 +109,7 @@
     {% set linkOrder = query.sortOrder %}
   {% endif %}
   {% set mergeParams = {(input.sortFieldParameter): field, (input.sortOrderParameter): linkOrder} %}
-  <a href="{{ path(view.route, view.getRouteParameters(query.all, mergeParams)) }}" class="{{ class }} sort-{{ linkOrder }}{% if isActive %} active{% endif %}" data-page-link>
+  <a href="{{ calista_path(view.route, view.getRouteParameters(query.all, mergeParams)) }}" class="{{ class }} sort-{{ linkOrder }}{% if isActive %} active{% endif %}" data-page-link>
     {{ label|e }}
   </a>
 {% endblock %}
@@ -138,12 +138,12 @@
   </a>
   <ul class="dropdown-menu dropdown-menu-right">
     <li>
-      <a href="{{ path(view.route, view.getRouteParameters(query.all, {(input.sortOrderParameter): 'asc'})) }}" {% if 'asc' == query.sortOrder %}class="active"{% endif %} data-page-link>
+      <a href="{{ calista_path(view.route, view.getRouteParameters(query.all, {(input.sortOrderParameter): 'asc'})) }}" {% if 'asc' == query.sortOrder %}class="active"{% endif %} data-page-link>
         {{ "ascending"|trans }}
       </a>
     </li>
     <li>
-      <a href="{{ path(view.route, view.getRouteParameters(query.all, {(input.sortOrderParameter): 'desc'})) }}" {% if 'desc' == query.sortOrder %}class="active"{% endif %} data-page-link>
+      <a href="{{ calista_path(view.route, view.getRouteParameters(query.all, {(input.sortOrderParameter): 'desc'})) }}" {% if 'desc' == query.sortOrder %}class="active"{% endif %} data-page-link>
         {{ "descending"|trans }}
       </a>
     </li>
@@ -198,10 +198,10 @@
 {%- block pager_href -%}
   {% if index is defined %}
     {% if index == 1 %}
-      {{ path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
+      {{ calista_path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
     {% else %}
       {# @todo drop the page parameter completly #}
-      {{ path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
+      {{ calista_path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
     {% endif %}
   {% else %}
     #
@@ -291,7 +291,7 @@
 {% endblock %}
 
 {% block filters %}
-  <form method="get" action="{{ path(view.route, view.getRouteParameters) }}" class="form-inline">
+  <form method="get" action="{{ calista_path(view.route, view.getRouteParameters) }}" class="form-inline">
     {% for filter in filters %}
       {% if filter.isBoolean %}
         {{ block('filter_boolean') }}
@@ -309,7 +309,7 @@
           <span class="glyphicon glyphicon-search"></span>
           {{ "Filter"|trans }}
         </button>
-        <a href="{{ path(view.route, view.getRouteParameters) }}" class="btn btn-default">
+        <a href="{{ calista_path(view.route, view.getRouteParameters) }}" class="btn btn-default">
           <span class="glyphicon glyphicon-remove"></span>
           {{ "Reset"|trans }}
         </a>
@@ -340,7 +340,7 @@
 {%- block page -%}
   <div class="calista-page"
       {% if pageId %}data-page="{{ pageId|e }}"
-      {% if view.route %}data-page-route="{{ path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
+      {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
       data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
       data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}

@@ -67,7 +67,7 @@ class Query
     public static function fromArray(InputDefinition $inputDefinition, array $input = []): Query
     {
         if (!$input) {
-            return Query::empty();
+            return new Query($inputDefinition);
         }
 
         $otherKeys = [

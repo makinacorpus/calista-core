@@ -4,7 +4,7 @@
   {% if class is not defined %}
     {% set class = '' %}
   {% endif %}
-  <a class="{{ class }}{% if link.isActive %} active{% endif %}" href="{{ path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
+  <a class="{{ class }}{% if link.isActive %} active{% endif %}" href="{{ calista_path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
     <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
     {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
   </a>
@@ -107,10 +107,10 @@
      {% if 'asc' == query.sortOrder %}{{ "ascending"|trans }}{% else %}{{ "descending"|trans }}{% endif %}&nbsp;<span class="caret"></span>
     </button>
     <div class="dropdown-menu">
-      <a href="{{ path(view.route, view.getRouteParameters|merge({(input.sortOrderParameter): 'asc'})) }}" class="dropdown-item {% if 'asc' == query.sortOrder %}active{% endif %}" data-page-link>
+      <a href="{{ calista_path(view.route, view.getRouteParameters|merge({(input.sortOrderParameter): 'asc'})) }}" class="dropdown-item {% if 'asc' == query.sortOrder %}active{% endif %}" data-page-link>
         {{ "ascending"|trans }}
       </a>
-      <a href="{{ path(view.route, view.getRouteParameters|merge({(input.sortOrderParameter): 'desc'})) }}" class="dropdown-item {% if 'desc' == query.sortOrder %}active{% endif %}" data-page-link>
+      <a href="{{ calista_path(view.route, view.getRouteParameters|merge({(input.sortOrderParameter): 'desc'})) }}" class="dropdown-item {% if 'desc' == query.sortOrder %}active{% endif %}" data-page-link>
         {{ "descending"|trans }}
       </a>
     </div>
@@ -167,7 +167,7 @@
 {% endblock %}
 
 {% block filters %}
-  <form method="get" action="{{ path(view.route, view.getRouteParameters) }}">
+  <form method="get" action="{{ calista_path(view.route, view.getRouteParameters) }}">
     <div class="form-row align-items-center">
       {% for filter in filters %}
         <div class="col-auto">
@@ -189,7 +189,7 @@
               <span class="glyphicon glyphicon-search"></span>
               {{ "Filter"|trans }}
             </button>
-            <a href="{{ path(view.route, view.getRouteParameters) }}" class="btn btn-default">
+            <a href="{{ calista_path(view.route, view.getRouteParameters) }}" class="btn btn-default">
               <span class="glyphicon glyphicon-remove"></span>
               {{ "Reset"|trans }}
             </a>
@@ -216,7 +216,7 @@
 {%- block page -%}
   <div class="calista-page {% block container_class %}{% endblock %}"
       {% if pageId %}data-page="{{ pageId|e }}"
-      {% if view.route %}data-page-route="{{ path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
+      {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
       data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
       data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}

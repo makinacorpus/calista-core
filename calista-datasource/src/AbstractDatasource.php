@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Datasource;
 
-use MakinaCorpus\Calista\Query\Query;
-
 /**
  * Base implementation which leaves null a few mathods
  */
@@ -25,14 +23,6 @@ abstract class AbstractDatasource implements DatasourceInterface
     public function getSorts(): array
     {
         return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsPagination(): bool
-    {
-        return true; // Sensible default
     }
 
     /**

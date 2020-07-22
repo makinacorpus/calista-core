@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Query;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -26,10 +25,6 @@ class InputDefinition
     {
         $options['filter_list'] = $datasource->getFilters();
         $options['sort_allowed_list'] =  $datasource->getSorts();
-
-        if (!$datasource->supportsPagination() && !empty($options['pager_enable'])) {
-            throw new \InvalidArgumentException("datasource cannot do paging, yet it is enabled");
-        }
 
         return new self($options);
     }
@@ -294,21 +289,5 @@ class InputDefinition
     public function getDefaultSortOrder(): ?string
     {
         return $this->options['sort_default_order'] ?? null;
-    }
-
-    /**
-     * Create query from array.
-     */
-    public function createQueryFromArray(array $input): Query
-    {
-        return Query::fromArray($this, $input);
-    }
-
-    /**
-     * Create query from request.
-     */
-    public function createQueryFromRequest(Request $request): Query
-    {
-        return Query::fromRequest($this, $request);
     }
 }

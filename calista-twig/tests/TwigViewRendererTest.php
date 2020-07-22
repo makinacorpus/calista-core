@@ -88,7 +88,7 @@ final class TwigViewRendererTest extends TestCase
         self::assertSame('odd_or_even', \reset($filters)->getField());
         self::assertSame('Odd or Even', \reset($filters)->getTitle());
 
-        $query = $inputDefinition->createQueryFromRequest($request);
+        $query = Query::fromRequest($inputDefinition, $request);
         $items = $datasource->getItems($query);
 
         self::assertCount(7, $items);
@@ -125,7 +125,7 @@ final class TwigViewRendererTest extends TestCase
 
         $view = new TwigViewRenderer(self::createTwigEnv(), new EventDispatcher());
 
-        $query = $inputDefinition->createQueryFromRequest($request);
+        $query = Query::fromRequest($inputDefinition, $request);
         $items = $datasource->getItems($query);
 
         /* $output = */ $view->render(new View($viewDefinition, $items, $query));

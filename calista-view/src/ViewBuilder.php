@@ -6,8 +6,10 @@ namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
+use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\Query\RouteHolderTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,11 +18,15 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class ViewBuilder
 {
+    use RouteHolderTrait {
+        setRoute as route;
+    }
+
     private ViewRendererRegistry $viewRendererRegistry;
 
     private bool $locked = false;
     private $data = null;
-    private $query = null;
+    private ?Request $request = null;
     private array $queryParams = [];
     private string $rendererName = 'twig';
     private array $inputOptions = [];
@@ -70,12 +76,30 @@ final class ViewBuilder
         return $this;
     }
 
-    public function pager(bool $enable = true, string $parameterName = 'page')
+    public function pager(bool $enable = true, string $parameterName = 'page'): self
     {
         $this->dieIfLocked();
 
         $this->inputOptions['pager_enable'] = true;
         $this->inputOptions['pager_param'] = $parameterName;
+
+        return $this;
+    }
+
+    public function addSort(string $name, ?string $label = null): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['sort_allowed_list'][$name] = $name ?? $label;
+
+        return $this;
+    }
+
+    public function addFilter(Filter $filter): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['filter_list'][] = $filter;
 
         return $this;
     }
@@ -93,14 +117,14 @@ final class ViewBuilder
     }
 
     /**
-     * @param array|Query|Request $query
+     * @param Request $request
      */
-    public function query($query): self
+    public function request(Request $request): self
     {
         $this->dieIfLocked();
 
         // Normalizing is done later, once all data is set.
-        $this->query = $query;
+        $this->request = $request;
 
         return $this;
     }
@@ -194,7 +218,14 @@ final class ViewBuilder
             $items = $this->data;
         }
 
-        return new View($this->doBuildViewDefinition(), $items, $query);
+        $view = new View($this->doBuildViewDefinition(), $items, $query);
+        if ($this->route) {
+            $view->setRoute($this->getRoute(), $this->getRouteParameters());
+        } else if ($this->request) {
+            $view->setRoute($this->request->attributes->get('_route'), $this->request->attributes->get('_route_params'));
+        }
+
+        return $view;
     }
 
     private function doBuildInputDefinition(): InputDefinition
@@ -210,21 +241,11 @@ final class ViewBuilder
     {
         $inputDefinition = $this->doBuildInputDefinition();
 
-        if (!$this->query) {
-            return $inputDefinition->createQueryFromArray([]);
-        }
-        if ($this->query instanceof Query) {
-            return $this->query;
+        if ($this->request) {
+            return Query::fromRequest($inputDefinition, $this->request);
         }
 
-        if (\is_array($this->query)) {
-            return $inputDefinition->createQueryFromArray($this->query);
-        }
-        if ($this->query instanceof Request) {
-            return $inputDefinition->createQueryFromRequest($this->query);
-        }
-
-        throw new \InvalidArgumentException(\sprintf("\$query must be an array or an instance of %s or %s", Request::class, Query::class));
+        return Query::fromArray($inputDefinition);
     }
 
     private function doBuildViewDefinition(): ViewDefinition
