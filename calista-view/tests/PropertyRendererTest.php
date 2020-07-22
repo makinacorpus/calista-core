@@ -13,7 +13,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 /**
  * Test property renderer basic render methods and renderers introspection
  */
-class PropertyRendererTest extends TestCase 
+final class PropertyRendererTest extends TestCase
 {
     public static function createPropertyRenderer(): PropertyRenderer
     {

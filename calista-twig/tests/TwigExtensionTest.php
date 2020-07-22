@@ -26,6 +26,17 @@ final class TwigExtensionTest extends TestCase
     }
 
     /**
+     * Stupid callback for rendering test
+     */
+    public function displayVirtualValue($object, $property): string
+    {
+        if (null === $property) {
+            return 'callback called';
+        }
+        return 'callback called: '.$property;
+    }
+
+    /**
      * Create page extension for testing
      */
     private function createExtension(): PageExtension
@@ -166,15 +177,15 @@ final class TwigExtensionTest extends TestCase
         $pageExtension->setDebug(true);
 
         // Property does not exists, declared as virtual, has a callback: callback is executed
-        $propertyView = new PropertyView('foo', null, ['virtual' => true, 'callback' => [$this, 'displayValue']]);
+        $propertyView = new PropertyView('foo', null, ['virtual' => true, 'callback' => [$this, 'displayVirtualValue']]);
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
-        self::assertSame('callback called', $output);
+        self::assertSame('callback called: foo', $output);
         self::assertTrue($propertyView->isVirtual());
 
         // Property exists, declared as virtual, has a callback: callback is executed, value is not accessed
-        $propertyView = new PropertyView('id', null, ['virtual' => true, 'callback' => [$this, 'displayValue']]);
+        $propertyView = new PropertyView('id', null, ['virtual' => true, 'callback' => [$this, 'displayVirtualValue']]);
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
-        self::assertSame("callback called", $output);
+        self::assertSame("callback called: id", $output);
         self::assertTrue($propertyView->isVirtual());
 
         // Property exists, is not virtual, has no type: type is determined dynamically: displayed properly

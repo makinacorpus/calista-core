@@ -40,6 +40,14 @@ final class View
         return new self(ViewDefinition::empty(), $items);
     }
 
+    /**
+     * Create empty instance.
+     */
+    public static function empty(): self
+    {
+        return new self(ViewDefinition::empty(), []);
+    }
+
     public function getDefinition(): ViewDefinition
     {
         return $this->definition;
@@ -87,6 +95,9 @@ final class View
         }
 
         foreach ($properties as $name) {
+            // $name can be numeric.
+            $name = (string)$name;
+
             if (!$this->definition->isPropertyDisplayed($name)) {
                 continue;
             }

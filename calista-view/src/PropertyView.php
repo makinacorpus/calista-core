@@ -31,7 +31,7 @@ class PropertyView
         return new self(
             $description->getName(),
             $description->getType(),
-            $options + $description->getDefaultViewOptions(),
+            $options + ['label' => $description->getLabel()] + $description->getDefaultViewOptions(),
         );
     }
 

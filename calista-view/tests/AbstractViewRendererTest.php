@@ -4,95 +4,62 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\Tests;
 
-use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
-use MakinaCorpus\Calista\Datasource\PropertyDescription;
-use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\View;
-use MakinaCorpus\Calista\View\ViewDefinition;
+use MakinaCorpus\Calista\View\Tests\Mock\DummyViewRenderer;
 use PHPUnit\Framework\TestCase;
 
 final class AbstractViewRendererTest extends TestCase
 {
-    public function testViewWithoutPropertiesNormalizesNothing(): void
+    public function testRenderInStream(): void
     {
-        $view = View::createFromItems([]);
+        $renderer = new DummyViewRenderer();
+        $resource = \fopen('php://memory', 'w+');
 
-        // No property info, no properties.
-        $properties = $view->getNormalizedProperties();
-        self::assertCount(0, $properties);
+        $renderer->renderInStream(View::empty(), $resource);
+        \rewind($resource);
+        self::assertSame('Dummy content.', \stream_get_contents($resource));
     }
 
-    public function testViewWithArbitraryDefinitionGivesDefinitionProperties(): void
+    public function testRenderInStreamRaiseErrorIfNotResource(): void
     {
-        // If a list of properties is defined, the algorithm should not
-        // attempt to use the property info component for retrieving the
-        // property list
-        $viewDefinition = new ViewDefinition([
-            'properties' => [
-                'foo' => [
-                    'thousand_separator' => 'YOUPLA',
-                    'label' => "The Foo property",
-                ],
-                'id' => true,
-                'baz' => false,
-                'test' => [
-                    'callback' => function () {
-                        return 'test';
-                    }
-                ],
-            ],
-        ]);
+        $renderer = new DummyViewRenderer();
+        $resource = 'BLA';
 
-        $view = new View($viewDefinition, []);
-
-        $properties = $view->getNormalizedProperties();
-        \reset($properties);
-
-        // Trust the user, display everything
-        foreach ($properties as $property) {
-            $name = $property->getName();
-            if ('foo' === $name) {
-                self::assertSame("The Foo property", $property->getLabel());
-            } else {
-                self::assertSame($property->getName(), $property->getLabel());
-            }
-            self::assertFalse($property->isVirtual());
-        }
+        self::expectException(\InvalidArgumentException::class);
+        $renderer->renderInStream(View::empty(), $resource);
     }
 
-    /**
-     * Tests that datasource result driven properties takes precedence over property info
-     */
-    public function testDatasourceResultProperty(): void
+    public function testRenderInFile(): void
     {
-        $items = new DefaultDatasourceResult([], [
-            new PropertyDescription('a', 'The A property', 'int'),
-            new PropertyDescription('b', 'The B property', 'string'),
-        ]);
+        $filename = \tempnam(\sys_get_temp_dir(), 'calista-view-file-');
 
-        // If a list of properties is defined, the algorithm should not
-        // attempt to use the property info component for retrieving the
-        // property list
-        $viewDefinition = new ViewDefinition();
-        $view = new View($viewDefinition, $items);
-        $properties = $view->getNormalizedProperties();
-        \reset($properties);
+        $renderer = new DummyViewRenderer();
+        $renderer->renderInFile(View::empty(), $filename);
 
-        // Order is the same, we have all properties we defined
-        // 'foo' is the first
-        $property = current($properties);
-        \assert($property instanceof PropertyView);
-        self::assertInstanceOf(PropertyView::class, $property);
-        self::assertSame('a', $property->getName());
-        self::assertSame('The A property', $property->getLabel());
-        self::assertSame('int', $property->getType());
+        self::assertSame('Dummy content.', \file_get_contents($filename));
+    }
 
-        // Then 'id', which exists on the class
-        $property = next($properties);
-        \assert($property instanceof PropertyView);
-        self::assertInstanceOf(PropertyView::class, $property);
-        self::assertSame('b', $property->getName());
-        self::assertSame('The B property', $property->getLabel());
-        self::assertSame('string', $property->getType());
+    public function testRenderInExistingButEmptyFile(): void
+    {
+        $filename = \tempnam(\sys_get_temp_dir(), 'calista-view-file-');
+        \file_put_contents($filename, '');
+        self::assertFileExists($filename);
+
+        $renderer = new DummyViewRenderer();
+        $renderer->renderInFile(View::empty(), $filename);
+
+        self::assertSame('Dummy content.', \file_get_contents($filename));
+    }
+
+    public function testRenderInFileRaiseErrorIfFileExistsAndSizeIsMoreThanZero(): void
+    {
+        $filename = \tempnam(\sys_get_temp_dir(), 'calista-view-file-');
+        \file_put_contents($filename, 'Foo');
+        self::assertFileExists($filename);
+
+        $renderer = new DummyViewRenderer();
+
+        self::expectException(\InvalidArgumentException::class);
+        $renderer->renderInFile(View::empty(), $filename);
     }
 }

@@ -14,7 +14,7 @@ abstract class AbstractViewRenderer implements ViewRenderer
      */
     public function renderInStream(View $view, $resource): void
     {
-        \trigger_error(\sprintf("%s::%s uses default slow implementation, consider implementing it", static::class, __METHOD__), E_USER_NOTICE);
+        @\trigger_error(\sprintf("%s::%s uses default slow implementation, consider implementing it", static::class, __METHOD__), E_USER_NOTICE);
 
         if (!\is_resource($resource)) {
             throw new \InvalidArgumentException("Given \$resource argument is not a resource");

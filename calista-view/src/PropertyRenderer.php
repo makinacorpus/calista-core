@@ -141,9 +141,26 @@ class PropertyRenderer
     }
 
     /**
+     * For when you have nothing to lose.
+     */
+    private function valueToString($value): string
+    {
+        if (null === $value) {
+            return '';
+        }
+        if (\is_string($value)) {
+            return $value;
+        }
+        if (\is_object($value) && \method_exists($value, '__toString')) {
+            return (string)$value;
+        }
+        return self::RENDER_NOT_POSSIBLE;
+    }
+
+    /**
      * Render a single value.
      */
-    private function renderValue($value, ?string $type = null, array $options = []): ?string
+    private function renderValue($value, ?string $type = null, array $options = []): string
     {
         if (null === $value) {
             return '';
@@ -176,14 +193,14 @@ class PropertyRenderer
                 ) {
                     return $this->renderDate($value, $options);
                 }
-                return self::RENDER_NOT_POSSIBLE;
+                return $this->valueToString($value);
         }
     }
 
     /**
      * Render a collection of values.
      */
-    private function renderValueCollection(iterable $values, ?string $type, array $options = []): ?string
+    private function renderValueCollection(iterable $values, ?string $type, array $options = []): string
     {
         $ret = [];
         foreach ($values as $value) {
@@ -317,9 +334,9 @@ class PropertyRenderer
             }
 
             if ($propertyView->isVirtual()) {
-                return $callback($item, $property, $options);
+                return $this->valueToString($callback($item, $property, $options));
             } else {
-                return $callback($this->getValue($item, $property, $options), $options, $item);
+                return $this->valueToString($callback($this->getValue($item, $property, $options), $options, $item));
             }
         }
 

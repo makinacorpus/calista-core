@@ -118,7 +118,10 @@ final class ViewBuilder
     }
 
     /**
-     * @param array|PropertyDescription|PropertyView $property
+     * @param array|callable|PropertyDescription|PropertyView $property
+     *   If a callback, PropertyView will be set as virtual, sensible default,
+     *   hence first callback parameter will be the object, second the property
+     *   name.
      */
     public function property(string $name, $property = []): self
     {
@@ -130,6 +133,11 @@ final class ViewBuilder
             $this->properties[$name] = $property->rename($name);
         } else if (\is_array($property)) {
             $this->properties[$name] = new PropertyView($name, null, $property);
+        } else if (\is_callable($property)) {
+            $this->properties[$name] = new PropertyView($name, null, [
+                'callback' => $property,
+                'virtual' => true,
+            ]);
         } else {
             throw new \InvalidArgumentException(\sprintf("\$property must be an array or an instance of %s or %s", PropertyDescription::class, PropertyView::class));
         }

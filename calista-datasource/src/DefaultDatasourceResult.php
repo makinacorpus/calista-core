@@ -11,7 +11,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
 {
     use DatasourceResultTrait;
 
-    private iterable $items;
+    private ?iterable $items = null;
     private ?int $count = null;
 
     /**
@@ -22,11 +22,20 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
      */
     public function __construct($items = [], array $properties = [])
     {
-        if (!\is_iterable($items) && !\is_callable($items)) {
-            throw new \InvalidArgumentException("Items must be iterable or callable");
+        // Because we're nice guys, we consider null being valid input.
+        if (null === $items) {
+            $this->items = [];
+        } else {
+            if (!\is_iterable($items) && \is_callable($items)) {
+                // Given argument is callable, but not iterable, hence it is not
+                // a generated, give it a call to find what it may return.
+                $items = $items();
+            }
+            if (!\is_iterable($items)) {
+                throw new \InvalidArgumentException("Items must be iterable or callable");
+            }
+            $this->items = $items;
         }
-
-        $this->items = $items;
 
         foreach ($properties as $index => $property) {
             if (!$property instanceof PropertyDescription) {
@@ -56,7 +65,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     {
         // Having an array here would mean data has been preloaded hence it is
         // not gracefully streamed from the real datasource.
-        return !\is_array($this->items);
+        return $this->items && !\is_array($this->items);
     }
 
     /**
