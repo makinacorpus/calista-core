@@ -6,7 +6,7 @@ namespace MakinaCorpus\Calista\Datasource\Tests;
 
 use MakinaCorpus\Calista\Datasource\Stream\CsvStreamDatasource;
 use MakinaCorpus\Calista\Datasource\Stream\CsvStreamReader;
-use MakinaCorpus\Calista\Query\QueryFactory;
+use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewDefinition;
@@ -73,7 +73,7 @@ final class CsvStreamTest extends TestCase
     {
         $filename = __DIR__ . '/stream.csv';
         $datasource = new CsvStreamDatasource($filename, ['delimiter' => ';']);
-        $query = (new QueryFactory())->fromArbitraryArray([]);
+        $query = Query::fromArbitraryArray([]);
         $items = $datasource->getItems($query);
 
         self::assertFalse($datasource->supportsPagination());
@@ -110,7 +110,7 @@ final class CsvStreamTest extends TestCase
 
         $filename = __DIR__ . '/stream.csv';
         $datasource = new CsvStreamDatasource($filename, ['delimiter' => ';']);
-        $query = (new QueryFactory())->fromArbitraryArray([]);
+        $query = Query::fromArbitraryArray([]);
         $items = $datasource->getItems($query);
 
         $viewDefinition = new ViewDefinition([

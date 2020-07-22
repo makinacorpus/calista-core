@@ -267,33 +267,33 @@ class InputDefinition
     /**
      * Get sort field parameter.
      */
-    public function getSortFieldParameter(): string
+    public function getSortFieldParameter(): ?string
     {
-        return $this->options['sort_field_param'] ?? '';
+        return $this->options['sort_field_param'] ?? null;
     }
 
     /**
      * Get sort order parameter.
      */
-    public function getSortOrderParameter(): string
+    public function getSortOrderParameter(): ?string
     {
-        return $this->options['sort_order_param'] ?? '';
+        return $this->options['sort_order_param'] ?? null;
     }
 
     /**
      * Get default sort field.
      */
-    public function getDefaultSortField(): string
+    public function getDefaultSortField(): ?string
     {
-        return $this->options['sort_default_field'] ?? '';
+        return $this->options['sort_default_field'] ?? null;
     }
 
     /**
      * Get default sort order.
      */
-    public function getDefaultSortOrder(): string
+    public function getDefaultSortOrder(): ?string
     {
-        return $this->options['sort_default_order'] ?? '';
+        return $this->options['sort_default_order'] ?? null;
     }
 
     /**
@@ -301,7 +301,7 @@ class InputDefinition
      */
     public function createQueryFromArray(array $input): Query
     {
-        return (new QueryFactory())->fromArray($this, $input);
+        return Query::fromArray($this, $input);
     }
 
     /**
@@ -309,6 +309,6 @@ class InputDefinition
      */
     public function createQueryFromRequest(Request $request): Query
     {
-        return (new QueryFactory())->fromRequest($this, $request);
+        return Query::fromRequest($this, $request);
     }
 }

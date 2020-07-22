@@ -6,7 +6,8 @@ namespace MakinaCorpus\Calista\Query\Tests;
 
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
-use MakinaCorpus\Calista\Query\QueryFactory;
+use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\View\View;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,10 +37,11 @@ final class FilterTest extends TestCase
         self::assertSame(4, $filter->count());
         self::assertCount(4, $filter->getChoicesMap());
 
-        $request = new Request(['foo' => 'a|c'], [], ['_route' => 'where/should/I/go']);
-        $query = (new QueryFactory())->fromRequest(new InputDefinition(['filter_list' => [$filter]]), $request);
+        $request = new Request(['foo' => 'a|c']);
+        $query = Query::fromRequest(new InputDefinition(['filter_list' => [$filter]]), $request);
+        $view = View::empty()->setRoute('where/should/I/go');
 
-        $links = $filter->getLinks($query);
+        $links = $filter->getLinks($query, $view);
         self::assertCount(4, $links);
 
         // Get individual links, they should be ordered

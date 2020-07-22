@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Query;
 
 /**
- * Default implementation that will convert a single hashmap to a set of links
+ * Default implementation that will convert a single hashmap to a set of links.
  */
 class Filter implements \Countable
 {
@@ -249,75 +249,58 @@ class Filter implements \Countable
 
     /**
      * Get selected values from query.
-     *
-     * @param string[] $query
-     *
-     * @return string[]
      */
-    public function getSelectedValues(array $query): array
+    public function getSelectedValues(Query $query): array
     {
-        return Query::valuesDecode($query[$this->queryParameter] ?? []);
+        return (array)$query->get($this->queryParameter);
     }
 
     /**
      * Get query parameters for a singe link.
-     *
-     * @param string[] $query
-     *   Contextual query that represents the current page state.
-     * @param string $value
-     *   Value for the given link.
-     * @param boolean $remove
-     *   Instead of adding the value, it must removed from the query.
-     *
-     * @return string[]
-     *   New query with value added or removed.
      */
-    private function getParametersForLink(array $query, string $value, bool $remove = false): array
+    private function getParametersForLink(Query $query, RouteHolder $routeHolder, string $value, bool $remove = false): array
     {
-        $actual = $this->getSelectedValues($query);
+        $additional = $query->toArray();
+        $selectedValues = $this->getSelectedValues($query);
 
         if ($remove) {
-            while (false !== ($pos = \array_search($value, $actual))) {
-                unset($actual[$pos]);
+            while (false !== ($pos = \array_search($value, $selectedValues))) {
+                unset($selectedValues[$pos]);
             }
         } else {
-            if (false === \array_search($value, $actual)) {
-                $actual[] = $value;
+            if (false === \array_search($value, $selectedValues)) {
+                $selectedValues[] = $value;
             }
         }
 
-        if (empty($actual)) {
-            unset($query[$this->queryParameter]);
-            return $query;
-        } else {
-            return [$this->queryParameter => Query::valuesEncode($actual)] + $query;
-        }
+        $additional[$this->queryParameter] = $selectedValues;
+
+        return $routeHolder->getRouteParameters($additional);
     }
 
     /**
      * Get links.
      *
      * @param Query $query
+     * @param RouteHolder $routeHolder
+     *   Usually, you would pass the View object here when using this method.
      *
      * @return Link[]
      */
-    public function getLinks(Query $query): array
+    public function getLinks(Query $query, RouteHolder $routeHolder): array
     {
         $ret = [];
 
-        $route = $query->getRoute();
-        $query = $query->getRouteParameters();
-
+        $route = $routeHolder->getRoute();
         $selectedValues = $this->getSelectedValues($query);
 
         foreach ($this->choicesMap as $value => $label) {
-
             $isActive = \in_array($value, $selectedValues);
 
             if ($isActive) {
-                $linkQuery = $this->getParametersForLink($query, (string)$value, true);
+                $linkQuery = $this->getParametersForLink($query, $routeHolder, (string)$value, true);
             } else {
-                $linkQuery = $this->getParametersForLink($query, (string)$value);
+                $linkQuery = $this->getParametersForLink($query, $routeHolder, (string)$value);
             }
 
             $ret[] = new Link($label, $route, $linkQuery, null, $isActive);

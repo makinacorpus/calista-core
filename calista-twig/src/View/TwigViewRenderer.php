@@ -99,17 +99,18 @@ class TwigViewRenderer extends AbstractViewRenderer
         }
 
         return [
-            'pageId' => 'foo', /* $this->getId() */
-            'input' => $inputDefinition,
             'definition' => $viewDefinition,
-            'properties' => $view->getNormalizedProperties(),
-            'items' => $view->getResult(),
             'filters' => $enabledFilters,
+            'hasPager' => $viewDefinition->isPagerEnabled(),
+            'input' => $inputDefinition,
+            'items' => $view->getResult(),
+            'pageId' => 'foo', /* $this->getId() */
+            'pagerEnabled' => $viewDefinition->isPagerEnabled(),
+            'properties' => $view->getNormalizedProperties(),
+            'query' => $query,
             'sorts' => $viewDefinition->isSortEnabled() ? $inputDefinition->getAllowedSorts() : [],
             'sortsEnabled' => $viewDefinition->isSortEnabled(),
-            'query' => $query,
-            'hasPager' => $viewDefinition->isPagerEnabled(),
-            'pagerEnabled' => $viewDefinition->isPagerEnabled(),
+            'view' => $view,
         ];
     }
 }

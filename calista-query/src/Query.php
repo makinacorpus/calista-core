@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Query;
 
+use Symfony\Component\HttpFoundation\Request;
+
 /**
  * Sanitized version of an incomming query.
  *
@@ -18,12 +20,10 @@ class Query
     const URL_VALUE_SEP = '|';
 
     private array $filters = [];
+    private array $others = [];
     private InputDefinition $inputDefinition;
     private int $limit = self::LIMIT_DEFAULT;
     private int $page = 1;
-    private ?string $route = null;
-    private $routeParameters = [];
-    private $routeProtectedParameters = [];
     private ?string $sortField = null;
     private $sortOrder = self::SORT_DESC;
 
@@ -32,20 +32,14 @@ class Query
      *
      * @param InputDefinition $inputDefinition
      *   Current configuration.
-     * @param string $route
-     *   Current route.
      * @param string[] $filters
      *   Current filters (including defaults).
-     * @param string[] $routeParameters
-     *   Route parameters (filters minus the default values).
      */
-    public function __construct(InputDefinition $inputDefinition, ?string $route = null, array $filters = [], array $routeParameters = [], array $routeProtectedParameters = [])
+    public function __construct(InputDefinition $inputDefinition, array $filters = [], array $others = [])
     {
         $this->inputDefinition = $inputDefinition;
         $this->filters = $filters;
-        $this->route = $route;
-        $this->routeParameters = $routeParameters;
-        $this->routeProtectedParameters = $routeProtectedParameters;
+        $this->others = $others;
 
         $this->findRange();
         $this->findSort();
@@ -64,7 +58,65 @@ class Query
      */
     public static function empty(): self
     {
-        return new self(new InputDefinition(), null);
+        return new self(new InputDefinition(), []);
+    }
+
+    /**
+     * Create query from array.
+     */
+    public static function fromArray(InputDefinition $inputDefinition, array $input = []): Query
+    {
+        if (!$input) {
+            return Query::empty();
+        }
+
+        $otherKeys = [
+            $inputDefinition->getLimitParameter() => true,
+            $inputDefinition->getPagerParameter() => true,
+            $inputDefinition->getSortFieldParameter() => true,
+            $inputDefinition->getSortOrderParameter() => true,
+        ];
+
+        $baseQuery = $inputDefinition->getBaseQuery();
+
+        $filters = [];
+        foreach (\array_diff_key($input, $otherKeys) as $name => $value) {
+            $filters[$name] = self::secureValue($name, $value, $baseQuery);
+        }
+
+        $others = \array_intersect_key($input, $otherKeys);
+
+        return new Query($inputDefinition, $filters, $others);
+    }
+
+    /**
+     * Create query from request.
+     */
+    public static function fromRequest(InputDefinition $inputDefinition, Request $request): Query
+    {
+        if ($request->isMethod('post')) {
+            return self::fromArray($inputDefinition, $request->query->all() + $request->request->all());
+        }
+        return self::fromArray($inputDefinition, $request->query->all());
+    }
+
+    /**
+     * Create a query from array.
+     */
+    public static function fromArbitraryArray(array $input): Query
+    {
+        return self::fromArray(new InputDefinition([
+            'base_query' => [],
+            'limit_allowed' => true,
+            'limit_default' => Query::LIMIT_DEFAULT,
+            'limit_param' => 'limit',
+            'pager_enable' => true,
+            'pager_param' => 'page',
+            'sort_default_field' => '',
+            'sort_default_order' => Query::SORT_DESC,
+            'sort_field_param' => 'st',
+            'sort_order_param' => 'by',
+        ]), $input);
     }
 
     /**
@@ -102,6 +154,47 @@ class Query
     }
 
     /**
+     * Normalize a single value to be an array of values.
+     */
+    private static function expandValue($value): array
+    {
+        // Drops all empty values (but not 0 or false).
+        if ('' === $value || null === $value || [] === $value) {
+            return null;
+        }
+        // Normalize non-array input using the value separator.
+        if (\is_string($value)) {
+            return Query::valuesDecode($value);
+        }
+        if (!\is_array($value)) {
+            // @todo This might explode.
+            return [(string)$value];
+        }
+        return $value;
+    }
+
+    /**
+     * Normalize then restrict filter values to base query.
+     */
+    private static function secureValue(string $name, $value, array $baseQuery): array
+    {
+        $value = self::expandValue($value);
+
+        if (null !== ($allowed = $baseQuery[$name] ?? null)) {
+            // Restrict possible values to base query bounds.
+            $value = \array_unique(\array_intersect($value, $allowed));
+
+            // If restriction gave nothing, force filter to be restored to base
+            // query default instead.
+            if (empty($value)) {
+                return $allowed;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * Find range from query.
      */
     private function findRange(): void
@@ -112,8 +205,8 @@ class Query
         } else {
             // Limit can be changed, we must find it from the parameters
             $limitParameter = $this->inputDefinition->getLimitParameter();
-            if ($limitParameter && isset($this->routeParameters[$limitParameter])) {
-                $this->limit = (int)$this->routeParameters[$limitParameter];
+            if ($limitParameter && isset($this->others[$limitParameter])) {
+                $this->limit = (int)$this->others[$limitParameter];
             }
 
             // Additional security, do not allow negative or 0 limit
@@ -125,8 +218,8 @@ class Query
         // Pager initialization, only if enabled
         if ($this->inputDefinition->isPagerEnabled()) {
             $pageParameter = $this->inputDefinition->getPagerParameter();
-            if ($pageParameter && isset($this->routeParameters[$pageParameter])) {
-                $this->page = (int)$this->routeParameters[$pageParameter];
+            if ($pageParameter && isset($this->others[$pageParameter])) {
+                $this->page = (int)$this->others[$pageParameter];
             }
 
             // Additional security, do not allow negative or 0 page
@@ -145,16 +238,16 @@ class Query
         $this->sortOrder = $this->inputDefinition->getDefaultSortOrder();
 
         $sortFieldParameter = $this->inputDefinition->getSortFieldParameter();
-        if ($sortFieldParameter && isset($this->routeParameters[$sortFieldParameter])) {
-            $sortField = $this->routeParameters[$sortFieldParameter];
+        if ($sortFieldParameter && isset($this->others[$sortFieldParameter])) {
+            $sortField = $this->others[$sortFieldParameter];
             if ($this->inputDefinition->isSortAllowed($sortField)) {
-                $this->sortField = (string)$this->routeParameters[$sortFieldParameter];
+                $this->sortField = (string)$this->others[$sortFieldParameter];
             }
         }
 
         $sortOrderParameter = $this->inputDefinition->getSortOrderParameter();
-        if ($sortOrderParameter && isset($this->routeParameters[$sortOrderParameter])) {
-            $this->sortOrder = \strtolower($this->routeParameters[$sortOrderParameter]) === self::SORT_DESC ? self::SORT_DESC : self::SORT_ASC;
+        if ($sortOrderParameter && isset($this->others[$sortOrderParameter])) {
+            $this->sortOrder = \strtolower($this->others[$sortOrderParameter]) === self::SORT_DESC ? self::SORT_DESC : self::SORT_ASC;
         }
     }
 
@@ -165,7 +258,17 @@ class Query
      */
     public function get(string $name, $default = '')
     {
-        return isset($this->filters[$name]) ? $this->filters[$name] : $default;
+        if (!\array_key_exists($name, $this->filters)) {
+            return $default;
+        }
+
+        $values = $this->filters[$name];
+
+        if ($values && \is_array($values) && 1 === \count($values)) {
+            return \reset($values);
+        }
+
+        return $values;
     }
 
     /**
@@ -248,27 +351,8 @@ class Query
         return $this->filters;
     }
 
-    /**
-     * Get current route.
-     */
-    public function getRoute(): ?string
+    public function toArray(): array
     {
-        return $this->route;
-    }
-
-    /**
-     * Get the route parameters, including various non filter attributes.
-     */
-    public function getRouteParameters(): array
-    {
-        return $this->routeParameters;
-    }
-
-    /**
-     * Get the route parameters, including various non filter attributes.
-     */
-    public function getRouteProtectedParameters(): array
-    {
-        return $this->routeProtectedParameters;
+        return $this->filters + $this->others;
     }
 }

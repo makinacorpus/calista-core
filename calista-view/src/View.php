@@ -8,12 +8,20 @@ use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\Query\RouteHolder;
+use MakinaCorpus\Calista\Query\RouteHolderTrait;
 
 /**
- * View definition holder and normalizer.
+ * Simple data transport object that ties datasource and input definition
+ * and view definition altogether.
+ *
+ * For building complex UI, this will also hold the route for generating filter
+ * form parameter names and sort links URLs.
  */
-final class View
+final class View implements RouteHolder
 {
+    use RouteHolderTrait;
+
     private ViewDefinition $definition;
     private DatasourceResultInterface $items;
     private Query $query;
