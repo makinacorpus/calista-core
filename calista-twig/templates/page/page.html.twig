@@ -10,8 +10,6 @@
  #    input: InputDefinition
  #    definition: ViewDefinition
  #    query: Query
- #    query.searchParam: string
- #    query.rawSearchString: string (raw user input)
  #    query.route: string (current internal route)
  #    query.routeParameters: string[] (current get query)
  #    query.sortField: string (current sort field)
@@ -82,30 +80,6 @@
     </div>
   {% endif %}
 {%- endblock -%}
-
-{% block search_form_button_content %}
-  <span class="glyphicon glyphicon-search"></span>
-{% endblock %}
-
-{% block search_form %}
-  <form method="get" class="calista-search-form" accept-charset="UTF-8">
-    <div class="input-group">
-      <input placeholder="{{ "Search"|trans }}" class="form-control form-text" name="{{ input.searchParameter|e }}"
-        value="{{ query.rawSearchString|e }}" maxlength="128" type="text"
-      />
-      {% for name, value in query.routeParameters %}
-        {% if name != input.searchParameter %}
-          <input type="hidden" name="{{ name }}" value="{{ value|calista_query_param }}"/>
-        {% endif %}
-      {% endfor %}
-      <span class="input-group-btn">
-        <button type="submit" title="{{ "Search"|trans }}" class="btn btn-primary">
-          {{ block('search_form_button_content') }}
-        </button>
-      </span>
-    </div>
-  </form>
-{% endblock %}
 
 {#
  # A normal sort link
@@ -266,7 +240,7 @@
             </a>
           </li>
         {% endif %}
-        {% for index in items.getPageRange(page, query.limit) %}
+        {% for index in calista_page_range(items.getTotalCount(), page, query.limit) %}
           <li class="page-item">
             {{ block('pager_link') }}
           </li>
@@ -291,13 +265,6 @@
 
 {% block page_content %}
   <div class="container-fluid">
-    {% if input.isSearchEnabled %}
-      <div class="row">
-        <div class="col-md-12" data-page-block="search_form">
-          {{ block('search_form') }}
-        </div>
-      </div>
-    {% endif %}
     {% if sortsEnabled and 1 < input.allowedSorts|length %}
       <div class="row">
         <div class="col-md-12" data-page-block="sort_links">
@@ -374,7 +341,6 @@
       {% if pageId %}data-page="{{ pageId|e }}"
       {% if query.route %}data-page-route="{{ path(query.route, query.routeParameters) }}"{% endif %}
       data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
-      data-page-search="{{ input.searchParameter|e }}"
       data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}
   </div>

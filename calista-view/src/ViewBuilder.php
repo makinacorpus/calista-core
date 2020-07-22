@@ -21,6 +21,7 @@ final class ViewBuilder
     private bool $locked = false;
     private $data = null;
     private $query = null;
+    private array $queryParams = [];
     private string $rendererName = 'twig';
     private array $inputOptions = [];
     private array $viewOptions = [];
@@ -44,7 +45,7 @@ final class ViewBuilder
     {
         $this->dieIfLocked();
 
-        $this->inputOptions['limit'] = $limit;
+        $this->queryParams['limit'] = $limit;
 
         return $this;
     }

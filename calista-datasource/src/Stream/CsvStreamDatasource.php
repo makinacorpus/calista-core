@@ -39,14 +39,6 @@ class CsvStreamDatasource extends AbstractDatasource
     /**
      * {@inheritdoc}
      */
-    public function supportsFulltextSearch(): bool
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getItems(Query $query): DatasourceResultInterface
     {
         $reader = new CsvStreamReader($this->filename, $this->options);

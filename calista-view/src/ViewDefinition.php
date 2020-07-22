@@ -36,7 +36,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  *  - show_filters: if set to false, no filters will be displayed at all.
  *  - show_pager: if set to false, pager if enabled will not be displayed.
- *  - show_search: if set to false, search bar if enabled will not be displayed.
  *  - show_sort: if set to false, sort links will not be displayed.
  *
  *  - renderer: class name or service identifier of the view implementation to
@@ -87,7 +86,6 @@ class ViewDefinition
             'renderer' => '',
             'show_filters' => true,
             'show_pager' => true,
-            'show_search' => true,
             'show_sort' => true,
         ]);
 
@@ -99,7 +97,6 @@ class ViewDefinition
         $resolver->setAllowedTypes('renderer', ['string', ViewRenderer::class]);
         $resolver->setAllowedTypes('show_filters', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_pager', ['numeric', 'bool']);
-        $resolver->setAllowedTypes('show_search', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_sort', ['numeric', 'bool']);
     }
 
@@ -204,14 +201,6 @@ class ViewDefinition
     }
 
     /**
-     * Is search bar enabled.
-     */
-    public function isSearchEnabled(): bool
-    {
-        return $this->options['show_search'] ?? false;
-    }
-
-    /**
      * Is sort enabled.
      */
     public function isSortEnabled(): bool
@@ -240,6 +229,10 @@ class ViewDefinition
      */
     private function fixOptionsBackwardCompatibility(array $options): array
     {
+        if (isset($options['show_search'])) {
+            @\trigger_error("Using 'show_search' is deprecated, directive is ignored.", E_USER_DEPRECATED);
+            unset($options['show_search']);
+        }
         if (isset($options['view_type'])) {
             @\trigger_error("Using 'view_type' is deprecated, please use 'renderer' instead.", E_USER_DEPRECATED);
             $options['renderer'] = $options['view_type'];

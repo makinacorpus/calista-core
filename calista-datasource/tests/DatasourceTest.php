@@ -21,19 +21,16 @@ final class DatasourceTest extends TestCase
         self::assertInstanceOf(\ArrayIterator::class, $result->getIterator());
         self::assertCount(0, $result);
         self::assertCount(0, $result->getIterator());
-        self::assertFalse($result->canStream());
 
         $result = new DefaultDatasourceResult(new \EmptyIterator());
         self::assertInstanceOf(\EmptyIterator::class, $result->getIterator());
         self::assertSame(0, $result->count());
         // We cannot count() an \EmptyIterator instance, so this isn't tested here
-        self::assertTrue($result->canStream());
 
         $result = new DefaultDatasourceResult([1, 2, 3]);
         self::assertInstanceOf(\ArrayIterator::class, $result->getIterator());
         self::assertCount(3, $result);
         self::assertCount(3, $result->getIterator());
-        self::assertFalse($result->canStream());
 
         // Test that result iterator count is not modified by multiple runs
         $result = new DefaultDatasourceResult(['a', 'b', 'c', 'd', 'e']);
@@ -41,9 +38,7 @@ final class DatasourceTest extends TestCase
         self::assertSame(5, $result->count());
 
         // Test page methods basics
-        self::assertFalse($result->hasTotalItemCount());
         $result->setTotalItemCount(17);
-        self::assertTrue($result->hasTotalItemCount());
         self::assertSame(17, $result->getTotalCount());
     }
 }

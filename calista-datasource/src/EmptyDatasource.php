@@ -49,12 +49,4 @@ final class EmptyDatasource extends AbstractDatasource
     {
         return new DefaultDatasourceResult();
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsFulltextSearch(): bool
-    {
-        return true;
-    }
 }

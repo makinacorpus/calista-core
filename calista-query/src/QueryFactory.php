@@ -17,9 +17,6 @@ final class QueryFactory
      */
     public function fromArray(InputDefinition $inputDefinition, array $input, string $route = '', array $protected = []): Query
     {
-        $rawSearchString = '';
-        $searchParameter = $inputDefinition->getSearchParameter();
-
         // Append filter values from the request into the query
         $input = $this->normalizeInput($input);
 
@@ -27,37 +24,13 @@ final class QueryFactory
         // query, we will prune default values later to make it shorter
         $routeParameters = $input;
 
-        // Deal with search
-        if ($inputDefinition->isSearchEnabled() && $searchParameter && !empty($input[$searchParameter])) {
-            $rawSearchString = $input[$searchParameter];
-
-            // Parse search and merge it properly to the incomming query
-            if ($inputDefinition->isSearchParsed()) {
-                $parsedSearch = (new QueryStringParser())->parse($rawSearchString, $searchParameter);
-
-                if ($parsedSearch) {
-                    // Filters should not contain the search parameter, since
-                    // it has been parsed and normalize, we remove it then merge
-                    // the parsed one
-                    unset($input[$searchParameter]);
-                    $input = $this->mergeQueries([$parsedSearch, $input]);
-                }
-            }
-        }
-
-        // Route parameters must contain the raw search string and not the
-        // parsed search string to be able to rebuild correctly links
-        if ($rawSearchString) {
-            $routeParameters[$searchParameter] = $rawSearchString;
-        }
-
         $baseQuery = $inputDefinition->getBaseQuery();
 
         return new Query(
             $inputDefinition,
             $route,
-            $this->flattenQuery($this->applyBaseQuery($input, $baseQuery), [$searchParameter]),
-            $protected + $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), [$searchParameter], true),
+            $this->flattenQuery($this->applyBaseQuery($input, $baseQuery)),
+            $protected + $this->flattenQuery($this->applyBaseQuery($routeParameters, $baseQuery, true), true),
             $protected
         );
     }
@@ -74,9 +47,6 @@ final class QueryFactory
             'limit_param'         => 'limit',
             'pager_enable'        => true,
             'pager_param'         => 'page',
-            'search_enable'       => true,
-            'search_param'        => 'search',
-            'search_parse'        => true,
             'sort_default_field'  => '',
             'sort_default_order'  => Query::SORT_DESC,
             'sort_field_param'    => 'st',
@@ -132,19 +102,13 @@ final class QueryFactory
      * flattened to be a value instead of an array, this way we limit the
      * potential wrong type conversions with special parameters such as the
      * page number.
-     *
-     * All parameters in the $needsImplode array will be imploded using a
-     * whitespace, this is useful for the full text search parameter, that
-     * needs to remain a single string.
      */
-    private function flattenQuery(array $query, array $needsImplode = [], bool $isRouteParameters = false): array
+    private function flattenQuery(array $query, bool $isRouteParameters = false): array
     {
         foreach ($query as $key => $values) {
             if (\is_array($values)) {
                 if (1 === \count($values)) {
                     $query[$key] = \reset($values);
-                } else if (\in_array($key, $needsImplode)) {
-                    $query[$key] = \implode(' ', $values);
                 } else if ($isRouteParameters) {
                     $query[$key] = Query::valuesEncode($values);
                 }

@@ -46,6 +46,7 @@ class PageExtension extends AbstractExtension
     {
         return [
             new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
+            new TwigFunction('calista_page_range', [$this, 'computePageRange'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
         ];
     }
@@ -134,6 +135,30 @@ class PageExtension extends AbstractExtension
         }
 
         return \json_encode($filterQuery);
+    }
+
+    /**
+     * Compute page range.
+     */
+    public function computePageRange(?int $total, ?int $page = 1, ?int $limit = Query::LIMIT_DEFAULT): array
+    {
+        if (!$total || !$page || !$limit) {
+            return [];
+        }
+
+        $num = \ceil(($total) / $limit);
+        $min = \max([$page - 2, 1]);
+        $max = \min([$page + 2, $num]);
+
+        if ($max - $min < 4) {
+            if (1 == $min) {
+                return \range(1, \min([5, $num]));
+            } else {
+                return \range(\max([$num - 4, 1]), $num);
+            }
+        } else {
+            return \range($min, $max);
+        }
     }
 
     /**

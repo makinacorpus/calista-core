@@ -83,10 +83,6 @@
   {% endif %}
 {%- endblock -%}
 
-{% block search_form_button_content %}
-  {{ "Search"|trans }}
-{% endblock %}
-
 {% block sort_links_field %}
   {% set allowedSorts = input.allowedSorts %}
   <div class="dropdown">
@@ -147,13 +143,6 @@
 {% endblock %}
 
 {% block page_content %}
-  {% if input.isSearchEnabled %}
-    <div class="row">
-      <div class="col" data-page-block="search_form">
-        {{ block('search_form') }}
-      </div>
-    </div>
-  {% endif %}
   {% if sortsEnabled and 1 < input.allowedSorts|length %}
     <div class="row">
       <div class="col" data-page-block="sort_links">
@@ -223,7 +212,6 @@
       {% if pageId %}data-page="{{ pageId|e }}"
       {% if query.route %}data-page-route="{{ path(query.route, query.routeParameters) }}"{% endif %}
       data-page-query="{{ query.routeParameters|json_encode|e }}"{% endif %}
-      data-page-search="{{ input.searchParameter|e }}"
       data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}
   </div>

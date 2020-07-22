@@ -61,16 +61,6 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     /**
      * {@inheritdoc}
      */
-    public function canStream(): bool
-    {
-        // Having an array here would mean data has been preloaded hence it is
-        // not gracefully streamed from the real datasource.
-        return $this->items && !\is_array($this->items);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getIterator()
     {
         if ($this->items instanceof \Closure) {

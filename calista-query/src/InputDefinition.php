@@ -27,10 +27,6 @@ class InputDefinition
         $options['filter_list'] = $datasource->getFilters();
         $options['sort_allowed_list'] =  $datasource->getSorts();
 
-        if (!$datasource->supportsFulltextSearch() && ($options['search_enable'] ?? false) && !($options['search_parse'] ?? false)) {
-            throw new \InvalidArgumentException("datasource cannot do fulltext search, yet it is enabled, but search parse is disabled");
-        }
-
         if (!$datasource->supportsPagination() && !empty($options['pager_enable'])) {
             throw new \InvalidArgumentException("datasource cannot do paging, yet it is enabled");
         }
@@ -66,18 +62,6 @@ class InputDefinition
                 $filter->removeChoicesNotIn($choices);
             }
             $this->filterLabels[$name] = $filter->getTitle();
-        }
-
-        // Do a few consistency checks based upon the advertised capabilities.
-        $searchFields = $this->getSearchFields();
-        if ($this->options['search_enable']) {
-            if ($searchFields) {
-                foreach ($searchFields as $name) {
-                    if (!$this->isFilterAllowed($name)) {
-                        throw new \InvalidArgumentException(\sprintf("'%s' search field is not an allowed filter", $name));
-                    }
-                }
-            }
         }
 
         // Ensure given base query only contains legitimate field names.
@@ -161,10 +145,6 @@ class InputDefinition
             'limit_max' => Query::LIMIT_MAX,
             'pager_enable' => true,
             'pager_param' => 'page',
-            'search_enable' => false,
-            'search_field' => null,
-            'search_param' => 's',
-            'search_parse' => false,
             // Keys are field names, values are labels.
             'sort_allowed_list' => [],
             'sort_default_field' => '',
@@ -179,10 +159,6 @@ class InputDefinition
         $resolver->setAllowedTypes('limit_param', ['string']);
         $resolver->setAllowedTypes('pager_enable', ['numeric', 'bool']);
         $resolver->setAllowedTypes('pager_param', ['string']);
-        $resolver->setAllowedTypes('search_enable', ['numeric', 'bool']);
-        $resolver->setAllowedTypes('search_field', ['null', 'string', 'array']);
-        $resolver->setAllowedTypes('search_param', ['string']);
-        $resolver->setAllowedTypes('search_parse', ['numeric', 'bool']);
         $resolver->setAllowedTypes('sort_allowed_list', ['array']);
         $resolver->setAllowedTypes('sort_default_field', ['string']);
         $resolver->setAllowedTypes('sort_default_order', ['string']);
@@ -286,48 +262,6 @@ class InputDefinition
     public function getPagerParameter(): string
     {
         return $this->options['pager_param'];
-    }
-
-    /**
-     * Is full search enabled.
-     */
-    public function isSearchEnabled(): bool
-    {
-        return $this->options['search_enable'];
-    }
-
-    /**
-     * Is search parsed.
-     */
-    public function isSearchParsed(): bool
-    {
-        return $this->options['search_parse'];
-    }
-
-    /**
-     * Is there a specifically configured search field.
-     */
-    public function hasSearchField(): bool
-    {
-        return !empty($this->options['search_field']);
-    }
-
-    /**
-     * Get search fields.
-     *
-     * @return string[]
-     */
-    public function getSearchFields(): array
-    {
-        return (array)$this->options['search_field'];
-    }
-
-    /**
-     * Get search parameter name.
-     */
-    public function getSearchParameter(): string
-    {
-        return $this->options['search_param'] ?? '';
     }
 
     /**

@@ -78,7 +78,6 @@ final class CsvStreamTest extends TestCase
 
         self::assertTrue($datasource->supportsStreaming());
         self::assertFalse($datasource->supportsPagination());
-        self::assertFalse($datasource->supportsFulltextSearch());
         self::assertFalse($datasource->validateItems($query, ['any']));
 
         foreach ($items as $index => $item) {

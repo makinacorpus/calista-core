@@ -21,11 +21,9 @@ class Query
     private InputDefinition $inputDefinition;
     private int $limit = self::LIMIT_DEFAULT;
     private int $page = 1;
-    private ?string $rawSearchString = null;
     private ?string $route = null;
     private $routeParameters = [];
     private $routeProtectedParameters = [];
-    private ?string $searchString = null;
     private ?string $sortField = null;
     private $sortOrder = self::SORT_DESC;
 
@@ -50,7 +48,6 @@ class Query
         $this->routeProtectedParameters = $routeProtectedParameters;
 
         $this->findRange();
-        $this->findSearch();
         $this->findSort();
 
         // Now for security, prevent anything that is not a filter from
@@ -162,22 +159,6 @@ class Query
     }
 
     /**
-     * Find search from query.
-     */
-    private function findSearch(): void
-    {
-        if ($this->inputDefinition->isSearchEnabled()) {
-            $searchParameter = $this->inputDefinition->getSearchParameter();
-            if ($searchParameter && isset($this->routeParameters[$searchParameter])) {
-                $this->rawSearchString = (string)$this->routeParameters[$searchParameter];
-            }
-            if ($searchParameter && isset($this->filters[$searchParameter])) {
-                $this->searchString = (string)$this->filters[$searchParameter];
-            }
-        }
-    }
-
-    /**
      * Get value from a filter, it might be an expanded array of values.
      *
      * @return string|string[]
@@ -257,22 +238,6 @@ class Query
     public function getPageNumber(): int
     {
         return $this->page;
-    }
-
-    /**
-     * Get raw search string, even if search parsing is enabled.
-     */
-    public function getRawSearchString(): ?string
-    {
-        return $this->rawSearchString;
-    }
-
-    /**
-     * Get search string, after cleanup.
-     */
-    public function getSearchString(): ?string
-    {
-        return $this->searchString;
     }
 
     /**

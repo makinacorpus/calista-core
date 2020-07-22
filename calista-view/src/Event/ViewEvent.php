@@ -13,7 +13,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 final class ViewEvent extends Event
 {
     const EVENT_VIEW = 'view:view';
-    const EVENT_SEARCH = 'view:search';
 
     private $view;
 

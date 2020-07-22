@@ -46,14 +46,6 @@ abstract class AbstractDatasource implements DatasourceInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsFulltextSearch(): bool
-    {
-        return false; // Sensible default
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function validateItems(Query $query, array $idList): bool
     {
         return false;

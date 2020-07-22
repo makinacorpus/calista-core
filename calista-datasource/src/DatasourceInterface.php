@@ -38,11 +38,6 @@ interface DatasourceInterface
     public function supportsPagination(): bool;
 
     /**
-     * Does this datasource supports full text search.
-     */
-    public function supportsFulltextSearch(): bool;
-
-    /**
      * Get items to display.
      *
      * This should NOT return rendered items but loaded items or item
