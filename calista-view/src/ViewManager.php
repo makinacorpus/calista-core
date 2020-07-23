@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Facade for users.
  *
@@ -12,10 +14,14 @@ namespace MakinaCorpus\Calista\View;
 class ViewManager implements ViewRendererRegistry
 {
     private ViewRendererRegistry $viewRendererRegistry;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(ViewRendererRegistry $viewRendererRegistry)
-    {
+    public function __construct(
+        ViewRendererRegistry $viewRendererRegistry,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->viewRendererRegistry = $viewRendererRegistry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -31,6 +37,6 @@ class ViewManager implements ViewRendererRegistry
      */
     public function createViewBuilder(): ViewBuilder
     {
-        return new ViewBuilder($this->viewRendererRegistry);
+        return new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
     }
 }

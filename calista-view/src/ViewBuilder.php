@@ -9,6 +9,8 @@ use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\View\Event\ViewBuilderEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class ViewBuilder
 {
     private ViewRendererRegistry $viewRendererRegistry;
+    private EventDispatcherInterface $eventDispatcher;
 
     private bool $locked = false;
     private $data = null;
@@ -29,9 +32,12 @@ final class ViewBuilder
     private ?string $route = null;
     private array $routeParameters = [];
 
-    public function __construct(ViewRendererRegistry $viewRendererRegistry)
-    {
+    public function __construct(
+        ViewRendererRegistry $viewRendererRegistry,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->viewRendererRegistry = $viewRendererRegistry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function renderer(string $name): self
@@ -63,12 +69,70 @@ final class ViewBuilder
         return $this;
     }
 
-    public function pager(bool $enable = true, string $parameterName = 'page'): self
+    public function enablePager(bool $enable = true, string $parameterName = 'page'): self
     {
         $this->dieIfLocked();
 
         $this->inputOptions['pager_enable'] = true;
         $this->inputOptions['pager_param'] = $parameterName;
+
+        return $this;
+    }
+
+    public function enableFilters(string ... $names): self
+    {
+        $this->dieIfLocked();
+
+        foreach ($names as $name) {
+            // @todo Update ViewDefinition to handle a graylist were filters
+            //   can be explicitely set to false, where defaults don't need
+            //   to be added to the list.
+            if (!\in_array($name, $this->viewOptions['enabled_filters'])) {
+                $this->viewOptions['enabled_filters'][] = $name;
+            }
+        }
+
+        return $this;
+    }
+
+    public function disableFilter(string $name): self
+    {
+        $this->dieIfLocked();
+
+        // This one is tricky, if no enabled filters were specified, in order
+        // to disable a single one, we need to enfore all filters to be present
+        // then remove the one that has been asked for removal.
+        // This will cause us trouble, because filters if not explicitely set
+        // prior to this method call prevent us to do that. We need to delay
+        // disabling of filters in the build method.
+        throw new \Exception("Implement me properly.");
+
+        return $this;
+    }
+
+    public function showPager(bool $enable = true): self
+    {
+        $this->dieIfLocked();
+
+        $this->viewOptions['show_pager'] = $enable;
+
+        return $this;
+    }
+
+    public function showFilters(bool $enable = true): self
+    {
+        $this->dieIfLocked();
+
+        $this->viewOptions['show_filters'] = $enable;
+
+        return $this;
+    }
+
+    public function showSort(bool $enable = true): self
+    {
+        $this->dieIfLocked();
+
+        $this->viewOptions['show_sort'] = $enable;
 
         return $this;
     }
@@ -91,7 +155,7 @@ final class ViewBuilder
         return $this;
     }
 
-    public function defaultSort(string $propertyName, string $order = Query::SORT_DESC, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
+    public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
     {
         $this->dieIfLocked();
 
@@ -99,6 +163,13 @@ final class ViewBuilder
         $this->inputOptions['sort_default_order'] = $order;
         $this->inputOptions['sort_field_param'] = $propertyParameterName;
         $this->inputOptions['sort_order_param'] = $orderParameterName;
+
+        return $this;
+    }
+
+    public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
+    {
+        $this->defaultSort($propertyName, $propertyParameterName, $orderParameterName, Query::SORT_DESC);
 
         return $this;
     }
@@ -195,6 +266,8 @@ final class ViewBuilder
     {
         $this->dieIfLocked();
 
+        $this->eventDispatcher->dispatch(new ViewBuilderEvent($this), ViewBuilderEvent::EVENT_BUILD);
+
         $this->locked = true;
 
         return new ViewBuilderRenderer(
@@ -215,7 +288,7 @@ final class ViewBuilder
         $query = $this->doBuildQuery();
 
         if ($this->data instanceof DatasourceInterface) {
-            $items = $this->data->getItems($query); 
+            $items = $this->data->getItems($query);
         } else {
             $items = $this->data;
         }

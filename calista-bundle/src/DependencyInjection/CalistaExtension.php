@@ -81,7 +81,7 @@ final class CalistaExtension extends Extension
     {
         $definition = new Definition();
         $definition->setClass(ViewManager::class);
-        $definition->setArguments([new Reference('calista.view.renderer_registry')]);
+        $definition->setArguments([new Reference('calista.view.renderer_registry'), new Reference('event_dispatcher')]);
         $definition->setPrivate(true);
 
         $container->setDefinition('calista.view.manager', $definition);
