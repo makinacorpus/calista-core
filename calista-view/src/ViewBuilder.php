@@ -232,11 +232,21 @@ final class ViewBuilder
 
     private function doBuildInputDefinition(): InputDefinition
     {
-        if ($this->data instanceof DatasourceInterface) {
-            return InputDefinition::datasource($this->data, $this->inputOptions);
+        $options = $this->inputOptions;
+
+        // Eargerly add the default sort being an allowed sort, only in case
+        // no sorts were specified. If sort were specified but the default is
+        // not, keep the exceptions being raised.
+        if (empty($options['sort_allowed_list']) && isset($options['sort_default_field'])) {
+            $name = $options['sort_default_field'];
+            $options['sort_allowed_list'][$name] = $name;
         }
 
-        return new InputDefinition($this->inputOptions);
+        if ($this->data instanceof DatasourceInterface) {
+            return InputDefinition::datasource($this->data, $options);
+        }
+
+        return new InputDefinition($options);
     }
 
     private function doBuildQuery(): Query
