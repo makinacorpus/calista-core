@@ -38,7 +38,7 @@ final class DatasourceTest extends TestCase
         self::assertSame(5, $result->count());
 
         // Test page methods basics
-        $result->setPagerInformation(1, 17);
+        $result->setPagerInformation(1, 17, 2);
         self::assertSame(17, $result->getTotalCount());
     }
 }

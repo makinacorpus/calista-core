@@ -41,14 +41,14 @@ abstract class AbstractDatasource implements DatasourceInterface
      *
      * @return DefaultDatasourceResult
      */
-    protected function createResult($items, int $limit = 0, int $total = 0): DatasourceResultInterface
+    protected function createResult($items, int $limit = 0, int $total = 0, int $page = 1): DatasourceResultInterface
     {
         if (!\is_array($items) && !$items instanceof \Traversable && !\is_callable($items)) {
             throw new \LogicException("given items are nor an array nor a \Traversable instance nor a callable");
         }
 
         $result = new DefaultDatasourceResult($items);
-        $result->setPagerInformation($limit, $total);
+        $result->setPagerInformation($limit, $total, $page);
 
         return $result;
     }
