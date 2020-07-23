@@ -17,7 +17,7 @@ class PropertyRenderer
     /**
      * Display when rendering is not possible.
      */
-    const RENDER_NOT_POSSIBLE = '<em>N/A</em>';
+    const RENDER_NOT_POSSIBLE = 'N/A';
 
     private bool $debug = false;
     private PropertyAccessor $propertyAccess;
@@ -318,6 +318,8 @@ class PropertyRenderer
     {
         $options = $propertyView->getOptions();
         $property = $propertyView->getName();
+        $type = $propertyView->getType();
+
         $value = null;
 
         // Skip property info if options contain a callback.
@@ -334,9 +336,17 @@ class PropertyRenderer
             }
 
             if ($propertyView->isVirtual()) {
-                return $this->valueToString($callback($item, $property, $options));
+                return $this->renderValue(
+                    $callback($item, $property, $options),
+                    $type,
+                    $options
+                );
             } else {
-                return $this->valueToString($callback($this->getValue($item, $property, $options), $options, $item));
+                return $this->renderValue(
+                    $callback($this->getValue($item, $property, $options), $options, $item),
+                    $type,
+                    $options
+                );
             }
         }
 
@@ -350,7 +360,6 @@ class PropertyRenderer
         }
 
         $value = $this->getValue($item, $property, $options);
-        $type = $propertyView->getType();
 
         return $this->renderValue($value, $type, $options);
     }

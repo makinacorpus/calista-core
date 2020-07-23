@@ -38,7 +38,7 @@ final class ViewBuilder
     {
         $this->dieIfLocked();
 
-        $this->viewOptions['renderer'] = $name;
+        $this->rendererName = $this->viewOptions['renderer'] = $name;
 
         return $this;
     }
