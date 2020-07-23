@@ -39,13 +39,16 @@ final class PageRenderer
         }
 
         $viewDefinition = $page->getViewDefinition($viewOptions);
-        $view = $this->viewFactory->getView($viewDefinition->getRendererName());
+        $viewRenderer = $this->viewFactory->getView($viewDefinition->getRendererName());
 
         $inputDefinition = $page->getInputDefinition($inputOptions);
         $query = Query::fromRequest($inputDefinition, $request);
         $items = $page->getDatasource()->getItems($query);
 
-        return $view->render(new View($viewDefinition, $items, $query));
+        $view = new View($viewDefinition, $items, $query);
+        $view->setRoute($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+
+        return $viewRenderer->render($view);
     }
 
     /**
@@ -71,12 +74,15 @@ final class PageRenderer
         }
 
         $viewDefinition = $page->getViewDefinition($viewOptions);
-        $view = $this->viewFactory->getView($viewDefinition->getRendererName());
+        $viewRenderer = $this->viewFactory->getView($viewDefinition->getRendererName());
 
         $inputDefinition = $page->getInputDefinition($inputOptions);
         $query = $query = Query::fromRequest($inputDefinition, $request);
         $items = $page->getDatasource()->getItems($query);
 
-        return $view->renderAsResponse(new View($viewDefinition, $items, $query));
+        $view = new View($viewDefinition, $items, $query);
+        $view->setRoute($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+
+        return $viewRenderer->renderAsResponse(new View($viewDefinition, $items, $query));
     }
 }

@@ -92,7 +92,7 @@ final class TwigViewRendererTest extends TestCase
         $items = $datasource->getItems($query);
 
         self::assertCount(7, $items);
-        self::assertSame(3, $query->getPageNumber());
+        self::assertSame(3, $query->getCurrentPage());
         self::assertSame(128, $items->getTotalCount());
 
         // Ensure sorting was OK

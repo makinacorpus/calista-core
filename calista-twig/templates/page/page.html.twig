@@ -226,7 +226,7 @@
  #}
 {%- block pager -%}
   {% if hasPager %}
-    {% set page = query.pageNumber %}
+    {% set page = items.getCurrentPage() %}
     <nav aria-label="{{ "Navigation"|trans }}">
       <ul class="pagination">
         {% if 1 < page %}
@@ -241,12 +241,12 @@
             </a>
           </li>
         {% endif %}
-        {% for index in calista_page_range(items.getTotalCount(), page, query.limit) %}
+        {% for index in calista_page_range(items.getTotalCount(), page, items.limit) %}
           <li class="page-item">
             {{ block('pager_link') }}
           </li>
         {% endfor %}
-        {% set pageCount = items.pageCount(query.limit) %}
+        {% set pageCount = items.pageCount() %}
         {% if page < pageCount %}
           <li class="page-item">
             <a class="page-link" href="{% with {index: (page + 1)} %}{{ block('pager_href') }}{% endwith %}" aria-label="{{ "Next"|trans }}" data-page-link>
@@ -281,7 +281,7 @@
     {% if pagerEnabled %}
       <div class="row">
         <div class="col-md-12" data-page-block="pager">
-          {% if query.limit < items.totalCount %}
+          {% if items.limit < items.totalCount %}
             {{ block('pager') }}
           {% endif %}
         </div>

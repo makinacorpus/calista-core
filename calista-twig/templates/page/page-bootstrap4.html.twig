@@ -158,7 +158,7 @@
   {% if pagerEnabled %}
     <div class="row">
       <div class="col" data-page-block="pager">
-        {% if query.limit < items.totalCount %}
+        {% if items.limit < items.totalCount %}
           {{ block('pager') }}
         {% endif %}
       </div>

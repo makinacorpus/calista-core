@@ -338,7 +338,7 @@ class Query
     /**
      * Get page number, starts with 1.
      */
-    public function getPageNumber(): int
+    public function getCurrentPage(): int
     {
         return $this->page;
     }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Datasource;
 
-use MakinaCorpus\Calista\Query\Query;
-
 /**
  * Basics for result iterators
  */
@@ -13,7 +11,9 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
 {
     /** @var PropertyDescription[] */
     private array $properties = [];
-    private ?int $totalCount = null;
+    private int $limit = 0;
+    private int $total = 0;
+    private int $page = 1;
 
     /**
      * {@inheritdoc}
@@ -24,19 +24,30 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
     }
 
     /**
-     * Set total item count, for pager.
+     * {@inheritdoc}
      */
-    public function setTotalItemCount(int $count): void
+    public function getLimit(): int
     {
-        $this->totalCount = $count;
+        return $this->limit;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPageCount(int $limit = Query::LIMIT_DEFAULT): int
+    public function getCurrentPage(): int
     {
-        return (int)(null !== $this->totalCount ? \ceil($this->totalCount / $limit) : 1);
+        return $this->page;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPageCount(): int
+    {
+        if (!$this->total || !$this->limit) {
+            return 1;
+        }
+        return (int) \ceil($this->total / $this->limit);
     }
 
     /**
@@ -44,6 +55,15 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
      */
     public function getTotalCount(): ?int
     {
-        return $this->totalCount;
+        return $this->total;
+    }
+
+    /**
+     * Set pager information.
+     */
+    public function setPagerInformation(int $limit, int $total, int $page = 1): void
+    {
+        $this->limit = $limit;
+        $this->total = $total;
     }
 }

@@ -22,12 +22,17 @@ interface DatasourceResultInterface extends \Traversable, \Countable
     public function getProperties(): array;
 
     /**
-     * Get limit that was given for querying, return 0 if none set.
+     * Get limit if known, otherwise 0 (which means no limit as well).
      */
-    // public function getLimit(): int;
+    public function getLimit(): int;
 
     /**
-     * Get total item count.
+     * Get current page if known, otherwise 1.
+     */
+    public function getCurrentPage(): int;
+
+    /**
+     * Get total item count if known, other wise 0 (which can be a valid value as well).
      */
     public function getTotalCount(): ?int;
 

@@ -53,7 +53,7 @@ final class QueryTest extends TestCase
         self::assertFalse($query->hasSortField());
         self::assertSame($inputDefinition->getDefaultSortField(), $query->getSortField());
         self::assertSame(Query::SORT_DESC, $query->getSortOrder());
-        self::assertSame(1, $query->getPageNumber());
+        self::assertSame(1, $query->getCurrentPage());
         self::assertSame(0, $query->getOffset());
 
         $inputDefinition = new InputDefinition([
@@ -73,7 +73,7 @@ final class QueryTest extends TestCase
         self::assertSame('toto', $query->getSortField());
         self::assertSame(Query::SORT_ASC, $query->getSortOrder());
         // Pagination
-        self::assertSame(3, $query->getPageNumber());
+        self::assertSame(3, $query->getCurrentPage());
         self::assertSame(24, $query->getOffset());
 
         // Route, get, set

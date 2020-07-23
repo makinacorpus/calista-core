@@ -33,18 +33,4 @@ class ViewManager implements ViewRendererRegistry
     {
         return new ViewBuilder($this->viewRendererRegistry);
     }
-
-    /**
-     * Get renderer for view.
-     */
-    private function renderer(View $view): ViewRenderer
-    {
-        $name = $view->getDefinition()->getRendererName();
-
-        if (!$name) {
-            throw new \LogicException("Cannot renderer a View without a renderer name.");
-        }
-
-        return $this->viewRendererRegistry->getViewRenderer($name);
-    }
 }

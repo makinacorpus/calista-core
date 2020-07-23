@@ -124,7 +124,7 @@ class IntArrayDatasource extends AbstractDatasource
         $items = \array_map(function ($value) { return new IntItem($value); }, $items);
 
         $result = new DefaultDatasourceResult($items);
-        $result->setTotalItemCount(\count($allowedValues));
+        $result->setPagerInformation($limit, \count($allowedValues), $query->getCurrentPage());
 
         return $result;
     }

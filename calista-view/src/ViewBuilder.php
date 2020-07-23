@@ -9,7 +9,6 @@ use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\Query\RouteHolderTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,20 +17,17 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class ViewBuilder
 {
-    use RouteHolderTrait {
-        setRoute as route;
-    }
-
     private ViewRendererRegistry $viewRendererRegistry;
 
     private bool $locked = false;
     private $data = null;
     private ?Request $request = null;
-    private array $queryParams = [];
     private string $rendererName = 'twig';
     private array $inputOptions = [];
     private array $viewOptions = [];
     private array $properties = [];
+    private ?string $route = null;
+    private array $routeParameters = [];
 
     public function __construct(ViewRendererRegistry $viewRendererRegistry)
     {
@@ -43,15 +39,6 @@ final class ViewBuilder
         $this->dieIfLocked();
 
         $this->viewOptions['renderer'] = $name;
-
-        return $this;
-    }
-
-    public function limit(?int $limit): self
-    {
-        $this->dieIfLocked();
-
-        $this->queryParams['limit'] = $limit;
 
         return $this;
     }
@@ -187,6 +174,21 @@ final class ViewBuilder
         $this->viewOptions['extra']['template'] = $name;
 
         return $this;
+    }
+
+    public function route(string $route, array $parameters = []): self
+    {
+        $this->dieIfLocked();
+
+        $this->route = $route;
+        $this->routeParameters = $parameters;
+
+        return $this;
+    }
+
+    public function getRoute(): ?string
+    {
+        return $this->route;
     }
 
     public function build(): ViewBuilderRenderer
