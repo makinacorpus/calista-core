@@ -29,6 +29,7 @@ final class ViewBuilder
     private array $inputOptions = [];
     private array $viewOptions = [];
     private array $properties = [];
+    private array $propertyLabels = [];
     private ?string $route = null;
     private array $routeParameters = [];
 
@@ -137,7 +138,19 @@ final class ViewBuilder
         return $this;
     }
 
-    public function addSort(string $name, ?string $label = null): self
+    /**
+     * Set default limit.
+     */
+    public function limit(int $limit): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['limit_default'] = $limit;
+
+        return $this;
+    }
+
+    public function sort(string $name, ?string $label = null): self
     {
         $this->dieIfLocked();
 
@@ -146,11 +159,56 @@ final class ViewBuilder
         return $this;
     }
 
-    public function addFilter(Filter $filter): self
+    public function filter(Filter $filter): self
     {
         $this->dieIfLocked();
 
         $this->inputOptions['filter_list'][] = $filter;
+
+        return $this;
+    }
+
+    public function filterArbitrary(string $name, ?string $title): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setArbitraryInput(true)
+        );
+
+        return $this;
+    }
+
+    public function filterChoices(string $name, ?string $title, array $choices, ?string $noneOption = null): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setChoicesMap($choices)
+                ->setNoneOption($noneOption)
+        );
+
+        return $this;
+    }
+
+    public function filterDate(string $name, ?string $title): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setIsDate(true)
+        );
+
+        return $this;
+    }
+
+    public function filters(iterable $filters): self
+    {
+        $this->dieIfLocked();
+
+        foreach ($filters as $filter) {
+            $this->filter($filter);
+        }
 
         return $this;
     }
@@ -206,24 +264,37 @@ final class ViewBuilder
      *   hence first callback parameter will be the object, second the property
      *   name.
      */
-    public function property(string $name, $property = []): self
+    public function property(string $name, $property = [], ?string $label = null): self
     {
         $this->dieIfLocked();
 
         if ($property instanceof PropertyView) {
-            $this->properties[$name] = $property->rename($name);
+            $this->properties[$name] = $property->rename($name, $label);
         } else if ($property instanceof PropertyDescription) {
-            $this->properties[$name] = $property->rename($name);
+            $this->properties[$name] = $property->rename($name, $label);
         } else if (\is_array($property)) {
-            $this->properties[$name] = new PropertyView($name, null, $property);
+            $this->properties[$name] = new PropertyView($name, null, $property + ['label' => $label]);
         } else if (\is_callable($property)) {
             $this->properties[$name] = new PropertyView($name, null, [
                 'callback' => $property,
+                'label' => $label,
                 'virtual' => true,
             ]);
         } else {
             throw new \InvalidArgumentException(\sprintf("\$property must be an array or an instance of %s or %s", PropertyDescription::class, PropertyView::class));
         }
+
+        return $this;
+    }
+
+    /**
+     * Change property label.
+     */
+    public function propertyLabel(string $name, string $label): self
+    {
+        $this->dieIfLocked();
+
+        $this->propertyLabels[$name] = $label;
 
         return $this;
     }
@@ -276,6 +347,11 @@ final class ViewBuilder
         );
     }
 
+    private function createFilter(string $name, ?string $title = null, ?string $description = null): Filter
+    {
+        return new Filter($name, $title, $description);
+    }
+
     private function dieIfLocked(): void
     {
         if ($this->locked) {
@@ -289,6 +365,8 @@ final class ViewBuilder
 
         if ($this->data instanceof DatasourceInterface) {
             $items = $this->data->getItems($query);
+        } else if (\is_callable($this->data)) {
+            $items = ($this->data)($query);
         } else {
             $items = $this->data;
         }
@@ -340,7 +418,14 @@ final class ViewBuilder
 
         if ($this->properties) {
             foreach ($this->properties as $name => $property) {
-                $options['properties'][$name] = $property;
+                \assert($property instanceof PropertyView || $property instanceof PropertyDescription);
+
+                $newLabel = $this->propertyLabels[$name] ?? null;
+                if ($newLabel) {
+                    $options['properties'][$name] = $property->rename($name, $newLabel);
+                } else {
+                    $options['properties'][$name] = $property;
+                }
             }
         }
 

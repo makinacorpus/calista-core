@@ -40,12 +40,16 @@ class PropertyDescription
 
     /**
      * Create clone with new name.
+     *
+     * @param string $label
+     *   If set to null, label will be unchanged.
      */
-    public function rename(string $name): self
+    public function rename(string $name, ?string $label = null): self
     {
         $ret = clone $this;
         $ret->options = $this->options;
         $ret->name = $name;
+        $ret->label = $label ?? $this->label;
 
         return $ret;
     }
