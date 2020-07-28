@@ -125,21 +125,21 @@
 {% endblock %}
 
 {% block item_list %}
-  <table class="table table-bordered table-hover table-sm">
-    <thead>
-      <tr>
-        {% for property in properties %}
-          <th class="property-{{ property.name }}">{{ property.label }}</th>
-        {% endfor %}
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-        {{ block('item') }}
+<table class="table table-bordered table-hover table-sm">
+  <thead>
+    <tr>
+      {% for property in properties %}
+      {{ block('item_list_table_header') }}
       {% endfor %}
-    </tbody>
-  </table>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    {{ block('item') }}
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
 
 {% block page_content %}
@@ -201,24 +201,24 @@
 {% endblock %}
 
 {% block page_layout %}
-  {% if filters %}
-  <div class="row">
-    <div class="col">
-      <div data-page-block="filters">
-        {{ block('filters') }}
-      </div>
+{% if filters %}
+<div class="row">
+  <div class="col">
+    <div data-page-block="filters">
+      {{ block('filters') }}
     </div>
   </div>
-  {% endif %}
-  {{ block('page_content') }}
+</div>
+{% endif %}
+{{ block('page_content') }}
 {% endblock %}
 
 {%- block page -%}
-  <div class="calista-page {% block container_class %}{% endblock %}"
-      {% if pageId %}data-page="{{ pageId|e }}"
-      {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
-      data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
-      data-renderer="{{ definition.rendererName|e }}">
-    {{ block('page_layout') }}
-  </div>
+<div class="calista-page {% block container_class %}{% endblock %}"
+    {% if pageId %}data-page="{{ pageId|e }}"
+    {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
+    data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
+    data-renderer="{{ definition.rendererName|e }}">
+  {{ block('page_layout') }}
+</div>
 {%- endblock -%}

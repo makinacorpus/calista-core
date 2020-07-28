@@ -125,21 +125,21 @@
 {% endblock %}
 
 {% block item_list %}
-  <table class="table table-bordered table-hover table-sm">
-    <thead>
-      <tr>
-        {% for property in properties %}
-          <th class="property-{{ property.name }}">{{ property.label }}</th>
-        {% endfor %}
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-        {{ block('item') }}
+<table class="table table-bordered table-hover table-sm">
+  <thead>
+    <tr>
+      {% for property in properties %}
+      {{ block('item_list_table_header') }}
       {% endfor %}
-    </tbody>
-  </table>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    {{ block('item') }}
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
 
 {% block page_content %}

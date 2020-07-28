@@ -161,35 +161,62 @@
   </div>
 {% endblock %}
 
+{%- block item_actions -%}
+{# Override that block to add arbitrary data into the last column #}
+{# From here, you have access to the "item" variable. #}
+{%- endblock -%}
+
 {%- block item -%}
-  <tr>
-    {% for property in properties %}
-      <td>
-        {{ calista_item_property(item, property) }}
-      </td>
-    {% endfor %}
+<tr>
+  {% for property in properties %}
   <td>
-    {# {{ calista_actions(item) }} #}
+    {{ calista_item_property(item, property) }}
+  </td>
+  {% endfor %}
+  <td class="item-actions">
+  {{ block('item_actions') }}
   </td>
 </tr>
 {%- endblock -%}
 
+{#
+ # Single <th> tag for table headers.
+ #
+ # If detected, uses the allowed sorts to place a sort link in the table header.
+ # @todo Allow configuring this using an extra option.
+ #}
+{%- block item_list_table_header -%}
+{% set name = property.getName() %}
+{% if input.isSortAllowed(name) %}
+<th class="property-{{ name }}{% if query.sortField == name %} active{% endif %}">
+  {% with {label: property.getLabel(), field: name} %}
+  {{ block('sort_link') }}
+  {% endwith %}
+</th>
+{% else %}
+<th class="property-{{ name }}">{{ property.getLabel() }}</th>
+{% endif %}
+{%- endblock -%}
+
+{#
+ # Items list, a table.
+ #}
 {% block item_list %}
-  <table class="table table-condensed">
-    <thead>
-      <tr>
-        {% for property in properties %}
-          <th class="property-{{ property.name }}">{{ property.label }}</th>
-        {% endfor %}
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-        {{ block('item') }}
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      {% for property in properties %}
+      {{ block('item_list_table_header') }}
       {% endfor %}
-    </tbody>
-  </table>
+      <th class="item-actions"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    {{ block('item') }}
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
 
 {#
