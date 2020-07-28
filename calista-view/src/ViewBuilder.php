@@ -41,11 +41,24 @@ final class ViewBuilder
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function renderer(string $name): self
+    public function renderer(string $name, array $extraOptions = []): self
     {
         $this->dieIfLocked();
 
         $this->rendererName = $this->viewOptions['renderer'] = $name;
+        $this->viewOptions['extra'] = $extraOptions + ($this->viewOptions['extra'] ?? []);
+
+        return $this;
+    }
+
+    /**
+     * Add extra option value for view renderer.
+     */
+    public function extra(string $name, $value): self
+    {
+        $this->dieIfLocked();
+
+        $this->viewOptions['extra'][$name] = $value;
 
         return $this;
     }
@@ -155,6 +168,15 @@ final class ViewBuilder
         $this->dieIfLocked();
 
         $this->inputOptions['sort_allowed_list'][$name] = $name ?? $label;
+
+        return $this;
+    }
+
+    public function sorts(array $sorts): self
+    {
+        foreach ($sorts as $name => $label) {
+            $this->sort($name, $label);
+        }
 
         return $this;
     }
