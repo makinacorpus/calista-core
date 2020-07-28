@@ -24,7 +24,7 @@ class Filter implements \Countable
     private ?string $queryParameter = null;
     private ?string $title = null;
 
-    public function __construct(string $queryParameter, string $title = null, string $description = null)
+    public function __construct(string $queryParameter, ?string $title = null, ?string $description = null)
     {
         $this->description = $description;
         $this->queryParameter = $queryParameter;

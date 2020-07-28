@@ -156,7 +156,7 @@ class Query
     /**
      * Normalize a single value to be an array of values.
      */
-    private static function expandValue($value): array
+    private static function expandValue($value): ?array
     {
         // Drops all empty values (but not 0 or false).
         if ('' === $value || null === $value || [] === $value) {
@@ -176,11 +176,16 @@ class Query
     /**
      * Normalize then restrict filter values to base query.
      */
-    private static function secureValue(string $name, $value, array $baseQuery): array
+    private static function secureValue(string $name, $value, array $baseQuery): ?array
     {
         $value = self::expandValue($value);
+        $allowed = $baseQuery[$name] ?? null;
 
-        if (null !== ($allowed = $baseQuery[$name] ?? null)) {
+        if (null === $value || [] === $value) {
+            return $value;
+        }
+
+        if (null !== $allowed) {
             // Restrict possible values to base query bounds.
             $value = \array_unique(\array_intersect($value, $allowed));
 
