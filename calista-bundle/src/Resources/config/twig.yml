@@ -3,7 +3,7 @@ services:
     calista.view_renderer.twig:
         public: true
         class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
-        arguments: ['@twig', '@event_dispatcher']
+        arguments: ['@twig', '@event_dispatcher', '%calista_theme%']
         tags: [{name: calista.view, id: twig}]
 
     # Obsolete name variant of the service, but kept for backward compatibility.
@@ -12,7 +12,7 @@ services:
     calista.view_renderer.twig_page:
         public: true
         class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
-        arguments: ['@twig', '@event_dispatcher']
+        arguments: ['@twig', '@event_dispatcher', '%%']
         tags: [{name: calista.view, id: twig_page}]
 
     calista.twig.page_extension:

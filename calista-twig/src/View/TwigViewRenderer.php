@@ -17,15 +17,19 @@ use Twig\Environment;
  */
 class TwigViewRenderer extends AbstractViewRenderer
 {
+    const DEFAULT_THEME_TEMPLATE = '@calista/page/page.html.twig';
+
     private bool $debug = false;
     private EventDispatcherInterface $dispatcher;
     private Environment $twig;
+    private string $defaultTemplate;
 
-    public function __construct(Environment $twig, EventDispatcherInterface $dispatcher)
+    public function __construct(Environment $twig, EventDispatcherInterface $dispatcher, ?string $defaultTemplate = null)
     {
         $this->twig = $twig;
         $this->debug = $twig->isDebug();
         $this->dispatcher = $dispatcher;
+        $this->defaultTemplate = $defaultTemplate ?? self::DEFAULT_THEME_TEMPLATE;
     }
 
     /**
@@ -38,7 +42,7 @@ class TwigViewRenderer extends AbstractViewRenderer
 
         $arguments = $this->createTemplateArguments($view);
 
-        $template = $view->getDefinition()->getExtraOptionValue('template', '@calista/page/page.html.twig');
+        $template = $view->getDefinition()->getExtraOptionValue('template', $this->defaultTemplate);
 
         return new TwigRenderer($this->twig, $template, $arguments);
     }

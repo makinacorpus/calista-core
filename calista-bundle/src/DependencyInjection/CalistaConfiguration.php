@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
  * @codeCoverageIgnore
@@ -24,7 +25,7 @@ final class CalistaConfiguration implements ConfigurationInterface
             ->children()
                 ->arrayNode('config')
                     ->children()
-                        ->scalarNode('theme')->defaultValue(CalistaExtension::DEFAULT_THEME_TEMPLATE)->end()
+                        ->scalarNode('theme')->defaultValue(TwigViewRenderer::DEFAULT_THEME_TEMPLATE)->end()
                     ->end()
                 ->end()
                 ->variableNode('pages')->end()

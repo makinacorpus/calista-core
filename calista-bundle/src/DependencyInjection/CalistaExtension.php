@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
+use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
@@ -22,8 +23,6 @@ use Twig\Environment;
  */
 final class CalistaExtension extends Extension
 {
-    const DEFAULT_THEME_TEMPLATE = '@calista/page/page.html.twig';
-
     /**
      * {@inheritdoc}
      */
@@ -45,6 +44,8 @@ final class CalistaExtension extends Extension
                 }
             }
         }
+
+        $container->setParameter('calista_theme', $config['config']['theme'] ?? TwigViewRenderer::DEFAULT_THEME_TEMPLATE);
 
         $this->registerPropertyRenderer($container);
         $this->registerViewRendererRegistry($container);
