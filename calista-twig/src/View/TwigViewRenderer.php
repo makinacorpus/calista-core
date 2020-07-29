@@ -13,7 +13,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
 /**
- * Uses a view definition and proceed to an html page display via Twig
+ * Uses a view definition and proceed to an html page display via Twig.
+ *
+ * This renderer understand a few extra options:
+ *
+ *   - table_sort: (bool) if set to false, clickable table header links for
+ *     sorting will be disable (default is true).
+ *   - table_action: (callable) must be a callable that take the "item" instance
+ *     as first and only parameter: it allows the user to write custom markup
+ *     in the very last table column.
  */
 class TwigViewRenderer extends AbstractViewRenderer
 {
@@ -103,6 +111,10 @@ class TwigViewRenderer extends AbstractViewRenderer
         }
 
         return [
+            'config' => [
+                'table_action' => $viewDefinition->getExtraOptionValue('table_action', null),
+                'table_sort' => (bool)$viewDefinition->getExtraOptionValue('table_sort', true),
+            ],
             'definition' => $viewDefinition,
             'filters' => $enabledFilters,
             'hasPager' => $viewDefinition->isPagerEnabled(),

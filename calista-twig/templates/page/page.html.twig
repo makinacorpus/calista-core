@@ -3,6 +3,9 @@
  #  are currently displaying, this template hanles nodes.
  #
  #  Variables:
+ #    config: object containing how this template must behave
+ #    config.table_sort: bool (allow clickable table sort headers)
+ #    config.table_action: callable (run for building last row columns)
  #    pageId: page uuid, for security and ajax queries
  #    filters: Filter[]
  #    filters.ID.title: string (title)
@@ -164,6 +167,9 @@
 {%- block item_actions -%}
 {# Override that block to add arbitrary data into the last column #}
 {# From here, you have access to the "item" variable. #}
+{% if config.table_action is not null %}
+{{ calista_item_actions(item, config.table_action) }}
+{% endif %}
 {%- endblock -%}
 
 {%- block item -%}
@@ -173,9 +179,11 @@
     {{ calista_item_property(item, property) }}
   </td>
   {% endfor %}
+  {% if config.table_action is not null %}
   <td class="item-actions">
-  {{ block('item_actions') }}
+    {{ block('item_actions') }}
   </td>
+  {% endif %}
 </tr>
 {%- endblock -%}
 
@@ -187,7 +195,7 @@
  #}
 {%- block item_list_table_header -%}
 {% set name = property.getName() %}
-{% if input.isSortAllowed(name) %}
+{% if config.table_sort and input.isSortAllowed(name) %}
 <th class="property-{{ name }}{% if query.sortField == name %} active{% endif %}">
   {% with {label: property.getLabel(), field: name} %}
   {{ block('sort_link') }}
@@ -208,7 +216,9 @@
       {% for property in properties %}
       {{ block('item_list_table_header') }}
       {% endfor %}
+      {% if config.table_action is not null %}
       <th class="item-actions"></th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>

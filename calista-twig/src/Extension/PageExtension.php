@@ -52,6 +52,7 @@ class PageExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
+            new TwigFunction('calista_item_actions', [$this, 'renderItemActions'], ['is_safe' => ['html']]),
             new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page_range', [$this, 'computePageRange'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
@@ -83,6 +84,31 @@ class PageExtension extends AbstractExtension
         }
 
         return $this->urlGenerator->generate($name, $parameters, $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH);
+    }
+
+    /**
+     * From given callable, run item action column builder.
+     */
+    public function renderItemActions($item, $callback): ?string
+    {
+        if (!\is_callable($callback)) {
+            if ($this->debug) {
+                throw new \InvalidArgumentException("twig's renderer 'table_action' extra parameter must be a callable.");
+            }
+            return null;
+        }
+
+        $output = $callback($item);
+
+        if (null !== $output &&
+            !\is_string($output) &&
+            !\is_scalar($output) &&
+            (!\is_object($output) || !\method_exists($output, '__toString'))
+        ) {
+            throw new \InvalidArgumentException(\sprintf("twig's renderer 'table_action' callack did not return a string."));
+        }
+
+        return (string)$output;
     }
 
     /**

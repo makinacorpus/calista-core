@@ -131,7 +131,9 @@
       {% for property in properties %}
       {{ block('item_list_table_header') }}
       {% endfor %}
+      {% if config.table_action is not null %}
       <th></th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
