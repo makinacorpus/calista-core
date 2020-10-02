@@ -48,7 +48,7 @@ class PropertyView
             'decimal_separator' => '.',
             'label' => null,
             'string_ellipsis' => true,
-            'string_maxlength' => 20,
+            'string_maxlength' => 100,
             'thousand_separator' => ',',
             'type' => null,
             // Property access component will be used to fetch value, but in
