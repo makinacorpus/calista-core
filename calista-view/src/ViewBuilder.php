@@ -28,6 +28,7 @@ final class ViewBuilder
     private string $rendererName = 'twig';
     private array $inputOptions = [];
     private array $viewOptions = [];
+    private array $defaultPropertyView = [];
     private array $properties = [];
     private array $propertyLabels = [];
     private ?string $route = null;
@@ -235,6 +236,15 @@ final class ViewBuilder
         return $this;
     }
 
+    public function defaultPropertyView(array $options): self
+    {
+        $this->dieIfLocked();
+
+        $this->defaultPropertyView = $options;
+
+        return $this;
+    }
+
     public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
     {
         $this->dieIfLocked();
@@ -247,6 +257,11 @@ final class ViewBuilder
         return $this;
     }
 
+    /**
+     * Set default property view options.
+     *
+     * This will affect only properties defined AFTER this method call.
+     */
     public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
     {
         $this->defaultSort($propertyName, $propertyParameterName, $orderParameterName, Query::SORT_DESC);
@@ -295,13 +310,13 @@ final class ViewBuilder
         } else if ($property instanceof PropertyDescription) {
             $this->properties[$name] = $property->rename($name, $label);
         } else if (\is_array($property)) {
-            $this->properties[$name] = new PropertyView($name, null, $property + ['label' => $label]);
+            $this->properties[$name] = new PropertyView($name, null, $property + ['label' => $label] + $this->defaultPropertyView);
         } else if (\is_callable($property)) {
             $this->properties[$name] = new PropertyView($name, null, [
                 'callback' => $property,
                 'label' => $label,
                 'virtual' => true,
-            ]);
+            ] + $this->defaultPropertyView);
         } else {
             throw new \InvalidArgumentException(\sprintf("\$property must be an array or an instance of %s or %s", PropertyDescription::class, PropertyView::class));
         }
