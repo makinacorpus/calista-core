@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
+use MakinaCorpus\Calista\View\PropertyRenderer\DateTypeRenderer;
+use MakinaCorpus\Calista\View\PropertyRenderer\ScalarTypeRenderer;
+use MakinaCorpus\Calista\View\PropertyRenderer\TypeRenderer;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
@@ -21,26 +24,36 @@ class PropertyRenderer
 
     private bool $debug = false;
     private PropertyAccessor $propertyAccess;
-    private array $renderers = [];
+    private array $arbitraryRenderers = [];
+    private array $typesRendererMap = [];
 
     public function __construct(PropertyAccessor $propertyAccess)
     {
         $this->propertyAccess = $propertyAccess;
+
+        // Register default value renderers.
+        $this->addRenderer(new ScalarTypeRenderer());
+        $this->addRenderer(new DateTypeRenderer());
     }
 
     /**
-     * Append a property renderer.
+     * Register a property or type renderer instance.
      *
-     * @param object $renderer
+     * @param object|TypeRenderer $renderer
      */
     public function addRenderer($renderer): void
     {
-        $this->renderers[] = $renderer;
+        if ($renderer instanceof TypeRenderer) {
+            foreach ($renderer->getSupportedTypes() as $type) {
+                $this->typesRendererMap[$type][] = $renderer;
+            }
+        } else {
+            $this->arbitraryRenderers[] = $renderer;
+        }
     }
 
     /**
      * Enable or disable debug mode.
-     *
      */
     public function setDebug($debug = true): void
     {
@@ -48,124 +61,19 @@ class PropertyRenderer
     }
 
     /**
-     * Render a date.
+     * Render a single value.
      */
-    public function renderDate($value, array $options = []): ?string
+    private function renderValue($value, ?string $type = null, array $options = []): ?string
     {
-        if (!$value) {
+        if (null === $value) {
             return null;
         }
 
-        if (!$value instanceof \DateTimeInterface) {
-            try {
-                if (\is_numeric($value)) {
-                    $value = new \DateTimeImmutable('@' . $value);
-                } else {
-                    $value = new \DateTime($value);
-                }
-            } catch (\Exception $e) {
+        if (\is_iterable($value)) {
+            if (empty($value)) {
                 return null;
             }
-        }
 
-        switch ($options['date_format']) {
-            // @todo handle INTL
-            // @todo handle date constants (a few format, eg. atom, rfcXXXX, etc...)
-
-            default:
-                return $value->format($options['date_format']);
-        }
-    }
-
-    /**
-     * Render an integer value.
-     */
-    public function renderInt($value, array $options = []): ?string
-    {
-        return null === $value ? '' : \number_format($value, 0, '.', $options['thousand_separator']);
-    }
-
-    /**
-     * Render a float value.
-     */
-    public function renderFloat($value, array $options = []): ?string
-    {
-        return \number_format($value, $options['decimal_precision'], $options['decimal_separator'], $options['thousand_separator']);
-    }
-
-    /**
-     * Render a boolean value.
-     */
-    public function renderBool($value, array $options = []): ?string
-    {
-        if ($options['bool_as_int']) {
-            return $value ? "1" : "0";
-        }
-
-        if ($value) {
-            if ($options['bool_value_true']) {
-                return $options['bool_value_true'];
-            }
-
-            return "true"; // @todo translate
-
-        } else {
-            if ($options['bool_value_false']) {
-                return $options['bool_value_false'];
-            }
-
-            return "false"; // @todo translate
-        }
-    }
-
-    /**
-     * Render a string value.
-     */
-    public function renderString($value, array $options = []): ?string
-    {
-        $value = \strip_tags($value);
-
-        if (0 < $options['string_maxlength'] && \strlen($value) > $options['string_maxlength']) {
-            $value = \substr($value, 0, $options['string_maxlength']);
-
-            if ($options['string_ellipsis']) {
-                if (\is_string($options['string_ellipsis'])) {
-                    $value .= $options['string_ellipsis'];
-                } else {
-                    $value .= '...';
-                }
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * For when you have nothing to lose.
-     */
-    private function valueToString($value): string
-    {
-        if (null === $value) {
-            return '';
-        }
-        if (\is_string($value)) {
-            return $value;
-        }
-        if (\is_object($value) && \method_exists($value, '__toString')) {
-            return (string)$value;
-        }
-        return self::RENDER_NOT_POSSIBLE;
-    }
-
-    /**
-     * Render a single value.
-     */
-    private function renderValue($value, ?string $type = null, array $options = []): string
-    {
-        if (null === $value) {
-            return '';
-        }
-        if (\is_iterable($value)) {
             return $this->renderValueCollection($value, $type, $options);
         }
 
@@ -173,39 +81,34 @@ class PropertyRenderer
             $type = TypeHelper::getValueType($value);
         }
 
-        switch ($type) {
-
-            case 'int':
-                return $this->renderInt($value, $options);
-
-            case 'float':
-                return $this->renderFloat($value, $options);
-
-            case 'string':
-                return $this->renderString($value, $options);
-
-            case 'bool':
-                return $this->renderBool($value, $options);
-
-            default:
-                if (\DateTime::class === $type || \DateTimeInterface::class === $type || \DateTimeImmutable::class === $type ||
-                    ((new \ReflectionClass($type))->implementsInterface(\DateTimeInterface::class))
-                ) {
-                    return $this->renderDate($value, $options);
-                }
-                return $this->valueToString($value);
+        $renderers = $this->typesRendererMap[$type] ?? null;
+        if (!$renderers) {
+            $renderers = $this->typesRendererMap['null'] ?? [];
         }
+
+        foreach ($renderers as $renderer) {
+            \assert($renderer instanceof TypeRenderer);
+
+            $output = $renderer->render($type, $value, $options);
+
+            if (null !== $output) {
+                return $output;
+            }
+        }
+
+        return null;
     }
 
     /**
      * Render a collection of values.
      */
-    private function renderValueCollection(iterable $values, ?string $type, array $options = []): string
+    private function renderValueCollection(iterable $values, ?string $type, array $options = []): ?string
     {
         $ret = [];
         foreach ($values as $value) {
             $ret[] = $this->renderValue($value, $type ?? TypeHelper::getValueType($value), $options);
         }
+
         return \implode($options['collection_separator'], $ret);
     }
 
@@ -314,7 +217,7 @@ class PropertyRenderer
     /**
      * Render property for object.
      */
-    public function renderProperty($item, PropertyView $propertyView): string
+    public function renderProperty($item, PropertyView $propertyView): ?string
     {
         $options = $propertyView->getOptions();
         $property = $propertyView->getName();
@@ -367,7 +270,7 @@ class PropertyRenderer
     /**
      * Render a single item property.
      */
-    public function renderItemProperty($item, $property, array $options = []): string
+    public function renderItemProperty($item, $property, array $options = []): ?string
     {
         if ($property instanceof PropertyView) {
             return $this->renderProperty($item, $property);
