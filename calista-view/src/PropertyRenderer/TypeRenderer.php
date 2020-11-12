@@ -25,6 +25,8 @@ interface TypeRenderer
      *   Options from the PropertyView object.
      *
      * @return null|string
+     *   If you return null here, other renderers will have the chance to
+     *   render the value.
      */
     public function render(string $type, $value, array $options): ?string;
 }
