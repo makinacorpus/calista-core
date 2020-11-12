@@ -192,7 +192,7 @@ class PropertyRenderer
         if (\is_string($callback)) {
             $privates = [];
 
-            foreach ($this->renderers + [$this] as $renderer) {
+            foreach ($this->arbitraryRenderers + [$this] as $renderer) {
 
                 if (\method_exists($renderer, $callback)) {
                     if ((new \ReflectionMethod($renderer, $callback))->isPublic()) {

@@ -28,7 +28,7 @@ class DateTypeRenderer implements TypeRenderer
      */
     public function render(string $type, $value, array $options): ?string
     {
-        if (null === $value) {
+        if (null === $value || '' === $value) {
             return null;
         }
 

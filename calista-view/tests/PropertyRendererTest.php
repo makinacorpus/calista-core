@@ -6,6 +6,8 @@ namespace MakinaCorpus\Calista\Tests\View;
 
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
+use MakinaCorpus\Calista\View\PropertyRenderer\DateTypeRenderer;
+use MakinaCorpus\Calista\View\PropertyRenderer\ScalarTypeRenderer;
 use MakinaCorpus\Calista\View\Tests\Mock\FooPropertyRenderer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
@@ -22,27 +24,27 @@ final class PropertyRendererTest extends TestCase
 
     public function testRenderString()
     {
-        $propertyRenderer = self::createPropertyRenderer();
+        $renderer = new ScalarTypeRenderer();
 
         $value = "This is some long enough string";
 
-        $this->assertSame("This is some long enough string", $propertyRenderer->renderString($value, [
+        $this->assertSame("This is some long enough string", $renderer->render('string', $value, [
             'string_ellipsis' => null,
             'string_maxlength' => null,
         ]));
-        $this->assertSame("This is some long enough string", $propertyRenderer->renderString($value, [
+        $this->assertSame("This is some long enough string", $renderer->render('string', $value, [
             'string_ellipsis' => true,
             'string_maxlength' => null,
         ]));
-        $this->assertSame("This is...", $propertyRenderer->renderString($value, [
+        $this->assertSame("This is...", $renderer->render('string', $value, [
             'string_ellipsis' => true,
             'string_maxlength' => 7,
         ]));
-        $this->assertSame("This is SPARTA!", $propertyRenderer->renderString($value, [
+        $this->assertSame("This is SPARTA!", $renderer->render('string', $value, [
             'string_ellipsis' => ' SPARTA!',
             'string_maxlength' => 7,
         ]));
-        $this->assertSame("This is some", $propertyRenderer->renderString($value, [
+        $this->assertSame("This is some", $renderer->render('string', $value, [
             'string_ellipsis' => null,
             'string_maxlength' => 12,
         ]));
@@ -50,73 +52,74 @@ final class PropertyRendererTest extends TestCase
 
     public function testRenderBool()
     {
-        $propertyRenderer = self::createPropertyRenderer();
+        $renderer = new ScalarTypeRenderer();
 
         $values = [true, 1, 'something'];
         foreach ($values as $value) {
-            $this->assertSame("1", $propertyRenderer->renderBool($value, [
-                'bool_as_int'           => true,
-                'bool_value_false'      => "This is BAD",
-                'bool_value_true'       => "This is GOOD",
+            $this->assertSame("1", $renderer->render('bool', $value, [
+                'bool_as_int' => true,
+                'bool_value_false' => "This is BAD",
+                'bool_value_true' => "This is GOOD",
             ]));
-            $this->assertSame("This is GOOD", $propertyRenderer->renderBool($value, [
-                'bool_as_int'           => false,
-                'bool_value_false'      => "This is BAD",
-                'bool_value_true'       => "This is GOOD",
+            $this->assertSame("This is GOOD", $renderer->render('bool', $value, [
+                'bool_as_int' => false,
+                'bool_value_false' => "This is BAD",
+                'bool_value_true' => "This is GOOD",
             ]));
         }
 
         $values = [false, 0, ''];
         foreach ($values as $value) {
-            $this->assertSame("0", $propertyRenderer->renderBool($value, [
-                'bool_as_int'           => true,
-                'bool_value_false'      => "This is WHAT I AM WAITING FOR",
-                'bool_value_true'       => "This is NOT THE RIGHT STRING",
+            $this->assertSame("0", $renderer->render('bool', $value, [
+                'bool_as_int' => true,
+                'bool_value_false' => "This is WHAT I AM WAITING FOR",
+                'bool_value_true' => "This is NOT THE RIGHT STRING",
             ]));
-            $this->assertSame("This is WHAT I AM WAITING FOR", $propertyRenderer->renderBool($value, [
-                'bool_as_int'           => false,
-                'bool_value_false'      => "This is WHAT I AM WAITING FOR",
-                'bool_value_true'       => "This is NOT THE RIGHT STRING",
+            $this->assertSame("This is WHAT I AM WAITING FOR", $renderer->render('bool', $value, [
+                'bool_as_int' => false,
+                'bool_value_false' => "This is WHAT I AM WAITING FOR",
+                'bool_value_true' => "This is NOT THE RIGHT STRING",
             ]));
         }
     }
 
     public function testRenderFloat()
     {
-        $propertyRenderer = self::createPropertyRenderer();
+        $renderer = new ScalarTypeRenderer();
 
         $value = 12345678.1234567;
 
-        $this->assertSame("12345678.1234567", $propertyRenderer->renderFloat($value, [
-            'decimal_precision'     => 7,
-            'decimal_separator'     => '.',
-            'thousand_separator'    => '',
+        $this->assertSame("12345678.1234567", $renderer->render('float', $value, [
+            'decimal_precision' => 7,
+            'decimal_separator' => '.',
+            'thousand_separator' => '',
         ]));
-        $this->assertSame("12,345,678.1235", $propertyRenderer->renderFloat($value, [
-            'decimal_precision'     => 4,
-            'decimal_separator'     => '.',
-            'thousand_separator'    => ',',
+        $this->assertSame("12,345,678.1235", $renderer->render('float', $value, [
+            'decimal_precision' => 4,
+            'decimal_separator' => '.',
+            'thousand_separator' => ',',
         ]));
     }
 
     public function testRenderDate()
     {
-        $propertyRenderer = self::createPropertyRenderer();
+        $renderer = new DateTypeRenderer();
+
+        $options = ['date_format' => 'd/m/Y H\hi'];
 
         // TZ here forces PHP to just print the date without modification
         $date = \DateTime::createFromFormat('Y-m-d H:i', '1983-03-22 08:25', new \DateTimeZone('UTC'));
-        $timestamp = $date->getTimestamp();
-        $string = $date->format(\DateTime::ISO8601);
+        $this->assertSame("22/03/1983 08h25", $renderer->render('date', $date, $options));
 
-        foreach ([$date, $timestamp, $string] as $value) {
-            $this->assertSame("22/03/1983 08h25", $propertyRenderer->renderDate($value, [
-                'date_format' => 'd/m/Y H\hi',
-            ]));
-        }
+        $timestamp = $date->getTimestamp();
+        $this->assertSame("22/03/1983 08h25", $renderer->render('date', $timestamp, $options));
+
+        $string = $date->format(\DateTime::ISO8601);
+        $this->assertSame("22/03/1983 08h25", $renderer->render('date', $string, $options));
 
         // Test invalid date formats
         foreach (['what', null, ''] as $value) {
-            $this->assertNull($propertyRenderer->renderDate($value, [
+            $this->assertNull($renderer->render('date', $value, [
                 'date_format' => 'd/m/Y H\hi',
             ]));
         }
@@ -124,19 +127,19 @@ final class PropertyRendererTest extends TestCase
 
     public function testRenderInt()
     {
-        $propertyRenderer = self::createPropertyRenderer();
+        $renderer = new ScalarTypeRenderer();
 
         $value = 12345678.1234567;
 
-        $this->assertSame("12345678", $propertyRenderer->renderInt($value, [
-            'decimal_precision'     => 7,
-            'decimal_separator'     => '.',
-            'thousand_separator'    => '',
+        $this->assertSame("12345678", $renderer->render('int', $value, [
+            'decimal_precision' => 7,
+            'decimal_separator' => '.',
+            'thousand_separator' => '',
         ]));
-        $this->assertSame("12 and 345 and 678", $propertyRenderer->renderInt($value, [
-            'decimal_precision'     => 4,
-            'decimal_separator'     => '.',
-            'thousand_separator'    => ' and ',
+        $this->assertSame("12 and 345 and 678", $renderer->render('int', $value, [
+            'decimal_precision' => 4,
+            'decimal_separator' => '.',
+            'thousand_separator' => ' and ',
         ]));
     }
 

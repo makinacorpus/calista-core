@@ -204,13 +204,13 @@ final class TwigExtensionTest extends TestCase
         // defined on the item, it should display '' since it's null
         $propertyView = new PropertyView('neverSet');
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
-        self::assertSame('', $output);
+        self::assertNull($output);
         self::assertFalse($propertyView->isVirtual());
 
         // Property does not exists so has no value, has a type, it should just display normally
         $propertyView = new PropertyView('neverSet', 'int');
         $output = $pageExtension->renderItemProperty(new IntItem(1), $propertyView);
-        self::assertSame('', $output);
+        self::assertNull($output);
         self::assertFalse($propertyView->isVirtual());
     }
 
@@ -224,7 +224,7 @@ final class TwigExtensionTest extends TestCase
         // Property does not exists on object, it must return '' and there
         // should not be any exception thrown (since it's null)
         $output = $pageExtension->renderItemProperty(new IntItem(1), 'foo');
-        self::assertSame('', $output);
+        self::assertNull($output);
 
         // Property exists, and the property info component will be able to
         // find its real type, it must display something
