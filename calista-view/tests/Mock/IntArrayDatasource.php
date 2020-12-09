@@ -7,7 +7,7 @@ namespace MakinaCorpus\Calista\View\Tests\Mock;
 use MakinaCorpus\Calista\Datasource\AbstractDatasource;
 use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
-use MakinaCorpus\Calista\Query\Filter;
+use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Query;
 
 /**
@@ -31,15 +31,15 @@ class IntArrayDatasource extends AbstractDatasource
     public function getFilters(): array
     {
         return [
-            (new Filter('odd_or_even', "Odd or Even"))->setChoicesMap([
+            (new DefaultFilter('odd_or_even', "Odd or Even"))->setChoicesMap([
                 'odd' => "Odd",
                 'even' => "Even",
             ]),
-            (new Filter('mod3', "Modulo 3"))->setChoicesMap([
+            (new DefaultFilter('mod3', "Modulo 3"))->setChoicesMap([
                 1 => "Yes",
                 0 => "No",
             ]),
-            (new Filter('modX', "Modulo X"))->setChoicesMap(\array_combine(\range(0, 10), \range(0, 10))),
+            (new DefaultFilter('modX', "Modulo X"))->setChoicesMap(\array_combine(\range(0, 10), \range(0, 10))),
         ];
     }
 

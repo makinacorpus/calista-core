@@ -93,9 +93,9 @@ class InputDefinition
             if ($value instanceof Filter) {
                 $ret[] = $value;
             } else if (\is_numeric($key)) {
-                $ret[] = new Filter($value);
+                $ret[] = new DefaultFilter($value);
             } else {
-                $ret[] = new Filter($key, $value);
+                $ret[] = new DefaultFilter($key, $value);
             }
         }
 

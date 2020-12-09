@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Query\Tests;
 
-use MakinaCorpus\Calista\Query\Filter;
+use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\View;
@@ -21,7 +21,7 @@ final class FilterTest extends TestCase
      */
     public function testBasics(): void
     {
-        $filter = new Filter('foo', 'The foo filter');
+        $filter = new DefaultFilter('foo', 'The foo filter');
 
         self::assertSame('foo', $filter->getField());
         self::assertSame('The foo filter', $filter->getTitle());
@@ -34,7 +34,6 @@ final class FilterTest extends TestCase
             'd' => "La réponse D",
         ]);
 
-        self::assertSame(4, $filter->count());
         self::assertCount(4, $filter->getChoicesMap());
 
         $request = new Request(['foo' => 'a|c']);
@@ -69,7 +68,7 @@ final class FilterTest extends TestCase
      */
     public function testTitleFallback(): void
     {
-        $filter = new Filter('my_filter');
+        $filter = new DefaultFilter('my_filter');
         self::assertSame('my_filter', $filter->getTitle());
     }
 }

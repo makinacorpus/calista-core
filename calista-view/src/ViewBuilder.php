@@ -6,6 +6,7 @@ namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
+use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
@@ -386,7 +387,7 @@ final class ViewBuilder
 
     private function createFilter(string $name, ?string $title = null, ?string $description = null): Filter
     {
-        return new Filter($name, $title, $description);
+        return new DefaultFilter($name, $title, $description);
     }
 
     private function dieIfLocked(): void

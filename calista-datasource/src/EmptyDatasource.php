@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Datasource;
 
-use MakinaCorpus\Calista\Query\Filter;
+use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Query;
 
 /**
@@ -28,7 +28,7 @@ final class EmptyDatasource extends AbstractDatasource
     {
         return \array_map(
             function ($name) {
-                return new Filter($name);
+                return new DefaultFilter($name);
             },
             $this->allowedFilters
         );
