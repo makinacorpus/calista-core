@@ -46,7 +46,8 @@
         "symfony/framework-bundle": ">=4.4",
         "symfony/http-kernel": ">=4.4",
         "symfony/property-access": ">=4.4",
-        "twig/twig": ">=2.5"
+        "twig/twig": ">=2.5",
+        "symfony/yaml": ">=4.4"
     },
     "replace": {
         "makinacorpus/calista-datasource": "self.version",

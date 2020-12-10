@@ -10,7 +10,6 @@ use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\Event\ViewEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Environment;
 
 /**
  * Uses a view definition and proceed to an html page display via Twig.
@@ -25,34 +24,13 @@ use Twig\Environment;
  */
 class TwigViewRenderer extends AbstractViewRenderer
 {
-    const DEFAULT_THEME_TEMPLATE = '@calista/page/page.html.twig';
-
-    private bool $debug = false;
     private EventDispatcherInterface $dispatcher;
-    private Environment $twig;
-    private string $defaultTemplate;
+    private DefaultTwigBlockRenderer $blockRenderer;
 
-    public function __construct(Environment $twig, EventDispatcherInterface $dispatcher, ?string $defaultTemplate = null)
+    public function __construct(DefaultTwigBlockRenderer $blockRenderer, EventDispatcherInterface $dispatcher)
     {
-        $this->twig = $twig;
-        $this->debug = $twig->isDebug();
+        $this->blockRenderer = $blockRenderer;
         $this->dispatcher = $dispatcher;
-        $this->defaultTemplate = $defaultTemplate ?? self::DEFAULT_THEME_TEMPLATE;
-    }
-
-    /**
-     * Create the renderer.
-     */
-    public function createRenderer(View $view): TwigRenderer
-    {
-        $event = new ViewEvent($this);
-        $this->dispatcher->dispatch($event, ViewEvent::EVENT_VIEW);
-
-        $arguments = $this->createTemplateArguments($view);
-
-        $template = $view->getDefinition()->getExtraOptionValue('template', $this->defaultTemplate);
-
-        return new TwigRenderer($this->twig, $template, $arguments);
     }
 
     /**
@@ -60,7 +38,13 @@ class TwigViewRenderer extends AbstractViewRenderer
      */
     public function render(View $view): string
     {
-        return $this->createRenderer($view)->render();
+        $event = new ViewEvent($this);
+        $this->dispatcher->dispatch($event, ViewEvent::EVENT_VIEW);
+
+        $arguments = $this->createTemplateArguments($view);
+        $template = $view->getDefinition()->getExtraOptionValue('template');
+
+        return $this->blockRenderer->create($template)->render($arguments);
     }
 
     /**
@@ -79,6 +63,13 @@ class TwigViewRenderer extends AbstractViewRenderer
         $viewDefinition = $view->getDefinition();
         $query = $view->getQuery();
         $inputDefinition = $query->getInputDefinition();
+
+        $viewContext = new ViewContext(
+            $query,
+            $inputDefinition,
+            $view,
+            $viewDefinition
+        );
 
         // Build allowed filters arrays
         $enabledFilters = [];
@@ -106,27 +97,23 @@ class TwigViewRenderer extends AbstractViewRenderer
                     continue;
                 }
 
-                $enabledFilters[] = $filter;
+                $enabledFilters[] = new FilterContext($filter, $viewContext);
             }
         }
 
-        return [
+        return $viewContext->toArray() + [
             'config' => [
                 'table_action' => $viewDefinition->getExtraOptionValue('table_action', null),
                 'table_sort' => (bool)$viewDefinition->getExtraOptionValue('table_sort', true),
             ],
-            'definition' => $viewDefinition,
             'filters' => $enabledFilters,
             'hasPager' => $viewDefinition->isPagerEnabled(),
-            'input' => $inputDefinition,
             'items' => $view->getResult(),
             'pageId' => 'foo', /* $this->getId() */
             'pagerEnabled' => $viewDefinition->isPagerEnabled(),
             'properties' => $view->getNormalizedProperties(),
-            'query' => $query,
             'sorts' => $viewDefinition->isSortEnabled() ? $inputDefinition->getAllowedSorts() : [],
             'sortsEnabled' => $viewDefinition->isSortEnabled(),
-            'view' => $view,
         ];
     }
 }

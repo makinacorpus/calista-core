@@ -1,0 +1,7 @@
+{%- block page -%}
+page from first {% if foo is defined %}{{ foo }}{% endif %}
+{%- endblock -%}
+
+{%- block override_in_second -%}
+override in second in first {% if foo is defined %}{{ foo }}{% endif %}
+{%- endblock -%}

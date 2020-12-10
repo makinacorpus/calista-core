@@ -216,6 +216,15 @@ class DefaultFilter extends AbstractFilter
      */
     public function getTemplateBlockSuffix(): string
     {
-        return 'default';
+        if ($this->isBoolean()) {
+            return 'boolean';
+        }
+        if ($this->isArbitraryInput()) {
+            return 'input';
+        }
+        if ($this->isDate()) {
+            return 'date';
+        }
+        return 'choices';
     }
 }

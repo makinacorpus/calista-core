@@ -1,0 +1,5 @@
+{% extends '@calista/test/first.html.twig' %}
+
+{%- block override_in_second -%}
+override in second in first extended {% if foo is defined %}{{ foo }}{% endif %}
+{%- endblock -%}

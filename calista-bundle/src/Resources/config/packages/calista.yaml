@@ -1,8 +1,49 @@
 calista:
     config:
-        # This variable is what will be in the 'calista_theme' global twig
-        # variable, you can use it this way: {{ extends calista_theme }}
-        # theme: '@calista/page/page.html.twig'
+        #
+        # Set the default twig page theme.
+        #
+        # This can be either one of:
+        #  - "default" : default value, uses @calista/page/page.html.twig
+        #  - "bootstrap3" : table and filter rendering using Twitter Bootstrap 3
+        #  - "bootstrap4" : table and filter rendering using Twitter Bootstrap 4
+        #  - "bootstrap" : alias to "bootstrap4"
+        #  - Any other value will be considered as a Twig template reference,
+        #    which should extend the '@calista/page/page.html.twig' template.
+        #
+        # The computed default template name will be used as base for block
+        # rendering, and will also be exposed as the 'calista_theme' Twig global
+        # variable.
+        #
         theme: '@calista/page/page-bootstrap4.html.twig'
+
+        #
+        # List, in order, of templates to lookup for calista components block
+        # rendering. As of today only filters are such components.
+        #
+        # If omitted or empty, default templates will be, in order:
+        #   - "@calista/page/filter.html.twig"
+        #   - "@calista/page/page.html.twig"
+        #
+        # If you chose a "bootstrap" theme variant, you do not need to repeat
+        # filter templates, but if you override the 'theme' value upper using
+        # a custom template, you need to add the wanted filter theme, allowed
+        # default values are:
+        #  - "@calista/page/filter.html.twig"
+        #  - "@calista/page/filter-bootstrap3.html.twig"
+        #  - "@calista/page/filter-bootstrap4.html.twig"
+        #
+        # You never need to repeat the default theme template, it will be
+        # added automatically in last position of the array.
+        #
+        # You can write here any number of templates, first ones will override
+        # those after's blocks.
+        #
+        # It works in a similar way than symfony/twig-bundle 'form_theme'
+        # variable.
+        #
+        templates:
+            - "@my-app/calista/filter-custom.html.twig"
+            - "@calista/page/filter-bootstrap4.html.twig"
 
     pages: []

@@ -1,9 +1,11 @@
 services:
 
+    # The 'calista.twig.default_block_renderer' service is created
+    # programatically in the extension class.
     calista.view_renderer.twig:
         public: true
         class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
-        arguments: ['@twig', '@event_dispatcher', '%calista_theme%']
+        arguments: ['@calista.twig.default_block_renderer', '@event_dispatcher']
         tags: [{name: calista.view, id: twig}]
 
     # Obsolete name variant of the service, but kept for backward compatibility.

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
-use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
+use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
+use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
@@ -18,9 +19,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Twig\Environment;
 
-/**
- * @codeCoverageIgnore
- */
 final class CalistaExtension extends Extension
 {
     /**
@@ -45,8 +43,7 @@ final class CalistaExtension extends Extension
             }
         }
 
-        $container->setParameter('calista_theme', $config['config']['theme'] ?? TwigViewRenderer::DEFAULT_THEME_TEMPLATE);
-
+        $this->registerThemeAndTemplates($container, $config['config']);
         $this->registerPropertyRenderer($container);
         $this->registerViewRendererRegistry($container);
         $this->registerViewManager($container);
@@ -64,6 +61,81 @@ final class CalistaExtension extends Extension
         }
     }
 
+    private function registerThemeAndTemplates(ContainerBuilder $container, array $config): void
+    {
+        $defaultTheme = $config['theme'];
+        $defaultTemplates = null;
+        $defaultPageTemplate = null;
+
+        // Order matters: first items in array will override those after,
+        // if theme is a single string, such as 'default' or 'bootstrap',
+        // we initialize templates from this theme.
+        // If theme is a custom one we don't recognize, we assume that
+        // it's a Twig template identifier user gave us, case in which
+        // the user need to manually set its own filter theme in the
+        // 'templates' section.
+        switch ($defaultTheme) {
+            case 'bootstrap':
+            case 'bootstrap4':
+            case '@calista/page/page-bootstrap4.html.twig':
+                $defaultPageTemplate = '@calista/page/page-bootstrap4.html.twig';
+                $defaultTemplates = [
+                    '@calista/page/filter-bootstrap4.html.twig',
+                    '@calista/page/page-bootstrap4.html.twig',
+                ];
+                break;
+            case '@calista/page/page-bootstrap3.html.twig':
+            case 'bootstrap3':
+                $defaultPageTemplate = '@calista/page/page-bootstrap3.html.twig';
+                $defaultTemplates = [
+                    '@calista/page/filter-bootstrap3.html.twig',
+                    '@calista/page/page-bootstrap3.html.twig',
+                ];
+                break;
+            case 'default':
+            case '@calista/page/page.html.twig':
+                $defaultPageTemplate = '@calista/page/page.html.twig';
+                $defaultTemplates = [
+                    '@calista/page/filter.html.twig',
+                    '@calista/page/page.html.twig',
+                ];
+                break;
+            default:
+                $defaultPageTemplate = $defaultTheme;
+                $defaultTemplates = [
+                    $defaultTheme,
+                    '@calista/page/filter.html.twig',
+                    '@calista/page/page.html.twig',
+                ];
+                break;
+        }
+
+        $container->setParameter('calista_theme', $defaultPageTemplate);
+
+        // Now prepend user given default templates, in order. If a template
+        // already exist in array, the user wanted to explicitely reorder it
+        // so let's do that.
+        foreach (($config['templates'] ?? []) as $templateName) {
+            if (false !== ($index = \array_search($templateName, $defaultTemplates))) {
+                unset($defaultTemplates[$index]);
+            }
+            \array_unshift($defaultTemplates, $templateName);
+        }
+
+        $definition = new Definition();
+        $definition->setClass(DefaultTwigBlockRenderer::class);
+        $definition->setArguments([new Reference('twig'), $defaultTemplates]);
+        $definition->setPublic(false);
+        $container->setDefinition('calista.twig.default_block_renderer', $definition);
+
+        $definition = new Definition();
+        $definition->setClass(BlockExtension::class);
+        $definition->setArguments([new Reference('calista.twig.default_block_renderer')]);
+        $definition->setPublic(false);
+        $definition->addTag('twig.extension');
+        $container->setDefinition('calista.twig.block_extension', $definition);
+    }
+
     private function registerViewRendererRegistry(ContainerBuilder $container): void
     {
         $definition = new Definition();
@@ -71,7 +143,7 @@ final class CalistaExtension extends Extension
         // Will be populated using a compiler pass.
         $definition->setArguments([[]]);
         $definition->addMethodCall('setContainer', [new Reference('service_container')]);
-        $definition->setPrivate(true);
+        $definition->setPublic(false);
 
         $container->setDefinition('calista.view.renderer_registry.container', $definition);
         $container->setAlias('calista.view.renderer_registry', 'calista.view.renderer_registry.container');
@@ -112,7 +184,7 @@ final class CalistaExtension extends Extension
             $pageDefinitions,
         ]);
         $definition->addMethodCall('setContainer', [new Reference('service_container')]);
-        $definition->setPrivate(true);
+        $definition->setPublic(false);
 
         $container->setDefinition('calista.view.factory', $definition);
         $container->setAlias(ViewFactory::class, 'calista.view.factory');
@@ -126,7 +198,7 @@ final class CalistaExtension extends Extension
         $definition = new Definition();
         $definition->setClass(PageRenderer::class);
         $definition->setArguments([new Reference('calista.view.factory')]);
-        $definition->setPrivate(true);
+        $definition->setPublic(false);
 
         $container->setDefinition('calista.page_renderer', $definition);
         $container->setAlias(PageRenderer::class, 'calista.page_renderer');

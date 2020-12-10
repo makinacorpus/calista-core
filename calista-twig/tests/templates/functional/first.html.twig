@@ -1,0 +1,17 @@
+{%- block page -%}
+page from first {% if foo is defined %}{{ foo }}{% endif %}
+
+{{ calista_block('arbitrary_component_1') }}
+{%- endblock -%}
+
+{%- block override_in_second -%}
+override in second in first {% if foo is defined %}{{ foo }}{% endif %}
+{%- endblock -%}
+
+{%- block arbitrary_component_1 -%}
+arbitrary component 1 in first
+{%- endblock -%}
+
+{%- block arbitrary_component_2 -%}
+arbitrary component 2 in first
+{%- endblock -%}

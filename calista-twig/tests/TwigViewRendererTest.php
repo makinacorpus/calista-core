@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\Tests\View;
+namespace MakinaCorpus\Calista\Twig\Tests;
 
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
 use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewDefinition;
@@ -14,52 +13,10 @@ use MakinaCorpus\Calista\View\Tests\Mock\IntArrayDatasource;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Environment;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
-use Twig\Loader\ArrayLoader;
 
 final class TwigViewRendererTest extends TestCase
 {
-    /**
-     * Create a twig environment with the bare minimum we need
-     */
-    static public function createTwigEnv(): Environment
-    {
-        $twigEnv = new Environment(
-            new ArrayLoader([
-                '@calista/page/page.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page.html.twig'),
-            ]),
-            [
-                'debug' => true,
-                'strict_variables' => true,
-                'autoescape' => 'html',
-                'cache' => false,
-                'auto_reload' => null,
-                'optimizations' => -1,
-            ]
-        );
-
-        $twigEnv->addFunction(new TwigFunction('path', function ($route, $routeParameters = []) {
-            return $route . '&' . \http_build_query($routeParameters);
-        }), ['is_safe' => ['html']]);
-        $twigEnv->addFilter(new TwigFilter('trans', function ($string, $params = []) {
-            return \strtr($string, $params);
-        }));
-        $twigEnv->addFilter(new TwigFilter('t', function ($string, $params = []) {
-            return \strtr($string, $params);
-        }));
-        $twigEnv->addFilter(new TwigFilter('time_diff', function ($value) {
-            return (string)$value;
-        }));
-
-        $twigEnv->addExtension(new PageExtension(new RequestStack(), PropertyRendererTest::createPropertyRenderer()));
-
-        return $twigEnv;
-    }
-
     /**
      * Tests basics
      */
@@ -81,7 +38,11 @@ final class TwigViewRendererTest extends TestCase
         $viewDefinition = new ViewDefinition([
             'enabled_filters' => ['odd_or_even'],
         ]);
-        $view = new TwigViewRenderer(self::createTwigEnv(), new EventDispatcher());
+
+        $view = new TwigViewRenderer(
+            TestFactory::createDefaultTwigBlockRenderer(TestFactory::createTwigEnv()),
+            new EventDispatcher()
+        );
 
         // Ensure filters etc
         $filters = $inputDefinition->getFilters();
@@ -123,7 +84,10 @@ final class TwigViewRendererTest extends TestCase
             'enabled_filters' => ['odd_or_even'],
         ]);
 
-        $view = new TwigViewRenderer(self::createTwigEnv(), new EventDispatcher());
+        $view = new TwigViewRenderer(
+            TestFactory::createDefaultTwigBlockRenderer(TestFactory::createTwigEnv()),
+            new EventDispatcher()
+        );
 
         $query = Query::fromRequest($inputDefinition, $request);
         $items = $datasource->getItems($query);

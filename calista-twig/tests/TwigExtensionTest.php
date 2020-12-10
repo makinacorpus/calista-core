@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\Tests\Twig;
+namespace MakinaCorpus\Calista\Twig\Tests;
 
-use MakinaCorpus\Calista\Tests\View\PropertyRendererTest;
 use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
+use MakinaCorpus\Calista\View\Tests\PropertyRendererTest;
 use MakinaCorpus\Calista\View\Tests\Mock\IntItem;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;

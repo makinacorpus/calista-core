@@ -7,7 +7,7 @@
  #    config.table_sort: bool (allow clickable table sort headers)
  #    config.table_action: callable (run for building last row columns)
  #    pageId: page uuid, for security and ajax queries
- #    filters: Filter[]
+ #    filters: FilterContext[]
  #    filters.ID.title: string (title)
  #    filters.ID.links: Link[]
  #    input: InputDefinition
@@ -21,69 +21,6 @@
  #    hasPager: should we show pager or not
  #    items: DatasourceResultInterface|mixed[] the items
  #}
-
-{%- block filter_link -%}
-  <div class="checkbox">
-    <label>
-      <a{% if link.isActive %} class="active"{% endif %} href="{{ calista_path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
-        <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
-        {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
-      </a>
-    </label>
-  </div>
-{%- endblock -%}
-
-{%- block filter_boolean -%}
-  <div class="checkbox">
-    <label>
-      {% set value = query.get(filter.field) %}
-      <input type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/> {{ filter.title|e }}
-    </label>
-  </div>
-{%- endblock -%}
-
-{%- block filter_date -%}
-  <div class="form-group">
-    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
-    {% set value = query.get(filter.field) %}
-    <input type="date" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}"/>
-  </div>
-{%- endblock -%}
-
-{%- block filter_input -%}
-  <div class="form-group">
-    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
-    {% set value = query.get(filter.field) %}
-    <input type="text" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}" placeholder="">
-  </div>
-{%- endblock -%}
-
-{%- block filter -%}
-  {% if filter.isMultiple %}
-    <strong>{{ filter.title|e }}</strong>
-    <ul class="list-unstyled">
-      {% for link in filter.links(query, view) %}
-        <li>{{ block('filter_link') }}</li>
-      {% else %}
-        <li>{{ "No values"|trans }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-     <div class="form-group">
-      <label for="disabledTextInput">{{ filter.title|e }}</label>
-      {% set selectedValues = filter.getSelectedValues(query) %}
-      <select name="{{ filter.field|e }}">
-        {% if not filter.isMandatory %}
-          {% set noneOption = filter.noneOption %}
-          <option value="">{% if noneOption %}{{ noneOption|e }}{% else %}{{ "All"|trans }}{% endif %}</option>
-        {% endif %}
-        {% for key, title in filter.choicesMap %}
-          <option{% if key in selectedValues %} selected="selected"{% endif %} value="{{ key|e }}">{{ title|e }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  {% endif %}
-{%- endblock -%}
 
 {#
  # A normal sort link
@@ -330,15 +267,7 @@
 {% block filters %}
   <form method="get" action="{{ calista_path(view.route, view.getRouteParameters) }}" class="form-inline">
     {% for filter in filters %}
-      {% if filter.isBoolean %}
-        {{ block('filter_boolean') }}
-      {% elseif filter.isArbitraryInput %}
-        {{ block('filter_input') }}
-      {% elseif filter.isDate %}
-        {{ block('filter_date') }}
-      {% else %}
-        {{ block('filter') }}
-      {% endif %}
+      {{ calista_filter(filter) }}
     {% endfor %}
     <div class="form-group">
       <div class="input-group-btn">
@@ -375,11 +304,11 @@
 {% endblock %}
 
 {%- block page -%}
-  <div class="calista-page"
-      {% if pageId %}data-page="{{ pageId|e }}"
-      {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
-      data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
-      data-renderer="{{ definition.rendererName|e }}">
+  <div class="calista-page {% block container_class %}{% endblock %}"
+    {% if pageId %}data-page="{{ pageId|e }}"
+    {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}
+    data-page-query="{{ view.getRouteParameters(query.all)|json_encode|e }}"{% endif %}
+    data-renderer="{{ definition.rendererName|e }}">
     {{ block('page_layout') }}
   </div>
 {%- endblock -%}

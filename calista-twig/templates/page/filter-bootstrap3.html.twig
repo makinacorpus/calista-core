@@ -1,0 +1,84 @@
+{% extends '@calista/page/filter.html.twig' %}
+
+{%- block filter_link -%}
+  {% if class is not defined %}
+    {% set class = '' %}
+  {% endif %}
+  <a class="{{ class }}{% if link.isActive %} active{% endif %}" href="{{ calista_path(link.route, link.getRouteParameters) }}" data-page-link="{{ filter.field|e }}">
+    <input type="checkbox"{% if link.isActive %} checked="checked"{% endif %}/>
+    {{ link.title|e }} {% if link.count is defined %}<span class="badge">{{ link.count|e }}</span>{% endif %}
+  </a>
+{%- endblock -%}
+
+{%- block filter_boolean -%}
+  {% set value = query.get(filter.field) %}
+  <div class="form-group form-inline">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="{{ filter.field|e }}" {% if value %} checked="checked"{% endif %} value="1"/>
+      <label class="form-check-label">{{ filter.title|e }}</label>
+    </div>
+  </div>
+{%- endblock -%}
+
+{%- block filter_date -%}
+  <div class="form-group form-inline">
+    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
+    {% set value = query.get(filter.field) %}
+    <input type="date" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}"/>
+  </div>
+{%- endblock -%}
+
+{%- block filter_input -%}
+  <div class="form-group form-inline">
+    <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
+    {% set value = query.get(filter.field) %}
+    <input type="text" class="form-control" name="{{ filter.field|e }}" value="{{ value|e }}" placeholder="">
+  </div>
+{%- endblock -%}
+
+{%- block filter_choices -%}
+  {% if filter.isMultiple %}
+    {% set name = filter.field %}
+    {% set id = 'filter-' ~ name %}
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button" id="{{ id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ filter.title|e }}
+      </button>
+      <div class="dropdown-menu" aria-labelledby="{{ id }}">
+        {% if filter.asLinks %}
+          {% for link in filter.links(query, view) %}
+            {% with {class: 'dropdown-item'} %}{{ block('filter_link') }}{% endwith %}
+          {% else %}
+            <a href="#" class="disabled dropdown-item" disabled="disabled">{{ "No values"|trans }}</a>
+          {% endfor %}
+          {# Avoid filter from being erased when user submits form #}
+          <input type="hidden" name="{{ name }}" value="{{ "test" }}"/>
+        {% else %}
+          {% for value in filter.getChoicesState(query) %}
+            <div class="form-group form-check dropdown-item">
+              {% set input_id = id ~ '-' ~ name ~ '--' ~ value.value %}
+              <input type="checkbox" class="form-check-input" {% if value.selected %} checked="checked"{% endif %} id="{{ input_id }}" name="{{ name }}[]" value="{{ value.value }}"/>
+              <label class="form-check-label" for="{{ input_id }}">{{ value.label }}</label>
+            </div>
+          {% else %}
+            <a href="#" class="disabled dropdown-item" disabled="disabled">{{ "No values"|trans }}</a>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="form-group form-inline">
+      <label for="disabledTextInput">{{ filter.title|e }}</label>
+      {% set selectedValues = filter.getSelectedValues(query) %}
+      <select name="{{ filter.field|e }}">
+        {% if not filter.isMandatory %}
+          {% set noneOption = filter.noneOption %}
+          <option value="">{% if noneOption %}{{ noneOption|e }}{% else %}{{ "All"|trans }}{% endif %}</option>
+        {% endif %}
+        {% for key, title in filter.choicesMap %}
+          <option{% if key in selectedValues %} selected="selected"{% endif %} value="{{ key|e }}">{{ title|e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endif %}
+{%- endblock -%}

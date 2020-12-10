@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\Tests\View;
+namespace MakinaCorpus\Calista\View\Tests;
 
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\Stream\CsvStreamViewRenderer;
