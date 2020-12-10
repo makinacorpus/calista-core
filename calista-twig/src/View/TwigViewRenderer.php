@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Twig\View;
 
+use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\View;
@@ -80,8 +81,10 @@ class TwigViewRenderer extends AbstractViewRenderer
                 \assert($filter instanceof Filter);
 
                 // Only considers filters with choices.
-                if (!$filter->hasChoices() && !$filter->isArbitraryInput() && !$filter->isBoolean() && !$filter->isDate()) {
-                    continue;
+                if ($filter instanceof DefaultFilter) {
+                    if (!$filter->hasChoices() && !$filter->isArbitraryInput() && !$filter->isBoolean() && !$filter->isDate()) {
+                        continue;
+                    }
                 }
 
                 $field = $filter->getField();
