@@ -12,26 +12,25 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use Twig\Loader\ArrayLoader;
 
 final class TestFactory
 {
     public static function createTestTemplatesLoaderDefinition(): array
     {
         return [
-            '@calista/page/filter-bootstrap3.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/filter-bootstrap3.html.twig'),
-            '@calista/page/filter-bootstrap4.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/filter-bootstrap4.html.twig'),
-            '@calista/page/filter.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/filter.html.twig'),
-            '@calista/page/page-bootstrap3.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page-bootstrap3.html.twig'),
-            '@calista/page/page-bootstrap4.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page-bootstrap4.html.twig'),
-            '@calista/page/page.html.twig' => file_get_contents(dirname(__DIR__) . '/templates/page/page.html.twig'),
-            '@calista/test/functional/custom.html.twig' => file_get_contents(__DIR__ . '/templates/functional/custom.html.twig'),
-            '@calista/test/functional/first.html.twig' => file_get_contents(__DIR__ . '/templates/functional/first.html.twig'),
-            '@calista/test/functional/second.html.twig' => file_get_contents(__DIR__ . '/templates/functional/second.html.twig'),
-            '@calista/test/unit/custom.html.twig' => file_get_contents(__DIR__ . '/templates/unit/custom.html.twig'),
-            '@calista/test/unit/first-extend.html.twig' => file_get_contents(__DIR__ . '/templates/unit/first-extend.html.twig'),
-            '@calista/test/unit/first.html.twig' => file_get_contents(__DIR__ . '/templates/unit/first.html.twig'),
-            '@calista/test/unit/second.html.twig' => file_get_contents(__DIR__ . '/templates/unit/second.html.twig'),
+            '@calista/page/filter-bootstrap3.html.twig' => dirname(__DIR__) . '/templates/page/filter-bootstrap3.html.twig',
+            '@calista/page/filter-bootstrap4.html.twig' => dirname(__DIR__) . '/templates/page/filter-bootstrap4.html.twig',
+            '@calista/page/filter.html.twig' => dirname(__DIR__) . '/templates/page/filter.html.twig',
+            '@calista/page/page-bootstrap3.html.twig' => dirname(__DIR__) . '/templates/page/page-bootstrap3.html.twig',
+            '@calista/page/page-bootstrap4.html.twig' => dirname(__DIR__) . '/templates/page/page-bootstrap4.html.twig',
+            '@calista/page/page.html.twig' => dirname(__DIR__) . '/templates/page/page.html.twig',
+            '@calista/test/functional/custom.html.twig' => __DIR__ . '/templates/functional/custom.html.twig',
+            '@calista/test/functional/first.html.twig' => __DIR__ . '/templates/functional/first.html.twig',
+            '@calista/test/functional/second.html.twig' => __DIR__ . '/templates/functional/second.html.twig',
+            '@calista/test/unit/custom.html.twig' => __DIR__ . '/templates/unit/custom.html.twig',
+            '@calista/test/unit/first-extend.html.twig' => __DIR__ . '/templates/unit/first-extend.html.twig',
+            '@calista/test/unit/first.html.twig' => __DIR__ . '/templates/unit/first.html.twig',
+            '@calista/test/unit/second.html.twig' => __DIR__ . '/templates/unit/second.html.twig',
         ];
     }
 
@@ -41,7 +40,7 @@ final class TestFactory
     static public function createTwigEnv(): Environment
     {
         $twigEnv = new Environment(
-            new ArrayLoader(self::createTestTemplatesLoaderDefinition()),
+            new TestTwigLoader(self::createTestTemplatesLoaderDefinition()),
             [
                 'debug' => true,
                 'strict_variables' => true,

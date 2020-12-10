@@ -31,16 +31,16 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+    <coverage processUncoveredFiles="true">
+        <include>
             <directory>./calista-bundle/src</directory>
             <directory>./calista-datasource/src</directory>
             <directory>./calista-query/src</directory>
             <directory>./calista-twig/src</directory>
             <directory>./calista-view/src</directory>
-            <exclude>
-                <directory>./vendor</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+        </include>
+        <exclude>
+            <directory>./vendor</directory>
+        </exclude>
+    </coverage>
 </phpunit>

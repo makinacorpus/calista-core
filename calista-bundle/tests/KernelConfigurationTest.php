@@ -6,13 +6,16 @@ namespace MakinaCorpus\Calista\Bundle\Tests;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\CalistaExtension;
 use MakinaCorpus\Calista\Twig\Tests\TestFactory;
+use MakinaCorpus\Calista\Twig\Tests\TestTwigLoader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Twig\Environment;
-use Twig\Loader\ArrayLoader;
 
 final class KernelConfigurationTest extends TestCase
 {
@@ -29,8 +32,19 @@ final class KernelConfigurationTest extends TestCase
             'kernel.root_dir' => \dirname(__DIR__),
         ]));
 
+        $propertyAccessorDefinition = new Definition();
+        $propertyAccessorDefinition->setClass(PropertyAccessor::class);
+        $propertyAccessorDefinition->setFactory(PropertyAccess::class . '::createPropertyAccessor');
+        $propertyAccessorDefinition->setPublic(false);
+        $container->setDefinition('property_accessor', $propertyAccessorDefinition);
+
+        $eventDispatcherDefinition = new Definition();
+        $eventDispatcherDefinition->setClass(EventDispatcher::class);
+        $eventDispatcherDefinition->setPublic(false);
+        $container->setDefinition('event_dispatcher', $eventDispatcherDefinition);
+
         $twigLoaderDefinition = new Definition();
-        $twigLoaderDefinition->setClass(ArrayLoader::class);
+        $twigLoaderDefinition->setClass(TestTwigLoader::class);
         $twigLoaderDefinition->setArguments([TestFactory::createTestTemplatesLoaderDefinition()]);
         $container->setDefinition('twig_loader', $twigLoaderDefinition);
 
@@ -71,9 +85,15 @@ final class KernelConfigurationTest extends TestCase
      */
     public function testTaggedServicesConfigLoad()
     {
+        self::expectNotToPerformAssertions();
+
         $extension = new CalistaExtension();
         $config = $this->getMinimalConfig();
-        $extension->load([$config], $container = $this->getContainer());
+
+        $container = $this->getContainer();
+
+        $container->registerExtension($extension);
+        $extension->load([$config], $container);
 
         $container->compile();
     }
