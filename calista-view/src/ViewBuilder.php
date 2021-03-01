@@ -35,6 +35,10 @@ final class ViewBuilder
     private ?string $route = null;
     private array $routeParameters = [];
 
+    private ?InputDefinition $builtInputDefinition = null;
+    private ?ViewDefinition $builtViewDefinition = null;
+    private ?View $builtView = null;
+
     public function __construct(
         ViewRendererRegistry $viewRendererRegistry,
         EventDispatcherInterface $eventDispatcher
@@ -385,6 +389,42 @@ final class ViewBuilder
         );
     }
 
+    /**
+     * Get input definition after build.
+     */
+    public function getInputDefinition(): InputDefinition
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+
+        return $this->doBuildInputDefinition();
+    }
+
+    /**
+     * Get input definition after build.
+     */
+    public function getViewDefinition(): ViewDefinition
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+
+        return $this->doBuildViewDefinition();
+    }
+
+    /**
+     * Get view.
+     */
+    public function getView(): View
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+
+        return $this->doBuild();
+    }
+
     private function createFilter(string $name, ?string $title = null, ?string $description = null): Filter
     {
         return new DefaultFilter($name, $title, $description);
@@ -397,7 +437,14 @@ final class ViewBuilder
         }
     }
 
-    private function doBuild(): View
+    private function dieIfNotLocked(): void
+    {
+        if ($this->locked) {
+            throw new \BadMethodCallException("You cannot fetch data before calling build().");
+        }
+    }
+
+    private function doBuildItems(): array
     {
         $query = $this->doBuildQuery();
 
@@ -409,6 +456,17 @@ final class ViewBuilder
             $items = $this->data;
         }
 
+        return [$query, $items];
+    }
+
+    private function doBuild(): View
+    {
+        if ($this->builtView) {
+            return $this->builtView;
+        }
+
+        list($query, $items) = $this->doBuildItems();
+
         $view = new View($this->doBuildViewDefinition(), $items, $query);
         if ($this->route) {
             $view->setRoute($this->getRoute(), $this->getRouteParameters());
@@ -416,11 +474,15 @@ final class ViewBuilder
             $view->setRoute($this->request->attributes->get('_route'), $this->request->attributes->get('_route_params'));
         }
 
-        return $view;
+        return $this->builtView = $view;
     }
 
     private function doBuildInputDefinition(): InputDefinition
     {
+        if ($this->builtInputDefinition) {
+            return $this->builtInputDefinition;
+        }
+
         $options = $this->inputOptions;
 
         // Eargerly add the default sort being an allowed sort, only in case
@@ -432,10 +494,10 @@ final class ViewBuilder
         }
 
         if ($this->data instanceof DatasourceInterface) {
-            return InputDefinition::datasource($this->data, $options);
+            return $this->builtInputDefinition = InputDefinition::datasource($this->data, $options);
         }
 
-        return new InputDefinition($options);
+        return $this->builtInputDefinition = new InputDefinition($options);
     }
 
     private function doBuildQuery(): Query
@@ -451,6 +513,10 @@ final class ViewBuilder
 
     private function doBuildViewDefinition(): ViewDefinition
     {
+        if ($this->builtViewDefinition) {
+            return $this->builtViewDefinition;
+        }
+
         $options = $this->viewOptions;
         $options['renderer'] = $this->rendererName;
 
@@ -467,7 +533,7 @@ final class ViewBuilder
             }
         }
 
-        return new ViewDefinition($options);
+        return $this->builtViewDefinition = new ViewDefinition($options);
     }
 }
 

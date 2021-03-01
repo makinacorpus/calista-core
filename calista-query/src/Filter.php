@@ -73,7 +73,7 @@ interface Filter
     /**
      * Get description.
      */
-    public function getDescription(): string;
+    public function getDescription(): ?string;
 
     /**
      * Get field.

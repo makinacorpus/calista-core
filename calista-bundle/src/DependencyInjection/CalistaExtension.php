@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
+use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilder;
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
+use MakinaCorpus\Calista\Bridge\Symfony\Controller\RestController;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
@@ -49,6 +51,8 @@ final class CalistaExtension extends Extension
         $this->registerViewManager($container);
         $this->registerViewFactory($container, $pageDefinitions);
         $this->registerPageRenderer($container);
+        $this->registerCustomViewBuilders($container);
+        $this->registerRestRenderer($container);
 
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
         $loader->load('view.yml');
@@ -59,6 +63,35 @@ final class CalistaExtension extends Extension
         if (\class_exists('Box\\Spout\\Writer\\WriterFactory')) {
             $loader->load('spout.yml');
         }
+    }
+
+    private function registerCustomViewBuilders(ContainerBuilder $container): void
+    {
+        $serviceId = 'calista.bundle.custom_view_renderer_registry';
+        $definition = new Definition();
+        $definition->setClass(ContainerCustomViewBuilderRegistry::class);
+        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
+        $definition->setArguments([[]]);
+        $definition->setPublic(false);
+        $container->setDefinition($serviceId, $definition);
+        $container->setAlias(CustomViewBuilder::class, $serviceId);
+    }
+
+    private function registerRestRenderer(ContainerBuilder $container): void
+    {
+        $serviceId = 'calista.bundle.rest_controller';
+        $definition = new Definition();
+        $definition->setClass(RestController::class);
+        $definition->setArguments([
+            new Reference('calista.bundle.custom_view_renderer_registry'),
+            new Reference('calista.view.manager'),
+            new Reference('calista.property_renderer'),
+            new Reference('router'),
+        ]);
+        $definition->setPublic(true);
+        $definition->addTag('controller.service_arguments');
+        $container->setDefinition('calista.bundle.rest_controller', $definition);
+        $container->setAlias(RestController::class, $serviceId);
     }
 
     private function registerThemeAndTemplates(ContainerBuilder $container, array $config): void

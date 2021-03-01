@@ -1,0 +1,9 @@
+calista_rest_definition:
+    path: /calista/definition
+    controller: calista.bundle.rest_controller::definition
+    methods: [GET]
+
+calista_rest_query:
+    path: /calista/query
+    controller: calista.bundle.rest_controller::query
+    methods: [GET]

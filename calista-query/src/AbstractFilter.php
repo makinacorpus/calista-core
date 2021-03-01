@@ -93,7 +93,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function getDescription(): string
+    final public function getDescription(): ?string
     {
         return $this->description;
     }
