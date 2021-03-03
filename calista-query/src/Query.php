@@ -66,10 +66,6 @@ class Query
      */
     public static function fromArray(InputDefinition $inputDefinition, array $input = []): Query
     {
-        if (!$input) {
-            return new Query($inputDefinition);
-        }
-
         $otherKeys = [
             $inputDefinition->getLimitParameter() => true,
             $inputDefinition->getPagerParameter() => true,
@@ -79,7 +75,7 @@ class Query
 
         $baseQuery = $inputDefinition->getBaseQuery();
 
-        $filters = [];
+        $filters = $baseQuery;
         foreach (\array_diff_key($input, $otherKeys) as $name => $value) {
             $filters[$name] = self::secureValue($name, $value, $baseQuery);
         }
