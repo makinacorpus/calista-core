@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 
 final class KernelConfigurationTest extends TestCase
@@ -47,6 +48,11 @@ final class KernelConfigurationTest extends TestCase
         $twigLoaderDefinition->setClass(TestTwigLoader::class);
         $twigLoaderDefinition->setArguments([TestFactory::createTestTemplatesLoaderDefinition()]);
         $container->setDefinition('twig_loader', $twigLoaderDefinition);
+
+        $routerDefinition = new Definition();
+        $routerDefinition->setClass(UrlGeneratorInterface::class);
+        $routerDefinition->setPublic(false);
+        $container->setDefinition('router', $routerDefinition);
 
         // Define a minimal custom Twig service.
         $twigEnvDefinition = new Definition();
