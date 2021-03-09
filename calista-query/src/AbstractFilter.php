@@ -27,11 +27,29 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
+    final public function setAttribute(string $name, ?string $value): self
+    {
+        $this->attributes[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     final public function setAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function getAttribute(string $name, ?string $default = null): ?string
+    {
+        return $this->attributes[$name] ?? $default;
     }
 
     /**

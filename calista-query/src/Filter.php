@@ -36,9 +36,19 @@ namespace MakinaCorpus\Calista\Query;
 interface Filter
 {
     /**
+     * Set a single attribute value.
+     */
+    public function setAttribute(string $name, ?string $value): self;
+
+    /**
      * Set arbitrary attributes over the widget.
      */
     public function setAttributes(array $attributes): self;
+
+    /**
+     * Get a single attribute value.
+     */
+    public function getAttribute(string $name, ?string $default = null): ?string;
 
     /**
      * Get arbitrary attributes.
