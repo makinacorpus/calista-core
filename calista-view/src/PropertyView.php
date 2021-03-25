@@ -46,6 +46,7 @@ class PropertyView
             'date_format' => 'Y-m-d H:i:s',
             'decimal_precision' => 2,
             'decimal_separator' => '.',
+            'hidden' => false,
             'label' => null,
             'string_ellipsis' => true,
             'string_maxlength' => 100,
@@ -85,10 +86,10 @@ class PropertyView
     /**
      * Create clone with new name.
      */
-    public function rename(string $name, ?string $label = null): self
+    public function rename(string $name, ?string $label = null, array $optionsOverrides = []): self
     {
         $ret = clone $this;
-        $ret->options = $this->options;
+        $ret->options = $optionsOverrides ?? $this->options;
         $ret->name = $name;
         $ret->label = $label ?? $this->label;
 
@@ -133,6 +134,14 @@ class PropertyView
     public function getType(): ?string
     {
         return $this->type;
+    }
+
+    /**
+     * Is property hidden (used for REST API only as of now).
+     */
+    public function isHidden(): bool
+    {
+        return (bool)$this->options['hidden'] ?? false;
     }
 
     /**

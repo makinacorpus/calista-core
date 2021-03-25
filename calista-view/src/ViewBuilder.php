@@ -306,25 +306,40 @@ final class ViewBuilder
      *   hence first callback parameter will be the object, second the property
      *   name.
      */
-    public function property(string $name, $property = [], ?string $label = null): self
+    public function property(string $name, $property = [], ?string $label = null, bool $hidden = false): self
     {
         $this->dieIfLocked();
 
         if ($property instanceof PropertyView) {
-            $this->properties[$name] = $property->rename($name, $label);
+            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden]);
         } else if ($property instanceof PropertyDescription) {
-            $this->properties[$name] = $property->rename($name, $label);
+            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden]);
         } else if (\is_array($property)) {
-            $this->properties[$name] = new PropertyView($name, null, $property + ['label' => $label] + $this->defaultPropertyView);
+            $this->properties[$name] = new PropertyView($name, null, ['hidden' => $hidden] + $property + ['label' => $label] + $this->defaultPropertyView);
         } else if (\is_callable($property)) {
             $this->properties[$name] = new PropertyView($name, null, [
                 'callback' => $property,
+                'hidden' => $hidden,
                 'label' => $label,
                 'virtual' => true,
             ] + $this->defaultPropertyView);
         } else {
             throw new \InvalidArgumentException(\sprintf("\$property must be an array or an instance of %s or %s", PropertyDescription::class, PropertyView::class));
         }
+
+        return $this;
+    }
+
+    /**
+     * Alias of property() which will set the 'hidden' option to true.
+     *
+     * As of now, this only has an effect on REST API.
+     *
+     * @see self::property()
+     */
+    public function hiddenProperty(string $name, $property = [], ?string $label = null): self
+    {
+        $this->property($name, $property, $label, true);
 
         return $this;
     }

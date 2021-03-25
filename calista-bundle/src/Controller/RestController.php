@@ -49,26 +49,20 @@ final class RestController
         $view = new View($viewDefinition, []);
 
         return new JsonResponse([
-            'url' => $this->urlGenerator->generate('calista_rest_query', ['_name' => $request->get('_name')]),
-            'filters' => \array_map(
-                fn ($filter) => $this->normalizeFilter($filter),
-                $inputDefinition->getFilters()
-            ),
-            'properties' => \array_map(
-                fn ($property) => $this->normalizeProperty($property),
-                $view->getNormalizedProperties()
-            ),
             'allowedSortFields' => \array_keys($inputDefinition->getAllowedSorts()),
+            'defaultLimit' => $inputDefinition->getDefaultLimit(),
             'defaultSortField' => $inputDefinition->getDefaultSortField(),
             'defaultSortOrder' => $inputDefinition->getDefaultSortOrder(),
-            'sortFieldQueryParam' => $inputDefinition->getSortFieldParameter(),
-            'sortOrderQueryParam' => $inputDefinition->getSortOrderParameter(),
-            'defaultLimit' => $inputDefinition->getDefaultLimit(),
+            'filters' => \array_map(fn ($filter) => $this->normalizeFilter($filter), $inputDefinition->getFilters()),
+            'limitChangeAllowed' => $inputDefinition->isLimitAllowed(),
             'limitQueryParam' => $inputDefinition->getLimitParameter(),
             'maximumLimit' => 1000, // @todo ?
-            'limitChangeAllowed' => $inputDefinition->isLimitAllowed(),
             'pagerEnabled' => $inputDefinition->isPagerEnabled(),
             'pagerQueryParam' => $inputDefinition->getPagerParameter(),
+            'properties' => $this->normalizeProperties($view),
+            'sortFieldQueryParam' => $inputDefinition->getSortFieldParameter(),
+            'sortOrderQueryParam' => $inputDefinition->getSortOrderParameter(),
+            'url' => $this->urlGenerator->generate('calista_rest_query', ['_name' => $request->get('_name')]),
         ]);
     }
 
@@ -87,7 +81,10 @@ final class RestController
 
         return new StreamedResponse(
             function () use ($properties, $query, $result): void {
-                $handle = \fopen('php://output', 'w+');
+                // Using "php://memory" without explicit read is a noop
+                // but it will prevent PHPUnit test console log to be
+                // filled with our streamed responses.
+                $handle = \fopen(('test' === \getenv('APP_ENV') ? 'php://memory' : 'php://output'), 'w+');
 
                 \fwrite($handle, '{' .
                     '"limit":' . $result->getLimit() . ',' .
@@ -113,6 +110,17 @@ final class RestController
                 'Content-Type' => 'application/json',
                 'X-Accel-Buffering' => 'no',
             ]
+        );
+    }
+
+    private function normalizeProperties(View $view): array
+    {
+        return \array_map(
+            fn ($property) => $this->normalizeProperty($property),
+            \array_filter(
+                $view->getNormalizedProperties(),
+                fn (PropertyView $property) => !$property->isHidden()
+            )
         );
     }
 
@@ -142,13 +150,13 @@ final class RestController
     private function normalizeFilter(Filter $filter): array
     {
         return [
-            'type' => $filter->getTemplateBlockSuffix(),
-            'field' => $filter->getField(),
-            'title' => $filter->getTitle(),
-            'description' => $filter->getDescription(),
-            'multiple' => $filter->isMultiple(),
-            'mandatory' => $filter->isMandatory(),
             'attributes' => $filter->getAttributes(),
+            'description' => $filter->getDescription(),
+            'field' => $filter->getField(),
+            'mandatory' => $filter->isMandatory(),
+            'multiple' => $filter->isMultiple(),
+            'title' => $filter->getTitle(),
+            'type' => $filter->getTemplateBlockSuffix(),
         ];
     }
 
