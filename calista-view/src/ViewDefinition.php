@@ -81,7 +81,26 @@ class ViewDefinition
     {
         $resolver->setDefaults([
             'enabled_filters' => null,
+            // Extra is an arbitrary array of values that will be passed and
+            // consumed at the discretion of the view renderer. It can be used
+            // by specialized view renderers to pass rendering options.
             'extra' => [],
+            // Preload allows the user to give either an arbitrary array of
+            // values that will be the same for each row, or a callback that
+            // will accept the raw loaded item as first parameter and that
+            // returns an array of computed values for the row.
+            // This allows to compute multiple rows at once, the returned array
+            // keys must be known property names, if unknown they will be
+            // silently ignored.
+            'preload' => null,
+            // List of properties instances. Keys are properties names, values
+            // are either:
+            //   - PropertyView instances,
+            //   - array of options for PropertyView constructor,
+            //   - null for disabling property display (same as false),
+            //   - false for disabling property display (same as null),
+            //   - true for enabling property display with default options
+            //     (same as using an empty array).
             'properties' => null,
             'renderer' => '',
             'show_filters' => true,
@@ -93,6 +112,7 @@ class ViewDefinition
 
         $resolver->setAllowedTypes('enabled_filters', ['null', 'array']);
         $resolver->setAllowedTypes('extra', ['array']);
+        $resolver->setAllowedTypes('preload', ['null', 'array', 'callable']);
         $resolver->setAllowedTypes('properties', ['null', 'array']);
         $resolver->setAllowedTypes('renderer', ['string', ViewRenderer::class]);
         $resolver->setAllowedTypes('show_filters', ['numeric', 'bool']);
@@ -171,6 +191,32 @@ class ViewDefinition
     public function isPropertyDisplayed(string $name): bool
     {
         return null === $this->options['properties'] || ($this->options['properties'][$name] ?? false);
+    }
+
+    /**
+     * Get item values preloader.
+     *
+     * @return callable
+     *   First argument of callable is the raw item being displayed, returned
+     *   value is a key-value pair array whose keys are properties names and
+     *   values are displayable values. Returned values will override the
+     *   property renderer.
+     */
+    public function getPreloader(): callable
+    {
+        $preloader = $this->options['preload'] ?? null;
+
+        if (null === $preloader) {
+            return fn ($item) => [];
+        }
+        if (\is_array($preloader)) {
+            return fn ($item) => $preloader;
+        }
+        if (\is_callable($preloader)) {
+            return $preloader;
+        }
+
+        throw new \LogicException("Invalid preloader found.");
     }
 
     /**

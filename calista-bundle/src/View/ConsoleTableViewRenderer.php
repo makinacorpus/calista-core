@@ -32,7 +32,7 @@ class ConsoleTableViewRenderer extends AbstractStreamViewRenderer
         }
 
         foreach ($view->getResult() as $item) {
-            $row = $this->createItemRow($properties, $item);
+            $row = $this->createItemRow($view, $item);
             $table->addRow($row);
         }
 

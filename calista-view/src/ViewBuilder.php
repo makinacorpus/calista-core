@@ -301,6 +301,26 @@ final class ViewBuilder
     }
 
     /**
+     * @param array|callable $callback
+     *   Either an arbitrary array of values that will override all items
+     *   values, or a callable whose first argument will be item, that will
+     *   be execute for each row, allowing you to precompute a set of values.
+     *   Callback return must be an array whose names are properties names.
+     */
+    public function preload($callback): self
+    {
+        $this->dieIfLocked();
+
+        if (!\is_array($callback) || !\is_callable($callback)) {
+            throw new \InvalidArgumentException("Preload \$callback must be an array or a callable.");
+        }
+
+        $this->viewOptions['preload'] = $callback;
+
+        return $this;
+    }
+
+    /**
      * @param array|callable|PropertyDescription|PropertyView $property
      *   If a callback, PropertyView will be set as virtual, sensible default,
      *   hence first callback parameter will be the object, second the property

@@ -39,7 +39,7 @@ class CsvStreamViewRenderer extends AbstractStreamViewRenderer
         }
 
         foreach ($view->getResult() as $item) {
-            $row = $this->createItemRow($properties, $item);
+            $row = $this->createItemRow($view, $item);
             if ($encoding !== 'utf-8') {
                 $row = \mb_convert_encoding($row, $encoding);
             }

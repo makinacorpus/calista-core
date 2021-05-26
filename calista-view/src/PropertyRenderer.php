@@ -9,6 +9,7 @@ use MakinaCorpus\Calista\View\PropertyRenderer\DateTypeRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer\ScalarTypeRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer\TypeRenderer;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
@@ -28,9 +29,9 @@ class PropertyRenderer
     private array $arbitraryRenderers = [];
     private array $typesRendererMap = [];
 
-    public function __construct(PropertyAccessor $propertyAccess)
+    public function __construct(?PropertyAccessor $propertyAccess = null)
     {
-        $this->propertyAccess = $propertyAccess;
+        $this->propertyAccess = $propertyAccess ?? PropertyAccess::createPropertyAccessor();
 
         // Register default value renderers.
         $this->addRenderer(new ScalarTypeRenderer());
@@ -146,6 +147,12 @@ class PropertyRenderer
         }
 
         try {
+            // Shortcut because symfony-property access component is slow and
+            // misses array values sometimes.
+            if (\is_array($item) && \array_key_exists($property, $item)) {
+                return $item[$property];
+            }
+
             // In case we have an array, and a numeric property, this means the
             // intends to fetch data in a numerically indexed array, let's make
             // it understandable for the Symfony's PropertyAccess component
@@ -155,7 +162,7 @@ class PropertyRenderer
 
             // Force string cast because PropertyAccess component cannot deal
             // with numerical indices
-            return $this->propertyAccess->getValue($item, (string)$property);
+            return $this->propertyAccess->getValue($item, $property);
 
         } catch (AccessException $e) {
             if ($this->debug) {

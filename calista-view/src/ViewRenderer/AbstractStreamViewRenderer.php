@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\ViewRenderer;
 
-use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,13 +11,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 abstract class AbstractStreamViewRenderer extends AbstractViewRenderer
 {
-    private PropertyRenderer $propertyRenderer;
-
-    public function __construct(PropertyRenderer $propertyRenderer)
-    {
-        $this->propertyRenderer = $propertyRenderer;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -93,22 +85,6 @@ abstract class AbstractStreamViewRenderer extends AbstractViewRenderer
             \assert($property instanceof PropertyView);
 
             $ret[] = $property->getLabel();
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Create item row.
-     */
-    protected function createItemRow(array $properties, $current): array
-    {
-        $ret = [];
-
-        foreach ($properties as $property) {
-            \assert($property instanceof PropertyView);
-
-            $ret[] = $this->propertyRenderer->renderProperty($current, $property);
         }
 
         return $ret;

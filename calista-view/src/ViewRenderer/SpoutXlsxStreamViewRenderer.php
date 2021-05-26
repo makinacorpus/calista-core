@@ -17,13 +17,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 {
-    private PropertyRenderer $propertyRenderer;
-
-    public function __construct(PropertyRenderer $propertyRenderer)
-    {
-        $this->propertyRenderer = $propertyRenderer;
-    }
-
     /**
      * Create header row.
      */
@@ -33,20 +26,6 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 
         foreach ($properties as $property) {
             $ret[] = $property->getLabel();
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Create item row.
-     */
-    private function createItemRow(array $properties, $current): array
-    {
-        $ret = [];
-
-        foreach ($properties as $property) {
-            $ret[] = $this->propertyRenderer->renderProperty($current, $property);
         }
 
         return $ret;
@@ -66,7 +45,7 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
         }
 
         foreach ($view->getResult() as $item) {
-            $writer->addRow($this->createItemRow($properties, $item));
+            $writer->addRow($this->createItemRow($view, $item));
         }
     }
 
