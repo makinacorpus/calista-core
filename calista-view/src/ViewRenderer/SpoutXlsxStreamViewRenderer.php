@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\View\Stream;
+namespace MakinaCorpus\Calista\View\ViewRenderer;
 
 use Box\Spout\Common\Type;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\WriterInterface;
-use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;

@@ -6,7 +6,7 @@ namespace MakinaCorpus\Calista\View\Tests;
 
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
-use MakinaCorpus\Calista\View\Stream\CsvStreamViewRenderer;
+use MakinaCorpus\Calista\View\ViewRenderer\CsvStreamViewRenderer;
 use MakinaCorpus\Calista\View\ViewRendererRegistry\ContainerViewRendererRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Container;

@@ -6,9 +6,9 @@ namespace MakinaCorpus\Calista\Twig\View;
 
 use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Filter;
-use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\Event\ViewEvent;
+use MakinaCorpus\Calista\View\ViewRenderer\AbstractViewRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 

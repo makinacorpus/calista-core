@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\View\Stream;
+namespace MakinaCorpus\Calista\View\ViewRenderer;
 
 use MakinaCorpus\Calista\View\View;
 

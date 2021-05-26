@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\View;
+namespace MakinaCorpus\Calista\View\ViewRenderer;
+
+use MakinaCorpus\Calista\View\View;
+use MakinaCorpus\Calista\View\ViewRenderer;
 
 /**
  * Boilerplate code for view implementations.

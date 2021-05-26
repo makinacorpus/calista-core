@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\View;
 
 use MakinaCorpus\Calista\View\View;
-use MakinaCorpus\Calista\View\Stream\AbstractStreamViewRenderer;
+use MakinaCorpus\Calista\View\ViewRenderer\AbstractStreamViewRenderer;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\StreamOutput;
 

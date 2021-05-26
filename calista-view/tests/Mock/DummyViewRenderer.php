@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\Tests\Mock;
 
-use MakinaCorpus\Calista\View\AbstractViewRenderer;
 use MakinaCorpus\Calista\View\View;
+use MakinaCorpus\Calista\View\ViewRenderer\AbstractViewRenderer;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DummyViewRenderer extends AbstractViewRenderer
