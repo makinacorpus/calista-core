@@ -20,5 +20,5 @@ services:
     calista.twig.page_extension:
         public: false
         class: MakinaCorpus\Calista\Twig\Extension\PageExtension
-        arguments: ['@request_stack', '@calista.property_renderer', '@calista.page_renderer', '@router']
+        arguments: ['@request_stack', '@calista.property_renderer', '@router']
         tags: [{name: twig.extension}]
