@@ -7,6 +7,7 @@ namespace MakinaCorpus\Calista\Twig\Extension;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\TwigFilter;
@@ -50,6 +51,7 @@ class PageExtension extends AbstractExtension
         return [
             new TwigFunction('calista_item_actions', [$this, 'renderItemActions'], ['is_safe' => ['html']]),
             new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
+            new TwigFunction('calista_item_row', [$this, 'computeItemRow'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page_range', [$this, 'computePageRange'], ['is_safe' => ['html']]),
             // Pass-thgouth to URL generator, because sometime, we have a null
             // path, and we will just ignore errors and use '#' as route.
@@ -107,7 +109,10 @@ class PageExtension extends AbstractExtension
     }
 
     /**
-     * Render a single item property
+     * Render a single item property.
+     *
+     * If you can, it's best to use calista_item_row() instead, which will
+     * prepare the row, using preloading function, otherwise you will miss it.
      *
      * @param object $item
      *   Item on which to find the property
@@ -122,6 +127,24 @@ class PageExtension extends AbstractExtension
     public function renderItemProperty($item, $property = null, ?array $options = null)
     {
         return $this->propertyRenderer->renderProperty($item, $property, $options);
+    }
+
+    /**
+     * Compute a complete calista row.
+     *
+     * @param View $view
+     *   The view object.
+     * @param object $item
+     *   Item on which to find the property
+     * @param mixed[] $options
+     *   Display options for the property, dropped if the $property parameter
+     *   is an instance of PropertyView
+     *
+     * @return string
+     */
+    public function computeItemRow(View $view, $item): array
+    {
+        return $this->propertyRenderer->computeItemRow($view, $item);
     }
 
     /**

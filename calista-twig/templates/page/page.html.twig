@@ -111,9 +111,9 @@
 
 {%- block item -%}
 <tr>
-  {% for property in properties %}
+  {% for value in calista_item_row(view, item) %}
   <td>
-    {{ calista_item_property(item, property) }}
+    {{ value }}
   </td>
   {% endfor %}
   {% if config.table_action is not null %}
