@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\View\ViewBuilder;
+namespace MakinaCorpus\Calista\View;
 
 use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
@@ -10,11 +10,8 @@ use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\InputDefinition;
 use MakinaCorpus\Calista\Query\Query;
-use MakinaCorpus\Calista\View\PropertyView;
-use MakinaCorpus\Calista\View\View;
-use MakinaCorpus\Calista\View\ViewDefinition;
-use MakinaCorpus\Calista\View\ViewRendererRegistry;
 use MakinaCorpus\Calista\View\Event\ViewBuilderEvent;
+use MakinaCorpus\Calista\View\ViewBuilder\ViewBuilderRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
