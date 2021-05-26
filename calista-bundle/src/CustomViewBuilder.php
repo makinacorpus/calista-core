@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony;
 
-use MakinaCorpus\Calista\View\ViewBuilder;
+use MakinaCorpus\Calista\View\ViewBuilder\ViewBuilder;
 
 /**
  * Implement this interface in order to provide calista views that can be

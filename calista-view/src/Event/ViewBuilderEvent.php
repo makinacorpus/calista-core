@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\Event;
 
-use MakinaCorpus\Calista\View\ViewBuilder;
+use MakinaCorpus\Calista\View\ViewBuilder\ViewBuilder;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
