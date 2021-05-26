@@ -111,17 +111,17 @@ class PageExtension extends AbstractExtension
      *
      * @param object $item
      *   Item on which to find the property
-     * @param string|\MakinaCorpus\Calista\View\PropertyView $property
-     *   Property name
+     * @param string|array|\MakinaCorpus\Calista\View\PropertyView $property
+     *   Property name, raws options array, or PropertyView instance.
      * @param mixed[] $options
      *   Display options for the property, dropped if the $property parameter
      *   is an instance of PropertyView
      *
      * @return string
      */
-    public function renderItemProperty($item, $property, array $options = [])
+    public function renderItemProperty($item, $property = null, ?array $options = null)
     {
-        return $this->propertyRenderer->renderItemProperty($item, $property, $options);
+        return $this->propertyRenderer->renderProperty($item, $property, $options);
     }
 
     /**

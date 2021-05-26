@@ -46,7 +46,7 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
         $ret = [];
 
         foreach ($properties as $property) {
-            $ret[] = $this->propertyRenderer->renderItemProperty($current, $property);
+            $ret[] = $this->propertyRenderer->renderProperty($current, $property);
         }
 
         return $ret;

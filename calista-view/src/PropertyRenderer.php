@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
+use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\View\PropertyRenderer\DateTypeRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer\ScalarTypeRenderer;
 use MakinaCorpus\Calista\View\PropertyRenderer\TypeRenderer;
@@ -217,7 +218,7 @@ class PropertyRenderer
     /**
      * Render property for object.
      */
-    public function renderProperty($item, PropertyView $propertyView): ?string
+    private function doRenderProperty($item, PropertyView $propertyView): ?string
     {
         $options = $propertyView->getOptions();
         $property = $propertyView->getName();
@@ -270,12 +271,26 @@ class PropertyRenderer
     /**
      * Render a single item property.
      */
-    public function renderItemProperty($item, $property, array $options = []): ?string
+    public function renderProperty($item, $property = null, ?array $options = null): ?string
     {
-        if ($property instanceof PropertyView) {
-            return $this->renderProperty($item, $property);
+        $propertyView = null;
+
+        if ($property instanceof PropertyDescription) {
+            $propertyView = PropertyView::fromDescription($property);
+        } else if ($property instanceof PropertyView) {
+            $propertyView = $property;
+        } else if (\is_array($property)) {
+            $propertyView = new PropertyView($property['name'] ?? 'unnamed', $property['type'] ?? null, $property);
+        } else if (\is_string($property)) {
+            $propertyView = new PropertyView($property);
+        } else {
+            $propertyView = new PropertyView('unnamed');
         }
 
-        return $this->renderProperty($item, new PropertyView($property, null, $options));
+        if ($options) {
+            $propertyView = $propertyView->withOptions($options);
+        }
+
+        return $this->doRenderProperty($item, $propertyView);
     }
 }

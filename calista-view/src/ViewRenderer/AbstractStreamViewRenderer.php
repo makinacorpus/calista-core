@@ -108,7 +108,7 @@ abstract class AbstractStreamViewRenderer extends AbstractViewRenderer
         foreach ($properties as $property) {
             \assert($property instanceof PropertyView);
 
-            $ret[] = $this->propertyRenderer->renderItemProperty($current, $property);
+            $ret[] = $this->propertyRenderer->renderProperty($current, $property);
         }
 
         return $ret;

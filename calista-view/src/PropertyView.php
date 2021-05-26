@@ -35,6 +35,24 @@ class PropertyView
         );
     }
 
+    /**
+     * Return a new instance with overriden options.
+     */
+    public function withOptions(array $overrides): self
+    {
+        if (!$overrides) {
+            return $this;
+        }
+
+        $resolver = new OptionsResolver();
+        $this->configureOptions($resolver);
+
+        $ret = clone $this;
+        $ret->options = $resolver->resolve($overrides + $this->options);
+
+        return $ret;
+    }
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
