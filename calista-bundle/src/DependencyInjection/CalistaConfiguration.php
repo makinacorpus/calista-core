@@ -28,7 +28,6 @@ final class CalistaConfiguration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->variableNode('pages')->end()
             ->end()
         ;
 

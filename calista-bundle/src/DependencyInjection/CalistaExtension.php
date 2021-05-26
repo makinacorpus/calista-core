@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilder;
-use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\RestController;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
@@ -31,26 +30,10 @@ final class CalistaExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        // From the configured pages, build services.
-        $pageDefinitions = [];
-        foreach ($configs as $config) {
-            // This was a side effect due to Drupal 7 with sf_dic module was
-            // loading multiple configuration files without proper merging,
-            // this should not exist. But it works, so let's keep it.
-            $config = $this->processConfiguration($configuration, [$config]);
-            if (isset($config['pages'])) {
-                foreach ($config['pages'] as $id => $array) {
-                    $pageDefinitions[$array['id'] ?? $id] = $array;
-                }
-            }
-        }
-
         $this->registerThemeAndTemplates($container, $config['config']);
         $this->registerPropertyRenderer($container);
         $this->registerViewRendererRegistry($container);
         $this->registerViewManager($container);
-        $this->registerViewFactory($container, $pageDefinitions);
-        $this->registerPageRenderer($container);
         $this->registerCustomViewBuilders($container);
         $this->registerRestRenderer($container);
 
@@ -203,38 +186,6 @@ final class CalistaExtension extends Extension
 
         $container->setDefinition('calista.property_renderer', $definition);
         $container->setAlias(PropertyRenderer::class, 'calista.property_renderer');
-    }
-
-    /**
-     * @deprecated
-     */
-    private function registerViewFactory(ContainerBuilder $container, array $pageDefinitions): void
-    {
-        $definition = new Definition();
-        $definition->setClass(ViewFactory::class);
-        $definition->setArguments([
-            new Reference('calista.view.renderer_registry'),
-            $pageDefinitions,
-        ]);
-        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
-        $definition->setPublic(false);
-
-        $container->setDefinition('calista.view.factory', $definition);
-        $container->setAlias(ViewFactory::class, 'calista.view.factory');
-
-        // Kept for backward compatibility, but you should stop using this.
-        $container->setAlias('calista.view_factory', 'calista.view.factory');
-    }
-
-    private function registerPageRenderer(ContainerBuilder $container): void
-    {
-        $definition = new Definition();
-        $definition->setClass(PageRenderer::class);
-        $definition->setArguments([new Reference('calista.view.factory')]);
-        $definition->setPublic(false);
-
-        $container->setDefinition('calista.page_renderer', $definition);
-        $container->setAlias(PageRenderer::class, 'calista.page_renderer');
     }
 
     /**

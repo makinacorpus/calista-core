@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Twig\Extension;
 
-use MakinaCorpus\Calista\Bridge\Symfony\Controller\PageRenderer;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
@@ -19,7 +18,6 @@ class PageExtension extends AbstractExtension
     private bool $debug = false;
     private PropertyRenderer $propertyRenderer;
     private RequestStack $requestStack;
-    private ?PageRenderer $pageRenderer = null;
     private ?UrlGeneratorInterface $urlGenerator = null;
 
     /**
@@ -28,12 +26,10 @@ class PageExtension extends AbstractExtension
     public function __construct(
         RequestStack $requestStack,
         PropertyRenderer $propertyRenderer,
-        ?PageRenderer $pageRenderer = null,
         ?UrlGeneratorInterface $urlGenerator = null
     ) {
         $this->requestStack = $requestStack;
         $this->propertyRenderer = $propertyRenderer;
-        $this->pageRenderer = $pageRenderer;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -55,7 +51,6 @@ class PageExtension extends AbstractExtension
             new TwigFunction('calista_item_actions', [$this, 'renderItemActions'], ['is_safe' => ['html']]),
             new TwigFunction('calista_item_property', [$this, 'renderItemProperty'], ['is_safe' => ['html']]),
             new TwigFunction('calista_page_range', [$this, 'computePageRange'], ['is_safe' => ['html']]),
-            new TwigFunction('calista_page', [$this, 'renderPage'], ['is_safe' => ['html']]),
             // Pass-thgouth to URL generator, because sometime, we have a null
             // path, and we will just ignore errors and use '#' as route.
             new TwigFunction('calista_path', [$this, 'renderPath'], ['is_safe' => ['html']]),
@@ -210,18 +205,6 @@ class PageExtension extends AbstractExtension
         } else {
             return \range($min, $max);
         }
-    }
-
-    /**
-     * Render a complete page
-     */
-    public function renderPage(string $name, array $inputOptions = [], array $viewOptions = []): string
-    {
-        if (!$this->pageRenderer) {
-            throw new \LogicException("page renderer is not set");
-        }
-
-        return $this->pageRenderer->renderPage($name, $this->requestStack->getCurrentRequest(), $inputOptions, $viewOptions);
     }
 
     /**
