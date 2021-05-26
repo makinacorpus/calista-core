@@ -311,7 +311,7 @@ final class ViewBuilder
     {
         $this->dieIfLocked();
 
-        if (!\is_array($callback) || !\is_callable($callback)) {
+        if (!\is_array($callback) && !\is_callable($callback)) {
             throw new \InvalidArgumentException("Preload \$callback must be an array or a callable.");
         }
 
