@@ -7,7 +7,6 @@ namespace MakinaCorpus\Calista\View\ViewRenderer;
 use Box\Spout\Common\Entity\Row;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Writer\XLSX\Writer;
-use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;

@@ -32,13 +32,13 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "box/spout": "^3",
         "php": ">=7.4",
         "symfony/event-dispatcher": ">=4.4",
         "symfony/http-foundation": ">=4.4",
         "symfony/options-resolver": ">=4.4"
     },
     "require-dev": {
+        "box/spout": "^3",
         "phpunit/phpunit": "^9",
         "symfony/config": ">=4.4",
         "symfony/console": ">=4.4",
