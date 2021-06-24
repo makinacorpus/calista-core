@@ -1,5 +1,14 @@
 services:
 
+    calista.view.spout_xslx:
+        public: true
+        class: MakinaCorpus\Calista\View\ViewRenderer\SpoutXlsxStreamViewRenderer
+        arguments: ['@calista.property_renderer']
+        tags: [{name: calista.view, id: spout_xslx}]
+
+    # Obsolete name variant of the service, but kept for backward compatibility.
+    # Please note that the correct renderer name is now simply "spout_xslx", you must
+    # now use the new name as "spout_xlsx_stream" will soon be removed.
     calista.view.spout_xlsx_stream:
         public: true
         class: MakinaCorpus\Calista\View\ViewRenderer\SpoutXlsxStreamViewRenderer

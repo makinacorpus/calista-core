@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\ViewRenderer;
 
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\WriterFactory;
-use Box\Spout\Writer\WriterInterface;
-use MakinaCorpus\Calista\View\PropertyRenderer;
+use Box\Spout\Common\Entity\Row;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\XLSX\Writer;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -20,21 +19,35 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
     /**
      * Create header row.
      */
-    private function createHeaderRow(array $properties): array
+    private function createHeaderRow(array $properties): Row
     {
         $ret = [];
 
         foreach ($properties as $property) {
-            $ret[] = $property->getLabel();
+            $ret[] = WriterEntityFactory::createCell($property->getLabel());
         }
 
-        return $ret;
+        return WriterEntityFactory::createRow($ret);
+    }
+
+    /**
+     * Create body row.
+     */
+    private function createBodyRow(View $view, $item): Row
+    {
+        $ret = [];
+
+        foreach ($this->createItemRow($view, $item) as $value) {
+            $ret[] = WriterEntityFactory::createCell($value);
+        }
+
+        return WriterEntityFactory::createRow($ret);
     }
 
     /**
      * Render row in writer
      */
-    private function renderInWriter(View $view, WriterInterface $writer)
+    private function renderInWriter(View $view, Writer $writer)
     {
         $viewDefinition = $view->getDefinition();
         $properties = $view->getNormalizedProperties();
@@ -45,7 +58,7 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
         }
 
         foreach ($view->getResult() as $item) {
-            $writer->addRow($this->createItemRow($view, $item));
+            $writer->addRow($this->createBodyRow($view, $item));
         }
     }
 
@@ -56,7 +69,7 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
     {
         \ob_start();
 
-        $writer = WriterFactory::create(Type::XLSX);
+        $writer = WriterEntityFactory::createXLSXWriter();
         $writer->openToFile('php://output');
 
         $this->renderInWriter($view, $writer);
@@ -83,7 +96,7 @@ class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 
         $response->setCallback(function () use ($view) {
 
-            $writer = WriterFactory::create(Type::XLSX);
+            $writer = WriterEntityFactory::createXLSXWriter();
             $writer->openToFile('php://output');
 
             $this->renderInWriter($view, $writer);

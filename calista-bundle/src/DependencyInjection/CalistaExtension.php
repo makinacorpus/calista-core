@@ -43,7 +43,7 @@ final class CalistaExtension extends Extension
         if (\class_exists(Environment::class)) {
             $loader->load('twig.yml');
         }
-        if (\class_exists('Box\\Spout\\Writer\\WriterFactory')) {
+        if (\class_exists('Box\\Spout\\Writer\\Common\\Creator\\WriterEntityFactory')) {
             $loader->load('spout.yml');
         }
     }

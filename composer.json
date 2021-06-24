@@ -38,7 +38,7 @@
         "symfony/options-resolver": ">=4.4"
     },
     "require-dev": {
-        "box/spout": "^2.7",
+        "box/spout": "^3",
         "phpunit/phpunit": "^9",
         "symfony/config": ">=4.4",
         "symfony/console": ">=4.4",
