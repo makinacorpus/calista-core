@@ -11,5 +11,12 @@ namespace MakinaCorpus\Calista\View;
  */
 interface CustomViewBuilder
 {
-    public function build(ViewBuilder $builder): void;
+    /**
+     * Build view.
+     *
+     * @param array<string, null|bool|int|string> $options
+     *   Key-value pairs of options for this custom view builder that originate
+     *   from user call-site.
+     */
+    public function build(ViewBuilder $builder, array $options = []): void;
 }

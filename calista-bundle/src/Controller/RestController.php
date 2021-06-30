@@ -175,13 +175,14 @@ final class RestController
     private function buildViewDefinition(Request $request): ViewBuilder
     {
         $name = $request->get('_name');
+        $options = $request->get('_options') ?? [];
 
         if (!$name) {
             throw new NotFoundHttpException('Not Found');
         }
 
         try {
-            $customViewBuilder = $this->customViewBuilderRegistry->get($name);
+            $customViewBuilder = $this->customViewBuilderRegistry->get($name, (array) $options);
         } catch (\InvalidArgumentException $e) {
             throw new NotFoundHttpException('Not Found');
         }

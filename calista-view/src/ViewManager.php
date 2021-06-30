@@ -41,13 +41,15 @@ class ViewManager implements ViewRendererRegistry
      *
      * @param null|string $name
      *   Pass here the custom view builder name if you wish to use one existing.
+     * @param array<string, null|bool|int|string> $options
+     *   Key-value pairs of options for this custom view builder.
      */
-    public function createViewBuilder(?string $name = null): ViewBuilder
+    public function createViewBuilder(?string $name = null, array $options = []): ViewBuilder
     {
         $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
 
         if ($name) {
-            $this->customViewBuilderRegistry->get($name)->build($builder);
+            $this->customViewBuilderRegistry->get($name)->build($builder, $options);
         }
 
         return $builder;
