@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilder;
-use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilderRegistry;
+use MakinaCorpus\Calista\View\CustomViewBuilder;
+use MakinaCorpus\Calista\View\CustomViewBuilder\ClassNameCustomViewBuilderRegistry;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-final class ContainerCustomViewBuilderRegistry implements CustomViewBuilderRegistry, ContainerAwareInterface
+/**
+ * @todo switch using a container locator instead.
+ */
+final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilderRegistry implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -35,7 +38,7 @@ final class ContainerCustomViewBuilderRegistry implements CustomViewBuilderRegis
         $serviceId = $this->serviceIdList[$name] ?? null;
 
         if (!$serviceId) {
-            throw new \InvalidArgumentException(\sprintf("Calista custom view builder does not exist: %s", $name));
+            return parent::get($name);
         }
 
         return $this->container->get($serviceId);

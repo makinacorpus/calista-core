@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\Controller;
 
-use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilderRegistry;
 use MakinaCorpus\Calista\Query\Filter;
+use MakinaCorpus\Calista\View\CustomViewBuilderRegistry;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
 use MakinaCorpus\Calista\View\View;

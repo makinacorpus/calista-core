@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler;
 
-use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilder;
+use MakinaCorpus\Calista\View\CustomViewBuilder;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 

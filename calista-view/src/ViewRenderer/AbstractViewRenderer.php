@@ -21,6 +21,14 @@ abstract class AbstractViewRenderer implements ViewRenderer
     }
 
     /**
+     * For implementors.
+     */
+    protected function getPropertyRenderer(): PropertyRenderer
+    {
+        return $this->propertyRenderer;
+    }
+
+    /**
      * Create item row.
      */
     protected function createItemRow(View $view, $item): array

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
-use MakinaCorpus\Calista\Bridge\Symfony\CustomViewBuilder;
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\RestController;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
+use MakinaCorpus\Calista\View\CustomViewBuilder;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
@@ -170,7 +170,11 @@ final class CalistaExtension extends Extension
     {
         $definition = new Definition();
         $definition->setClass(ViewManager::class);
-        $definition->setArguments([new Reference('calista.view.renderer_registry'), new Reference('event_dispatcher')]);
+        $definition->setArguments([
+            new Reference('calista.view.renderer_registry'),
+            new Reference('event_dispatcher'),
+            new Reference('calista.bundle.custom_view_renderer_registry'),
+        ]);
         $definition->setPrivate(true);
 
         $container->setDefinition('calista.view.manager', $definition);

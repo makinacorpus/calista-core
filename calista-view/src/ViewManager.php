@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use MakinaCorpus\Calista\View\CustomViewBuilder\ClassNameCustomViewBuilderRegistry;
 
 /**
  * Facade for users.
@@ -14,13 +15,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ViewManager implements ViewRendererRegistry
 {
     private ViewRendererRegistry $viewRendererRegistry;
+    private CustomViewBuilderRegistry $customViewBuilderRegistry;
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         ViewRendererRegistry $viewRendererRegistry,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ?CustomViewBuilderRegistry $customViewBuilderRegistry = null
     ) {
         $this->viewRendererRegistry = $viewRendererRegistry;
+        $this->customViewBuilderRegistry = $customViewBuilderRegistry ?? new ClassNameCustomViewBuilderRegistry();
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -34,9 +38,18 @@ class ViewManager implements ViewRendererRegistry
 
     /**
      * Create view builder.
+     *
+     * @param null|string $name
+     *   Pass here the custom view builder name if you wish to use one existing.
      */
-    public function createViewBuilder(): ViewBuilder
+    public function createViewBuilder(?string $name = null): ViewBuilder
     {
-        return new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
+        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
+
+        if ($name) {
+            $this->customViewBuilderRegistry->get($name)->build($builder);
+        }
+
+        return $builder;
     }
 }
