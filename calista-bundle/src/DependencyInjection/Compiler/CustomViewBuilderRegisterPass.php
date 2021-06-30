@@ -40,9 +40,13 @@ final class CustomViewBuilderRegisterPass implements CompilerPassInterface
 
             if (isset($attributes[0]['name'])) {
                 $typeId = $attributes[0]['name'];
-            } else {
-                $typeId = $this->findNameFromClassStaticProperties($class) ?? $class;
+                $serviceMap[$typeId] = $id;
             }
+            if ($typeId = $this->findNameFromClassStaticProperties($class)) {
+                $serviceMap[$typeId] = $id;
+            }
+            // Allow services to be found by their names.
+            $serviceMap[$refClass->getName()] = $id;
 
             $viewRendererDefinition->setPublic(true);
 
@@ -55,6 +59,10 @@ final class CustomViewBuilderRegisterPass implements CompilerPassInterface
     private function findNameFromClassStaticProperties(string $className): ?string
     {
         $refClass = new \ReflectionClass($className);
+
+        if (!$refClass->hasProperty('name') || !$refClass->getProperty('name')->isStatic()) {
+            return null;
+        }
 
         return $refClass->getStaticPropertyValue('name');
     }

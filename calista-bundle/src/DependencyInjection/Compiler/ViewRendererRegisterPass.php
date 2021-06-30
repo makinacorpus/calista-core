@@ -44,7 +44,7 @@ final class ViewRendererRegisterPass implements CompilerPassInterface
             $viewRendererDefinition->setPublic(true);
 
             $serviceMap[$typeId] = $id;
-            // Allow using the service identifier as custom view builder name.
+            // Allow using the service identifier as name.
             $serviceMap[$id] = $id;
         }
 
