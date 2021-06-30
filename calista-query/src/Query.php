@@ -80,6 +80,13 @@ class Query
             $filters[$name] = self::secureValue($name, $value, $baseQuery);
         }
 
+        // If user input is empty, apply default query instead.
+        if (empty($input)) {
+            foreach ($inputDefinition->getDefaultQuery() as $name => $value) {
+                $filters[$name] = self::secureValue($name, $value, $baseQuery);
+            }
+        }
+
         $others = \array_intersect_key($input, $otherKeys);
 
         return new Query($inputDefinition, $filters, $others);
@@ -278,6 +285,15 @@ class Query
     public function has(string $name): bool
     {
         return \array_key_exists($name, $this->filters);
+    }
+
+    /**
+     * Is this query empty: being empty means there is no filter, but limit
+     * and order information can be set.
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->filters);
     }
 
     /**

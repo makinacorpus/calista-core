@@ -68,6 +68,15 @@ class InputDefinition
             }
         }
 
+        // Ensure given default query only contains legitimate field names.
+        if ($this->options['default_query']) {
+            foreach (\array_keys($this->options['default_query']) as $name) {
+                if (!$this->isFilterAllowed($name)) {
+                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $name));
+                }
+            }
+        }
+
         // Set the default sort if none was given by the user, yell if user
         // gave one which is not supported.
         if (empty($this->options['sort_default_field'])) {
@@ -129,6 +138,8 @@ class InputDefinition
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
+            // Default query if query is empty.
+            'default_query' => [],
             'base_query' => [],
             // Must be a list of \MakinaCorpus\Calista\Query\Filter
             //   or a list of Key/value pairs, each key is a field name
@@ -148,6 +159,7 @@ class InputDefinition
             'sort_order_param' => 'by',
         ]);
 
+        $resolver->setAllowedTypes('default_query', ['array']);
         $resolver->setAllowedTypes('base_query', ['array']);
         $resolver->setAllowedTypes('limit_allowed', ['numeric', 'bool']);
         $resolver->setAllowedTypes('limit_default', ['numeric']);
@@ -159,6 +171,16 @@ class InputDefinition
         $resolver->setAllowedTypes('sort_default_order', ['string']);
         $resolver->setAllowedTypes('sort_field_param', ['string']);
         $resolver->setAllowedTypes('sort_order_param', ['string']);
+    }
+
+    /**
+     * Get default query.
+     *
+     * @return string[]
+     */
+    public function getDefaultQuery(): array
+    {
+        return $this->options['default_query'];
     }
 
     /**

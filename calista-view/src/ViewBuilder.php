@@ -69,6 +69,15 @@ final class ViewBuilder
         return $this;
     }
 
+    public function defaultQuery(array $values): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['default_query'] = $values;
+
+        return $this;
+    }
+
     public function baseQuery(array $values): self
     {
         $this->dieIfLocked();
