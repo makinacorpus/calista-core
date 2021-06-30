@@ -19,6 +19,7 @@ class DefaultFilter extends AbstractFilter
     private array $choicesMap = [];
     private string $dateFormat = 'd/m/Y';
     private bool $isDate = false;
+    private bool $isHidden = false;
     private ?string $noneOption = null;
 
     /**
@@ -42,7 +43,25 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set the "date" mode.
      */
-    public function setIsDate(bool $toggle): self
+    public function setHidden(bool $toggle = true): self
+    {
+        $this->isHidden = $toggle;
+
+        return $this;
+    }
+
+    /**
+     * This filter is hidden.
+     */
+    public function isHidden(): bool
+    {
+        return $this->isHidden;
+    }
+
+    /**
+     * Set the "date" mode.
+     */
+    public function setIsDate(bool $toggle = true): self
     {
         $this->isDate = $toggle;
 
@@ -216,6 +235,9 @@ class DefaultFilter extends AbstractFilter
      */
     public function getTemplateBlockSuffix(): string
     {
+        if ($this->isHidden) {
+            return 'hidden';
+        }
         if ($this->isBoolean()) {
             return 'boolean';
         }

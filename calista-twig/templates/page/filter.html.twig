@@ -18,6 +18,10 @@
   </div>
 {%- endblock -%}
 
+{%- block filter_hidden -%}
+  <input type="hidden" name="{{ filter.field|e }}" value="{{ value|e }}"/>
+{%- endblock -%}
+
 {%- block filter_date -%}
   <div class="form-group">
     <label for="{{ filter.field|e }}">{{ filter.title|e }}</label>
