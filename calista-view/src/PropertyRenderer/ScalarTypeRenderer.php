@@ -96,6 +96,10 @@ class ScalarTypeRenderer implements TypeRenderer
 
     private function renderString($value, array $options): ?string
     {
+        if ($options['string_raw']) {
+            return $value;
+        }
+
         $value = \strip_tags($value);
 
         if (0 < $options['string_maxlength'] && \strlen($value) > $options['string_maxlength']) {

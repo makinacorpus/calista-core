@@ -330,6 +330,8 @@ final class ViewBuilder
     }
 
     /**
+     * Add property.
+     *
      * @param array|callable|PropertyDescription|PropertyView $property
      *   If a callback, PropertyView will be set as virtual, sensible default,
      *   hence first callback parameter will be the object, second the property
@@ -350,6 +352,39 @@ final class ViewBuilder
                 'callback' => $property,
                 'hidden' => $hidden,
                 'label' => $label,
+                'virtual' => true,
+            ] + $this->defaultPropertyView);
+        } else {
+            throw new \InvalidArgumentException(\sprintf("\$property must be an array or an instance of %s or %s", PropertyDescription::class, PropertyView::class));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add property to be raw-displayed (without any filtering).
+     *
+     * @param array|callable|PropertyDescription|PropertyView $property
+     *   If a callback, PropertyView will be set as virtual, sensible default,
+     *   hence first callback parameter will be the object, second the property
+     *   name.
+     */
+    public function propertyRaw(string $name, $property = [], ?string $label = null, bool $hidden = false): self
+    {
+        $this->dieIfLocked();
+
+        if ($property instanceof PropertyView) {
+            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden, 'string_raw' => true]);
+        } else if ($property instanceof PropertyDescription) {
+            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden, 'string_raw' => true]);
+        } else if (\is_array($property)) {
+            $this->properties[$name] = new PropertyView($name, null, ['hidden' => $hidden, 'string_raw' => true] + $property + ['label' => $label] + $this->defaultPropertyView);
+        } else if (\is_callable($property)) {
+            $this->properties[$name] = new PropertyView($name, null, [
+                'callback' => $property,
+                'hidden' => $hidden,
+                'label' => $label,
+                'string_raw' => true,
                 'virtual' => true,
             ] + $this->defaultPropertyView);
         } else {

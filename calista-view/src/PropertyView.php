@@ -68,6 +68,7 @@ class PropertyView
             'label' => null,
             'string_ellipsis' => true,
             'string_maxlength' => 100,
+            'string_raw' => false,
             'thousand_separator' => ',',
             'type' => null,
             // Property access component will be used to fetch value, but in
@@ -95,6 +96,7 @@ class PropertyView
         $resolver->setAllowedTypes('label', ['null', 'string']);
         $resolver->setAllowedTypes('string_ellipsis', ['null', 'bool', 'string']);
         $resolver->setAllowedTypes('string_maxlength', ['null', 'int']);
+        $resolver->setAllowedTypes('string_raw', ['null', 'bool']);
         $resolver->setAllowedTypes('thousand_separator', ['null', 'string']);
         $resolver->setAllowedTypes('type', ['null', 'string']);
         $resolver->setAllowedTypes('value_accessor', ['null', 'string', 'callable']);

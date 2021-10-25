@@ -113,7 +113,7 @@
 <tr>
   {% for value in calista_item_row(view, item) %}
   <td>
-    {{ value }}
+    {{ value|raw }}
   </td>
   {% endfor %}
   {% if config.table_action is not null %}
