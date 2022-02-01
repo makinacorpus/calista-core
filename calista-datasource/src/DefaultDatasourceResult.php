@@ -61,7 +61,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         if ($this->items instanceof \Closure) {
             return \call_user_func($this->items);

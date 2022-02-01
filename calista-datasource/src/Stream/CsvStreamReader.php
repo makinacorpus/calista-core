@@ -236,7 +236,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function next()
+    public function next(): void
     {
         $this->init();
         $this->fetchNextLine();
@@ -246,7 +246,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->offset;
     }
@@ -254,7 +254,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function valid()
+    public function valid(): bool
     {
         $this->init();
 
@@ -264,7 +264,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->reset();
     }
@@ -272,7 +272,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return $this->countApproximation;
     }
@@ -280,7 +280,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function current()
+    public function current(): mixed
     {
         if ($this->eofReached) {
             return null;
