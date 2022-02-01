@@ -4,30 +4,20 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
-use MakinaCorpus\Calista\Datasource\DatasourceInterface;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
-use MakinaCorpus\Calista\Query\DefaultFilter;
-use MakinaCorpus\Calista\Query\Filter;
-use MakinaCorpus\Calista\Query\InputDefinition;
-use MakinaCorpus\Calista\Query\Query;
+use MakinaCorpus\Calista\Query\QueryBuilder;
 use MakinaCorpus\Calista\View\Event\ViewBuilderEvent;
 use MakinaCorpus\Calista\View\ViewBuilder\ViewBuilderRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @todo unit test me seriously
  */
-final class ViewBuilder
+final class ViewBuilder extends QueryBuilder
 {
     private ViewRendererRegistry $viewRendererRegistry;
-    private EventDispatcherInterface $eventDispatcher;
 
-    private bool $locked = false;
-    private $data = null;
-    private ?Request $request = null;
     private string $rendererName = 'twig';
-    private array $inputOptions = [];
     private array $viewOptions = [];
     private array $defaultPropertyView = [];
     private array $properties = [];
@@ -35,7 +25,6 @@ final class ViewBuilder
     private ?string $route = null;
     private array $routeParameters = [];
 
-    private ?InputDefinition $builtInputDefinition = null;
     private ?ViewDefinition $builtViewDefinition = null;
     private ?View $builtView = null;
 
@@ -43,8 +32,9 @@ final class ViewBuilder
         ViewRendererRegistry $viewRendererRegistry,
         EventDispatcherInterface $eventDispatcher
     ) {
+        parent::__construct($eventDispatcher);
+
         $this->viewRendererRegistry = $viewRendererRegistry;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function renderer(string $name, array $extraOptions = []): self
@@ -65,35 +55,6 @@ final class ViewBuilder
         $this->dieIfLocked();
 
         $this->viewOptions['extra'][$name] = $value;
-
-        return $this;
-    }
-
-    public function defaultQuery(array $values): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['default_query'] = $values;
-
-        return $this;
-    }
-
-    public function baseQuery(array $values): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['base_query'] = $values;
-
-        return $this;
-    }
-
-    public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['limit_allowed'] = true;
-        $this->inputOptions['limit_max'] = $max;
-        $this->inputOptions['limit_param'] = $parameterName;
 
         return $this;
     }
@@ -166,145 +127,11 @@ final class ViewBuilder
         return $this;
     }
 
-    /**
-     * Set default limit.
-     */
-    public function limit(int $limit): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['limit_default'] = $limit;
-
-        return $this;
-    }
-
-    public function sort(string $name, ?string $label = null): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['sort_allowed_list'][$name] = $name ?? $label;
-
-        return $this;
-    }
-
-    public function sorts(array $sorts): self
-    {
-        foreach ($sorts as $name => $label) {
-            $this->sort($name, $label);
-        }
-
-        return $this;
-    }
-
-    public function filter(Filter $filter): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['filter_list'][] = $filter;
-
-        return $this;
-    }
-
-    public function filterArbitrary(string $name, ?string $title): self
-    {
-        $this->filter(
-            $this
-                ->createFilter($name, $title)
-                ->setArbitraryInput(true)
-        );
-
-        return $this;
-    }
-
-    public function filterChoices(string $name, ?string $title, array $choices, ?string $noneOption = null): self
-    {
-        $this->filter(
-            $this
-                ->createFilter($name, $title)
-                ->setChoicesMap($choices)
-                ->setNoneOption($noneOption)
-        );
-
-        return $this;
-    }
-
-    public function filterDate(string $name, ?string $title): self
-    {
-        $this->filter(
-            $this
-                ->createFilter($name, $title)
-                ->setIsDate(true)
-        );
-
-        return $this;
-    }
-
-    public function filters(iterable $filters): self
-    {
-        $this->dieIfLocked();
-
-        foreach ($filters as $filter) {
-            $this->filter($filter);
-        }
-
-        return $this;
-    }
-
     public function defaultPropertyView(array $options): self
     {
         $this->dieIfLocked();
 
         $this->defaultPropertyView = $options;
-
-        return $this;
-    }
-
-    public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
-    {
-        $this->dieIfLocked();
-
-        $this->inputOptions['sort_default_field'] = $propertyName;
-        $this->inputOptions['sort_default_order'] = $order;
-        $this->inputOptions['sort_field_param'] = $propertyParameterName;
-        $this->inputOptions['sort_order_param'] = $orderParameterName;
-
-        return $this;
-    }
-
-    /**
-     * Set default property view options.
-     *
-     * This will affect only properties defined AFTER this method call.
-     */
-    public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
-    {
-        $this->defaultSort($propertyName, $propertyParameterName, $orderParameterName, Query::SORT_DESC);
-
-        return $this;
-    }
-
-    /**
-     * @param Request $request
-     */
-    public function request(Request $request): self
-    {
-        $this->dieIfLocked();
-
-        // Normalizing is done later, once all data is set.
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * @param iterable|callable|DatasourceInterface $data
-     */
-    public function data($data): self
-    {
-        $this->dieIfLocked();
-
-        // Normalizing is done later, once all data is set.
-        $this->data = $data;
 
         return $this;
     }
@@ -454,144 +281,16 @@ final class ViewBuilder
         return $this->route;
     }
 
-    public function build(): ViewBuilderRenderer
-    {
-        $this->dieIfLocked();
-
-        $this->eventDispatcher->dispatch(new ViewBuilderEvent($this), ViewBuilderEvent::EVENT_BUILD);
-
-        $this->locked = true;
-
-        return new ViewBuilderRenderer(
-            $this->doBuild(),
-            $this->viewRendererRegistry->getViewRenderer($this->rendererName)
-        );
-    }
-
     /**
      * Get input definition after build.
-     */
-    public function getInputDefinition(): InputDefinition
-    {
-        if (!$this->locked) {
-            $this->locked = true;
-        }
-
-        return $this->doBuildInputDefinition();
-    }
-
-    /**
-     * Get input definition after build.
+     *
+     * This method will lock the builder.
      */
     public function getViewDefinition(): ViewDefinition
     {
         if (!$this->locked) {
             $this->locked = true;
         }
-
-        return $this->doBuildViewDefinition();
-    }
-
-    /**
-     * Get view.
-     */
-    public function getView(): View
-    {
-        if (!$this->locked) {
-            $this->locked = true;
-        }
-
-        return $this->doBuild();
-    }
-
-    private function createFilter(string $name, ?string $title = null, ?string $description = null): Filter
-    {
-        return new DefaultFilter($name, $title, $description);
-    }
-
-    private function dieIfLocked(): void
-    {
-        if ($this->locked) {
-            throw new \BadMethodCallException("You cannot modify an already consumed view builder.");
-        }
-    }
-
-    private function dieIfNotLocked(): void
-    {
-        if ($this->locked) {
-            throw new \BadMethodCallException("You cannot fetch data before calling build().");
-        }
-    }
-
-    private function doBuildItems(): array
-    {
-        $query = $this->doBuildQuery();
-
-        if ($this->data instanceof DatasourceInterface) {
-            $items = $this->data->getItems($query);
-        } else if (\is_callable($this->data)) {
-            $items = ($this->data)($query);
-        } else {
-            $items = $this->data;
-        }
-
-        return [$query, $items];
-    }
-
-    private function doBuild(): View
-    {
-        if ($this->builtView) {
-            return $this->builtView;
-        }
-
-        list($query, $items) = $this->doBuildItems();
-
-        $view = new View($this->doBuildViewDefinition(), $items, $query);
-        if ($this->route) {
-            $view->setRoute($this->getRoute(), $this->getRouteParameters());
-        } else if ($this->request) {
-            $view->setRoute($this->request->attributes->get('_route'), $this->request->attributes->get('_route_params'));
-        }
-
-        return $this->builtView = $view;
-    }
-
-    private function doBuildInputDefinition(): InputDefinition
-    {
-        if ($this->builtInputDefinition) {
-            return $this->builtInputDefinition;
-        }
-
-        $options = $this->inputOptions;
-
-        // Eargerly add the default sort being an allowed sort, only in case
-        // no sorts were specified. If sort were specified but the default is
-        // not, keep the exceptions being raised.
-        if (empty($options['sort_allowed_list']) && isset($options['sort_default_field'])) {
-            $name = $options['sort_default_field'];
-            $options['sort_allowed_list'][$name] = $name;
-        }
-
-        if ($this->data instanceof DatasourceInterface) {
-            return $this->builtInputDefinition = InputDefinition::datasource($this->data, $options);
-        }
-
-        return $this->builtInputDefinition = new InputDefinition($options);
-    }
-
-    private function doBuildQuery(): Query
-    {
-        $inputDefinition = $this->doBuildInputDefinition();
-
-        if ($this->request) {
-            return Query::fromRequest($inputDefinition, $this->request);
-        }
-
-        return Query::fromArray($inputDefinition);
-    }
-
-    private function doBuildViewDefinition(): ViewDefinition
-    {
         if ($this->builtViewDefinition) {
             return $this->builtViewDefinition;
         }
@@ -613,5 +312,51 @@ final class ViewBuilder
         }
 
         return $this->builtViewDefinition = new ViewDefinition($options);
+    }
+
+    /**
+     * Get view.
+     *
+     * This method will lock the builder.
+     */
+    public function getView(): View
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+        if ($this->builtView) {
+            return $this->builtView;
+        }
+
+        $query = $this->getQuery();
+        $items = $this->getItems();
+
+        $view = new View($this->getViewDefinition(), $items, $query);
+        if ($this->route) {
+            $view->setRoute($this->getRoute(), $this->getRouteParameters());
+        } else if ($this->request) {
+            $view->setRoute($this->request->attributes->get('_route'), $this->request->attributes->get('_route_params'));
+        }
+
+        return $this->builtView = $view;
+    }
+
+    /**
+     * Build the final view builder renderer.
+     *
+     * This method will lock the builder.
+     */
+    public function build(): ViewBuilderRenderer
+    {
+        $this->dieIfLocked();
+
+        $this->eventDispatcher->dispatch(new ViewBuilderEvent($this), ViewBuilderEvent::EVENT_BUILD);
+
+        $this->locked = true;
+
+        return new ViewBuilderRenderer(
+            $this->getView(),
+            $this->viewRendererRegistry->getViewRenderer($this->rendererName)
+        );
     }
 }

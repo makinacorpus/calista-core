@@ -1,0 +1,378 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MakinaCorpus\Calista\Query;
+
+use MakinaCorpus\Calista\Datasource\DatasourceInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * Builder pattern implementation for end-users in order to allow fluent and
+ * easy query definition.
+ *
+ * Using this object, you can define an input definition and plug a data source
+ * without knowing the internals of calista.
+ *
+ * You can then use it, once built, to execute those queries and fetch the
+ * resulting item collection.
+ *
+ * Additionally, you can also use it to fetch the intermediate internal objects
+ * such as the Query object, for higher-level API to use.
+ *
+ * All get*() methods will lock the builder preventing further state updates.
+ *
+ * Calling getItems() in the end will return the set of computed items as an
+ * iterable. If the underlaying data API uses generators, this will not consume
+ * any memory, only initialise the generator and return it.
+ *
+ * Beware that getItems() should always be called only once, any attempt in
+ * calling it more than once will result in an engine warning emitted, and
+ * result will not be guaranted reproducible.
+ *
+ * @see \MakinaCorpus\Calista\View\ViewBuilder
+ *   Which extends this object in order to render view on top of it.
+ *
+ * @todo
+ *   unit test me seriously
+ */
+class QueryBuilder
+{
+    protected EventDispatcherInterface $eventDispatcher;
+    protected bool $locked = false;
+    protected /* null|iterable|callable */ $data = null;
+    protected ?Request $request = null;
+    protected array $inputOptions = [];
+
+    protected ?Query $builtQuery = null;
+    protected ?InputDefinition $builtInputDefinition = null;
+    protected ?iterable $items = null;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * The default query values.
+     */
+    public function defaultQuery(array $values): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['default_query'] = $values;
+
+        return $this;
+    }
+
+    /**
+     * Set the base query filter.
+     */
+    public function baseQuery(array $values): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['base_query'] = $values;
+
+        return $this;
+    }
+
+    /**
+     * Can this selection allow user limit change.
+     */
+    public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['limit_allowed'] = true;
+        $this->inputOptions['limit_max'] = $max;
+        $this->inputOptions['limit_param'] = $parameterName;
+
+        return $this;
+    }
+
+    /**
+     * Set default limit.
+     */
+    public function limit(int $limit): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['limit_default'] = $limit;
+
+        return $this;
+    }
+
+    /**
+     * Add a sort column.
+     *
+     * Sorts are applied using the same order of this method call.
+     */
+    public function sort(string $name, ?string $label = null): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['sort_allowed_list'][$name] = $name ?? $label;
+
+        return $this;
+    }
+
+    /**
+     * Add multiple sort columns.
+     *
+     * This is equivalent as calling the sort() method many times.
+     */
+    public function sorts(array $sorts): self
+    {
+        foreach ($sorts as $name => $label) {
+            $this->sort($name, $label);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an arbitrary filter.
+     */
+    public function filter(Filter $filter): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['filter_list'][] = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Create and add a raw user input filter.
+     */
+    public function filterArbitrary(string $name, ?string $title): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setArbitraryInput(true)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create and add a choices map filter.
+     */
+    public function filterChoices(string $name, ?string $title, array $choices, ?string $noneOption = null): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setChoicesMap($choices)
+                ->setNoneOption($noneOption)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create and add a date filter.
+     */
+    public function filterDate(string $name, ?string $title): self
+    {
+        $this->filter(
+            $this
+                ->createFilter($name, $title)
+                ->setIsDate(true)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Add a collection of arbitrary filters.
+     */
+    public function filters(iterable $filters): self
+    {
+        $this->dieIfLocked();
+
+        foreach ($filters as $filter) {
+            $this->filter($filter);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set default sort.
+     */
+    public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
+    {
+        $this->dieIfLocked();
+
+        $this->inputOptions['sort_default_field'] = $propertyName;
+        $this->inputOptions['sort_default_order'] = $order;
+        $this->inputOptions['sort_field_param'] = $propertyParameterName;
+        $this->inputOptions['sort_order_param'] = $orderParameterName;
+
+        return $this;
+    }
+
+    /**
+     * Set default property view options.
+     *
+     * This will affect only properties defined AFTER this method call.
+     */
+    public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
+    {
+        $this->defaultSort($propertyName, $propertyParameterName, $orderParameterName, Query::SORT_DESC);
+
+        return $this;
+    }
+
+    /**
+     * Set incomming request.
+     */
+    public function request(Request $request): self
+    {
+        $this->dieIfLocked();
+
+        // Normalizing is done later, once all data is set.
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * @param iterable|callable|DatasourceInterface $data
+     */
+    public function data($data): self
+    {
+        $this->dieIfLocked();
+
+        // Normalizing is done later, once all data is set.
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Set a preload callback.
+     *
+     * @param array|callable $callback
+     *   Either an arbitrary array of values that will override all items
+     *   values, or a callable whose first argument will be item, that will
+     *   be execute for each row, allowing you to precompute a set of values.
+     *   Callback return must be an array whose names are properties names.
+     */
+    public function preload($callback): self
+    {
+        $this->dieIfLocked();
+
+        if (!\is_array($callback) && !\is_callable($callback)) {
+            throw new \InvalidArgumentException("Preload \$callback must be an array or a callable.");
+        }
+
+        $this->viewOptions['preload'] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Build and return query.
+     *
+     * This method will lock the builder.
+     */
+    public function getQuery(): Query
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+        if ($this->builtQuery) {
+            return $this->builtQuery;
+        }
+
+        $inputDefinition = $this->getInputDefinition();
+
+        if ($this->request) {
+            return $this->builtQuery = Query::fromRequest($inputDefinition, $this->request);
+        }
+
+        return $this->builtQuery = Query::fromArray($inputDefinition);
+    }
+
+    /**
+     * Get input definition after build.
+     *
+     * This method will lock the builder.
+     */
+    public function getInputDefinition(): InputDefinition
+    {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
+        if ($this->builtInputDefinition) {
+            return $this->builtInputDefinition;
+        }
+
+        $options = $this->inputOptions;
+
+        // Eargerly add the default sort being an allowed sort, only in case
+        // no sorts were specified. If sort were specified but the default is
+        // not, keep the exceptions being raised.
+        if (empty($options['sort_allowed_list']) && isset($options['sort_default_field'])) {
+            $name = $options['sort_default_field'];
+            $options['sort_allowed_list'][$name] = $name;
+        }
+
+        if ($this->data instanceof DatasourceInterface) {
+            return $this->builtInputDefinition = InputDefinition::datasource($this->data, $options);
+        }
+
+        return $this->builtInputDefinition = new InputDefinition($options);
+    }
+
+    /**
+     * Get items.
+     *
+     * This will return an iterable, any iterable, it can be an array, an
+     * \Iterator, an \IteratorAggregate, a \Generator etc...
+     *
+     * Implementation will depend upon what was passed to the data() method.
+     *
+     * If you call this method more than once, it's not guaranted to return
+     * the same result, since it will depend upon the data() method input.
+     */
+    public function getItems(): iterable
+    {
+        if (null === $this->data) {
+            throw new \BadMethodCallException("Data was not set, you cannot fetch items.");
+        }
+
+        if ($this->data instanceof DatasourceInterface) {
+            return $this->data->getItems($this->getQuery());
+        }
+
+        if (\is_callable($this->data)) {
+            return ($this->data)($this->getQuery());
+        }
+
+        return $this->data;
+    }
+
+    /**
+     * Create a default filter.
+     */
+    protected function createFilter(string $name, ?string $title = null, ?string $description = null): DefaultFilter
+    {
+        return new DefaultFilter($name, $title, $description);
+    }
+
+    /**
+     * Raise an exception if current builder is locked.
+     */
+    protected function dieIfLocked(): void
+    {
+        if ($this->locked) {
+            throw new \BadMethodCallException("You cannot modify an already consumed view builder.");
+        }
+    }
+}
