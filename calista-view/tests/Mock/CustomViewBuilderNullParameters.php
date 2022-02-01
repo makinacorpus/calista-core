@@ -16,7 +16,7 @@ final class CustomViewBuilderNullParameters implements CustomViewBuilder
     /**
      * {@inheritdoc}
      */
-    public function build(ViewBuilder $builder, array $options = []): void
+    public function build(ViewBuilder $builder, array $options = [], ?string $format = null): void
     {
         throw new \Exception("I shall not be called because I am a mock");
     }

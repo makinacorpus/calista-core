@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\Controller;
 
 use MakinaCorpus\Calista\Query\Filter;
+use MakinaCorpus\Calista\View\CustomViewBuilder;
 use MakinaCorpus\Calista\View\CustomViewBuilderRegistry;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
@@ -176,19 +177,20 @@ final class RestController
     {
         $name = $request->get('_name');
         $options = $request->get('_options') ?? [];
+        $format = $request->get('_format') ?? CustomViewBuilder::FORMAT_REST;
 
         if (!$name) {
             throw new NotFoundHttpException('Not Found');
         }
 
         try {
-            $customViewBuilder = $this->customViewBuilderRegistry->get($name, (array) $options);
+            $customViewBuilder = $this->customViewBuilderRegistry->get($name);
         } catch (\InvalidArgumentException $e) {
             throw new NotFoundHttpException('Not Found');
         }
 
         $viewBuilder = $this->viewManager->createViewBuilder();
-        $customViewBuilder->build($viewBuilder);
+        $customViewBuilder->build($viewBuilder, (array) $options, $format);
 
         return $viewBuilder;
     }
