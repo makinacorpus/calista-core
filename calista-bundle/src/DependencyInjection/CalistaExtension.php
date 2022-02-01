@@ -175,7 +175,7 @@ final class CalistaExtension extends Extension
             new Reference('event_dispatcher'),
             new Reference('calista.bundle.custom_view_renderer_registry'),
         ]);
-        $definition->setPrivate(true);
+        $definition->setPublic(false);
 
         $container->setDefinition('calista.view.manager', $definition);
         $container->setAlias(ViewManager::class, 'calista.view.manager');
@@ -186,7 +186,7 @@ final class CalistaExtension extends Extension
         $definition = new Definition();
         $definition->setClass(PropertyRenderer::class);
         $definition->setArguments([new Reference('property_accessor')]);
-        $definition->setPrivate(true);
+        $definition->setPublic(false);
 
         $container->setDefinition('calista.property_renderer', $definition);
         $container->setAlias(PropertyRenderer::class, 'calista.property_renderer');
