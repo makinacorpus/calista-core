@@ -99,6 +99,30 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
+    public function getNoneOption(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChoices(): bool
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getChoicesMap(): array
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     final public function getTitle(): string
     {
         if (!$this->title) {

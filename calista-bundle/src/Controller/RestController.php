@@ -152,10 +152,12 @@ final class RestController
     {
         return [
             'attributes' => $filter->getAttributes(),
+            'choicesMap' => $filter->getChoicesMap(),
             'description' => $filter->getDescription(),
             'field' => $filter->getField(),
             'mandatory' => $filter->isMandatory(),
             'multiple' => $filter->isMultiple(),
+            'noneOption' => $filter->getNoneOption(),
             'title' => $filter->getTitle(),
             'type' => $filter->getTemplateBlockSuffix(),
         ];

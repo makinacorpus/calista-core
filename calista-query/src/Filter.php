@@ -76,6 +76,21 @@ interface Filter
     public function isMandatory(): bool;
 
     /**
+     * Get the none option.
+     */
+    public function getNoneOption(): ?string;
+
+    /**
+     * Has this filter choices.
+     */
+    public function hasChoices(): bool;
+
+    /**
+     * Get choice map.
+     */
+    public function getChoicesMap(): array;
+
+    /**
      * Get title.
      */
     public function getTitle(): string;

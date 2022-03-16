@@ -87,7 +87,7 @@ class DefaultFilter extends AbstractFilter
     }
 
     /**
-     * Get the none option.
+     * {@inheritdoc}
      */
     public function getNoneOption(): ?string
     {
@@ -133,7 +133,7 @@ class DefaultFilter extends AbstractFilter
     }
 
     /**
-     * Has this filter choices.
+     * {@inheritdoc}
      */
     public function hasChoices(): bool
     {
@@ -176,6 +176,9 @@ class DefaultFilter extends AbstractFilter
         return $ret;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getChoicesMap(): array
     {
         return $this->choicesMap;
