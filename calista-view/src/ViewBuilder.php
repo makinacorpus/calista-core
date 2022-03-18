@@ -37,6 +37,9 @@ final class ViewBuilder extends QueryBuilder
         $this->viewRendererRegistry = $viewRendererRegistry;
     }
 
+    /**
+     * @return $this
+     */
     public function renderer(string $name, array $extraOptions = []): self
     {
         $this->dieIfLocked();
@@ -59,6 +62,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function enablePager(bool $enable = true, string $parameterName = 'page'): self
     {
         $this->dieIfLocked();
@@ -69,6 +75,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function enableFilters(string ... $names): self
     {
         $this->dieIfLocked();
@@ -85,6 +94,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function disableFilter(string $name): self
     {
         $this->dieIfLocked();
@@ -100,6 +112,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function showPager(bool $enable = true): self
     {
         $this->dieIfLocked();
@@ -109,6 +124,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function showFilters(bool $enable = true): self
     {
         $this->dieIfLocked();
@@ -118,6 +136,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function showSort(bool $enable = true): self
     {
         $this->dieIfLocked();
@@ -127,6 +148,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function defaultPropertyView(array $options): self
     {
         $this->dieIfLocked();
@@ -142,6 +166,8 @@ final class ViewBuilder extends QueryBuilder
      *   values, or a callable whose first argument will be item, that will
      *   be execute for each row, allowing you to precompute a set of values.
      *   Callback return must be an array whose names are properties names.
+     *
+     * @return $this
      */
     public function preload($callback): self
     {
@@ -195,6 +221,8 @@ final class ViewBuilder extends QueryBuilder
      *   If a callback, PropertyView will be set as virtual, sensible default,
      *   hence first callback parameter will be the object, second the property
      *   name.
+     *
+     * @return $this
      */
     public function propertyRaw(string $name, $property = [], ?string $label = null, bool $hidden = false): self
     {
@@ -227,6 +255,8 @@ final class ViewBuilder extends QueryBuilder
      * As of now, this only has an effect on REST API.
      *
      * @see self::property()
+     *
+     * @return $this
      */
     public function hiddenProperty(string $name, $property = [], ?string $label = null): self
     {
@@ -237,6 +267,8 @@ final class ViewBuilder extends QueryBuilder
 
     /**
      * Change property label.
+     *
+     * @return $this
      */
     public function propertyLabel(string $name, string $label): self
     {
@@ -247,6 +279,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function viewOptions(array $options): self
     {
         $this->dieIfLocked();
@@ -257,6 +292,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function template(string $name): self
     {
         $this->dieIfLocked();
@@ -266,6 +304,9 @@ final class ViewBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function route(string $route, array $parameters = []): self
     {
         $this->dieIfLocked();

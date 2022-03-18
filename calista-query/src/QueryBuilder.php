@@ -56,6 +56,8 @@ class QueryBuilder
 
     /**
      * The default query values.
+     *
+     * @return $this
      */
     public function defaultQuery(array $values): self
     {
@@ -68,6 +70,8 @@ class QueryBuilder
 
     /**
      * Set the base query filter.
+     *
+     * @return $this
      */
     public function baseQuery(array $values): self
     {
@@ -80,6 +84,8 @@ class QueryBuilder
 
     /**
      * Can this selection allow user limit change.
+     *
+     * @return $this
      */
     public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): self
     {
@@ -94,6 +100,8 @@ class QueryBuilder
 
     /**
      * Set default limit.
+     *
+     * @return $this
      */
     public function limit(int $limit): self
     {
@@ -108,6 +116,8 @@ class QueryBuilder
      * Add a sort column.
      *
      * Sorts are applied using the same order of this method call.
+     *
+     * @return $this
      */
     public function sort(string $name, ?string $label = null): self
     {
@@ -122,6 +132,8 @@ class QueryBuilder
      * Add multiple sort columns.
      *
      * This is equivalent as calling the sort() method many times.
+     *
+     * @return $this
      */
     public function sorts(array $sorts): self
     {
@@ -134,6 +146,8 @@ class QueryBuilder
 
     /**
      * Add an arbitrary filter.
+     *
+     * @return $this
      */
     public function filter(Filter $filter): self
     {
@@ -146,6 +160,8 @@ class QueryBuilder
 
     /**
      * Create and add a raw user input filter.
+     *
+     * @return $this
      */
     public function filterArbitrary(string $name, ?string $title): self
     {
@@ -160,6 +176,8 @@ class QueryBuilder
 
     /**
      * Create and add a choices map filter.
+     *
+     * @return $this
      */
     public function filterChoices(string $name, ?string $title, array $choices, ?string $noneOption = null): self
     {
@@ -175,6 +193,8 @@ class QueryBuilder
 
     /**
      * Create and add a date filter.
+     *
+     * @return $this
      */
     public function filterDate(string $name, ?string $title): self
     {
@@ -189,6 +209,8 @@ class QueryBuilder
 
     /**
      * Add a collection of arbitrary filters.
+     *
+     * @return $this
      */
     public function filters(iterable $filters): self
     {
@@ -203,6 +225,8 @@ class QueryBuilder
 
     /**
      * Set default sort.
+     *
+     * @return $this
      */
     public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
     {
@@ -220,6 +244,8 @@ class QueryBuilder
      * Set default property view options.
      *
      * This will affect only properties defined AFTER this method call.
+     *
+     * @return $this
      */
     public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
     {
@@ -230,6 +256,8 @@ class QueryBuilder
 
     /**
      * Set incomming request.
+     *
+     * @return $this
      */
     public function request(Request $request): self
     {
@@ -243,6 +271,8 @@ class QueryBuilder
 
     /**
      * @param iterable|callable|DatasourceInterface $data
+     *
+     * @return $this
      */
     public function data($data): self
     {
@@ -262,6 +292,8 @@ class QueryBuilder
      *   values, or a callable whose first argument will be item, that will
      *   be execute for each row, allowing you to precompute a set of values.
      *   Callback return must be an array whose names are properties names.
+     *
+     * @return $this
      */
     public function preload($callback): self
     {
