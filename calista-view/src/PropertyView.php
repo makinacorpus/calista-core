@@ -66,6 +66,7 @@ class PropertyView
             'decimal_separator' => '.',
             'hidden' => false,
             'label' => null,
+            'safe_html' => false,
             'string_ellipsis' => true,
             'string_maxlength' => 100,
             'string_raw' => false,
@@ -94,6 +95,7 @@ class PropertyView
         $resolver->setAllowedTypes('decimal_precision', ['null', 'int']);
         $resolver->setAllowedTypes('decimal_separator', ['null', 'string']);
         $resolver->setAllowedTypes('label', ['null', 'string']);
+        $resolver->setAllowedTypes('safe_html', ['bool']);
         $resolver->setAllowedTypes('string_ellipsis', ['null', 'bool', 'string']);
         $resolver->setAllowedTypes('string_maxlength', ['null', 'int']);
         $resolver->setAllowedTypes('string_raw', ['null', 'bool']);
@@ -130,6 +132,14 @@ class PropertyView
     public function getLabel(): string
     {
         return $this->options['label'] ?? $this->name;
+    }
+
+    /**
+     * Is this property safe for raw HTML display.
+     */
+    public function isSafeForHtml(): bool
+    {
+        return (bool)$this->options['safe_html'] ?? false;
     }
 
     /**

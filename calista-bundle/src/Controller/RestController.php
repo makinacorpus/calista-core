@@ -51,6 +51,7 @@ final class RestController
 
         return new JsonResponse([
             'allowedSortFields' => \array_keys($inputDefinition->getAllowedSorts()),
+            'defaultQuery' => $inputDefinition->getDefaultQuery(),
             'defaultLimit' => $inputDefinition->getDefaultLimit(),
             'defaultSortField' => $inputDefinition->getDefaultSortField(),
             'defaultSortOrder' => $inputDefinition->getDefaultSortOrder(),
@@ -142,6 +143,7 @@ final class RestController
                 'decimalPrecision' => (int) $options['decimal_precision'],
                 'decimalSeparator' => $options['decimal_separator'],
                 'decimalThousandSeparator' => $options['thousand_separator'],
+                'safeHtml' => (bool) $options['safe_html'],
                 'stringEllipsis' => $options['string_ellipsis'],
                 'stringMaxLength' => (int) $options['string_maxlength'],
             ],

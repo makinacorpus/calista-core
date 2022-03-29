@@ -233,7 +233,13 @@ final class ViewBuilder extends QueryBuilder
         } else if ($property instanceof PropertyDescription) {
             $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden, 'string_raw' => true]);
         } else if (\is_array($property)) {
-            $this->properties[$name] = new PropertyView($name, null, ['hidden' => $hidden, 'string_raw' => true] + $property + ['label' => $label] + $this->defaultPropertyView);
+            $options = ['hidden' => $hidden, 'string_raw' => true];
+            // Avoid crash where the user wouldn't expect it to crash.
+            // When a callback is provided, property must be virtual.
+            if (isset($property['callback']) && !\array_key_exists('virtual', $property)) {
+                $options['virtual'] = true;
+            }
+            $this->properties[$name] = new PropertyView($name, null, $options + $property + ['label' => $label] + $this->defaultPropertyView);
         } else if (\is_callable($property)) {
             $this->properties[$name] = new PropertyView($name, null, [
                 'callback' => $property,
