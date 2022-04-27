@@ -7,3 +7,8 @@ calista_rest_query:
     path: /calista/query
     controller: calista.bundle.rest_controller::query
     methods: [GET]
+
+calista_rest_export:
+    path: /calista/export
+    controller: calista.bundle.rest_controller::export
+    methods: [GET]

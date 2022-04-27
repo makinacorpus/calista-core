@@ -65,6 +65,8 @@ final class RestController
             'sortFieldQueryParam' => $inputDefinition->getSortFieldParameter(),
             'sortOrderQueryParam' => $inputDefinition->getSortOrderParameter(),
             'url' => $this->urlGenerator->generate('calista_rest_query', ['_name' => $request->get('_name')]),
+            'exportUrl' => $this->urlGenerator->generate('calista_rest_export', ['_name' => $request->get('_name')]),
+            'export' => $viewDefinition->getExtraOptionValue('export', null),
         ]);
     }
 
@@ -113,6 +115,20 @@ final class RestController
                 'X-Accel-Buffering' => 'no',
             ]
         );
+    }
+
+    /**
+     * Export data.
+     */
+    public function export(Request $request): Response
+    {
+        $builder = $this->buildViewDefinition($request);
+
+        return $builder
+            ->limit(100000000)
+            ->build()
+            ->renderAsResponse()
+        ;
     }
 
     private function normalizeProperties(View $view): array
