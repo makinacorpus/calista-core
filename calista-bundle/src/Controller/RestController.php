@@ -160,6 +160,7 @@ final class RestController
                 'decimalSeparator' => $options['decimal_separator'],
                 'decimalThousandSeparator' => $options['thousand_separator'],
                 'safeHtml' => (bool) $options['safe_html'],
+                'stringRaw' => (bool) $options['string_raw'],
                 'stringEllipsis' => $options['string_ellipsis'],
                 'stringMaxLength' => (int) $options['string_maxlength'],
             ],
