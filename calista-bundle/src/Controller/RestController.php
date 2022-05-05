@@ -125,6 +125,7 @@ final class RestController
         $builder = $this->buildViewDefinition($request);
 
         return $builder
+            ->request($request)
             ->limit(100000000)
             ->build()
             ->renderAsResponse()
