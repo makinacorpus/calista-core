@@ -182,7 +182,7 @@ class Query
     private static function secureValue(string $name, $value, array $baseQuery): ?array
     {
         $value = self::expandValue($value);
-        $allowed = $baseQuery[$name] ?? null;
+        $allowed = self::expandValue($baseQuery[$name] ?? null);
 
         if (null === $value || [] === $value) {
             return $value;
