@@ -35,6 +35,8 @@ final class CustomTwigBlockRenderer implements TwigBlockRenderer
      */
     public function renderBlock(string $blockName, array $arguments = []): string
     {
+        $arguments += $this->blockRenderer->getEnvironment()->getGlobals();
+
         if ($this->loaded->hasBlock($blockName, $arguments)) {
             return $this->loaded->renderBlock($blockName, $arguments);
         }

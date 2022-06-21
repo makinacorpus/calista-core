@@ -45,5 +45,3 @@ calista:
         templates:
             - "@my-app/calista/filter-custom.html.twig"
             - "@calista/page/filter-bootstrap4.html.twig"
-
-    pages: []

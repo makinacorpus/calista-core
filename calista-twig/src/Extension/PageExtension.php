@@ -8,6 +8,8 @@ use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\View;
+use MakinaCorpus\Calista\View\ViewBuilder;
+use MakinaCorpus\Calista\View\ViewManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\TwigFilter;
@@ -19,6 +21,7 @@ class PageExtension extends AbstractExtension
     private bool $debug = false;
     private PropertyRenderer $propertyRenderer;
     private RequestStack $requestStack;
+    private ViewManager $viewManager;
     private ?UrlGeneratorInterface $urlGenerator = null;
 
     /**
@@ -27,8 +30,10 @@ class PageExtension extends AbstractExtension
     public function __construct(
         RequestStack $requestStack,
         PropertyRenderer $propertyRenderer,
+        ViewManager $viewManager,
         ?UrlGeneratorInterface $urlGenerator = null
     ) {
+        $this->viewManager = $viewManager;
         $this->requestStack = $requestStack;
         $this->propertyRenderer = $propertyRenderer;
         $this->urlGenerator = $urlGenerator;
@@ -56,6 +61,8 @@ class PageExtension extends AbstractExtension
             // Pass-thgouth to URL generator, because sometime, we have a null
             // path, and we will just ignore errors and use '#' as route.
             new TwigFunction('calista_path', [$this, 'renderPath'], ['is_safe' => ['html']]),
+            // Compatibility wrapper.
+            new TwigFunction('calista_page', [$this, 'computePage'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -228,6 +235,17 @@ class PageExtension extends AbstractExtension
         } else {
             return \range($min, $max);
         }
+    }
+
+    public function computePage($name)
+    {
+        if ($name instanceof ViewBuilder) {
+            return $name->build()->render();
+        }
+        if (\is_string($name)) {
+            return $this->viewManager->createViewBuilder($name)->build()->render();
+        }
+        return 'Erreur.';
     }
 
     /**

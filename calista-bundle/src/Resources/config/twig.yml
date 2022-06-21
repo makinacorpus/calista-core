@@ -14,11 +14,11 @@ services:
     calista.view_renderer.twig_page:
         public: true
         class: MakinaCorpus\Calista\Twig\View\TwigViewRenderer
-        arguments: ['@twig', '@event_dispatcher', '%%']
+        arguments: ['@calista.twig.default_block_renderer', '@event_dispatcher']
         tags: [{name: calista.view, id: twig_page}]
 
     calista.twig.page_extension:
         public: false
         class: MakinaCorpus\Calista\Twig\Extension\PageExtension
-        arguments: ['@request_stack', '@calista.property_renderer', '@router']
+        arguments: ['@request_stack', '@calista.property_renderer', '@calista.view.manager', '@router']
         tags: [{name: twig.extension}]

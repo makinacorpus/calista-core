@@ -77,7 +77,10 @@ class Query
 
         $filters = $baseQuery;
         foreach (\array_diff_key($input, $otherKeys) as $name => $value) {
-            $filters[$name] = self::secureValue($name, $value, $baseQuery);
+            $value = self::secureValue($name, $value, $baseQuery);
+            if (null !== $value) {
+                $filters[$name] = $value;
+            }
         }
 
         // If user input is empty, apply default query instead.
@@ -131,7 +134,9 @@ class Query
             if (\is_iterable($values)) {
                 $values = \iterator_to_array($values);
             } else if (\is_string($values)) {
-                $values = \explode(self::URL_VALUE_SEP, $values);
+                // \trim() here because in some bugguy client cases, the
+                // separator can appear at edges, without any value aside.
+                $values = \explode(self::URL_VALUE_SEP, \trim($values, self::URL_VALUE_SEP));
             } else {
                 $values = [$values];
             }
