@@ -15,7 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class InputDefinition
 {
     private array $filterLabels = [];
-    private array $filters = [];
     private array $options = [];
 
     /**

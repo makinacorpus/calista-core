@@ -240,12 +240,18 @@ class PageExtension extends AbstractExtension
     public function computePage($name)
     {
         if ($name instanceof ViewBuilder) {
-            return $name->build()->render();
+            $builder = $name;
+        } elseif (\is_string($name)) {
+            $builder = $this->viewManager->createViewBuilder($name);
+        } else {
+            return "erreur";
         }
-        if (\is_string($name)) {
-            return $this->viewManager->createViewBuilder($name)->build()->render();
+
+        if ($request = $this->requestStack->getCurrentRequest()) {
+            $builder->request($request);
         }
-        return 'Erreur.';
+
+        return $builder->build()->render();
     }
 
     /**
