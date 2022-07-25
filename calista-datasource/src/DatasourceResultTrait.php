@@ -65,5 +65,6 @@ trait DatasourceResultTrait /* implements DatasourceResultInterface */
     {
         $this->limit = $limit;
         $this->total = $total;
+        $this->page = $page;
     }
 }
