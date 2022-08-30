@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler;
 
-use MakinaCorpus\Calista\Twig\View\TwigViewRenderer;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
@@ -29,7 +28,13 @@ final class TwigConfigurationPass implements CompilerPassInterface
         }
 
         if ($container->has('twig')) {
-            $container->getDefinition('twig')->addMethodCall('addGlobal', ['calista_theme', $options['theme'] ?? TwigViewRenderer::DEFAULT_THEME_TEMPLATE]);
+            $container->getDefinition('twig')->addMethodCall(
+                'addGlobal',
+                [
+                    'calista_theme',
+                    $options['theme'] ?? '@calista/page/page-bootstrap4.html.twig',
+                ]
+            );
         }
     }
 }

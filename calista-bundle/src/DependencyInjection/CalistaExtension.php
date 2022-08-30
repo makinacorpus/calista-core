@@ -30,7 +30,7 @@ final class CalistaExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        $this->registerThemeAndTemplates($container, $config['config']);
+        $this->registerThemeAndTemplates($container, $config['config'] ?? []);
         $this->registerPropertyRenderer($container);
         $this->registerViewRendererRegistry($container);
         $this->registerViewManager($container);
@@ -79,7 +79,7 @@ final class CalistaExtension extends Extension
 
     private function registerThemeAndTemplates(ContainerBuilder $container, array $config): void
     {
-        $defaultTheme = $config['theme'];
+        $defaultTheme = $config['theme'] ?? 'default';
         $defaultTemplates = null;
         $defaultPageTemplate = null;
 

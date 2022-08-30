@@ -12,6 +12,7 @@ use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\ViewRendere
 use MakinaCorpus\Calista\Twig\DependencyInjection\RegisterNamespaceCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -34,7 +35,7 @@ final class CalistaBundle extends Bundle
     /**
      * {@inheritdoc}
      */
-    public function getContainerExtension()
+    public function getContainerExtension(): ?ExtensionInterface
     {
         return new CalistaExtension();
     }
