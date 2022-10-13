@@ -171,12 +171,8 @@
  #}
 {%- block pager_href -%}
   {% if index is defined %}
-    {% if index == 1 %}
-      {{ calista_path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
-    {% else %}
-      {# @todo drop the page parameter completly #}
-      {{ calista_path(view.route, view.getRouteParameters(query.all, {(input.pagerParameter): index})) }}
-    {% endif %}
+    {% set sortParams = {(input.sortFieldParameter): query.sortField, (input.sortOrderParameter): query.sortOrder} %}
+    {{ calista_path(view.route, view.getRouteParameters(query.all + sortParams, {(input.pagerParameter): index})) }}
   {% else %}
     #
   {% endif %}
