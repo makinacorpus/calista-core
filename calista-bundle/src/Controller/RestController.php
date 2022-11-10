@@ -79,12 +79,11 @@ final class RestController
 
         $view = $builder->request($request)->getView();
 
-        $properties = $view->getNormalizedProperties();
         $query = $view->getQuery();
         $result = $view->getResult();
 
         return new StreamedResponse(
-            function () use ($properties, $query, $result): void {
+            function () use ($query, $result, $view): void {
                 // Using "php://memory" without explicit read is a noop
                 // but it will prevent PHPUnit test console log to be
                 // filled with our streamed responses.
@@ -105,7 +104,8 @@ final class RestController
                     } else {
                         $first = false;
                     }
-                    \fwrite($handle, \json_encode($this->normalizeItem($item, $properties)));
+                    $normalized = $this->propertyRenderer->computeItemRow($view, $item);
+                    \fwrite($handle, \json_encode($normalized));
                 }
                 \fwrite($handle, ']}');
             },
@@ -181,18 +181,6 @@ final class RestController
             'title' => $filter->getTitle(),
             'type' => $filter->getTemplateBlockSuffix(),
         ];
-    }
-
-    private function normalizeItem($item, array $properties): array
-    {
-        $ret = [];
-        foreach ($properties as $property) {
-            \assert($property instanceof PropertyView);
-
-            $ret[$property->getName()] = $this->propertyRenderer->renderProperty($item, $property);
-        }
-
-        return $ret;
     }
 
     private function buildViewDefinition(Request $request): ViewBuilder
