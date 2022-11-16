@@ -309,6 +309,13 @@ class PropertyRenderer
             }
         }
 
+        // This should not happen.
+        if ($names = \array_diff_key($ret, $order)) {
+            foreach ($names as $missingKey) {
+                $order[$missingKey] = ++$index;
+            }
+        }
+
         // We need to ensure sorting order, otherwise most view renderers
         // will return properties in the wrong order.
         \uksort($ret, fn ($a, $b) => $order[$a] - $order[$b]);
