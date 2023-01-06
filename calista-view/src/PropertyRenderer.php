@@ -309,12 +309,9 @@ class PropertyRenderer
             }
         }
 
-        // This should not happen.
-        if ($names = \array_diff_key($ret, $order)) {
-            foreach ($names as $missingKey) {
-                $order[$missingKey] = ++$index;
-            }
-        }
+        // $order contains we do really display.
+        // Hence the need to remove extra columns.
+        $ret = \array_intersect_key($ret, $order);
 
         // We need to ensure sorting order, otherwise most view renderers
         // will return properties in the wrong order.
