@@ -19,6 +19,7 @@
  #    view.route: string (current internal route)
  #    view.getRouteParameters: string[] (current get query)
  #    hasPager: should we show pager or not
+ #    hasGoToPageForm: should we show go to form in the pager or not
  #    items: DatasourceResultInterface|mixed[] the items
  #}
 
@@ -193,15 +194,13 @@
  # A form to go to specific page
  #}
 {%- block pager_go_to -%}
-  <li class="pager-go-to">
-    <form method="GET" action="{{ calista_path(view.route) }}">
-      {% for name, value in view.getRouteParameters(query.all) %}
-        <input name="{{ name }}" type="hidden" value="{{ value }}" />
-      {% endfor %}
-      <input name="page" type="text" size="1" value="{{page ?? 1}}"/>
-      <input class="item-action" type="submit" value="&#8618;" />
-    </form>
-  </li>
+  <form method="GET" action="{{ calista_path(view.route) }}" class="pager-go-to">
+    {% for name, value in view.getRouteParameters(query.all) %}
+      <input name="{{ name }}" type="hidden" />
+    {% endfor %}
+    <input name="page" type="text" size="1" placeholder="{{ items.getCurrentPage }}&nbsp;/&nbsp;{{ items.pageCount }}/>
+    <input class="item-action" type="submit" value="&#8618;" />
+  </form>
 {%- endblock -%}
 
 {#
@@ -244,7 +243,11 @@
             </a>
           </li>
         {% endif %}
-        {{ block('pager_go_to') }}
+        {% if hasGoToPageForm %}
+        <li>
+          {{ block('pager_go_to') }}
+        </li>
+        {% endif %}
       </ul>
     </nav>
   {% endif %}

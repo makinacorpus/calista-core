@@ -111,6 +111,7 @@ class TwigViewRenderer extends AbstractViewRenderer
             ],
             'filters' => $enabledFilters,
             'hasPager' => $viewDefinition->isPagerEnabled(),
+            'hasGoToPageForm' => $viewDefinition->isGoToPageFormEnabled(),
             'items' => $view->getResult(),
             'pageId' => 'foo', /* $this->getId() */
             'pagerEnabled' => $viewDefinition->isPagerEnabled(),
