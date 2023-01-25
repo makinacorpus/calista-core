@@ -105,6 +105,7 @@ class ViewDefinition
             'renderer' => '',
             'show_filters' => true,
             'show_pager' => true,
+            'show_go_to_page' => false,
             'show_sort' => true,
         ]);
 
@@ -117,6 +118,7 @@ class ViewDefinition
         $resolver->setAllowedTypes('renderer', ['string', ViewRenderer::class]);
         $resolver->setAllowedTypes('show_filters', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_pager', ['numeric', 'bool']);
+        $resolver->setAllowedTypes('show_go_to_page', ['numeric', 'bool']);
         $resolver->setAllowedTypes('show_sort', ['numeric', 'bool']);
     }
 
@@ -260,6 +262,14 @@ class ViewDefinition
     public function isPagerEnabled(): bool
     {
         return $this->options['show_pager'] ?? false;
+    }
+
+    /**
+     * Is pager enabled.
+     */
+    public function isGoToPageFormEnabled(): bool
+    {
+        return $this->options['show_go_to_page'] ?? false;
     }
 
     /**
