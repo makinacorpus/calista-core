@@ -31,7 +31,7 @@
     {% for name, value in view.getRouteParameters(query.all) %}
       <input name="{{ name }}" type="hidden" value="{{ value }}" />
     {% endfor %}
-    <input name="page" type="text" size="1" placeholder="{{ items.getCurrentPage }}&nbsp;/&nbsp;{{ items.pageCount }} class="mr-0 form-control"/>
+    <input name="page" type="text" size="1" placeholder="{{ items.getCurrentPage }}&nbsp;/&nbsp;{{ items.pageCount }}" class="mr-0 form-control"/>
     <input class="btn btn-primary" type="submit" value="&#8618;" />
   </form>
 {%- endblock -%}
