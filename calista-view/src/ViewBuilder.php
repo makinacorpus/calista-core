@@ -86,7 +86,7 @@ final class ViewBuilder extends QueryBuilder
             // @todo Update ViewDefinition to handle a graylist were filters
             //   can be explicitely set to false, where defaults don't need
             //   to be added to the list.
-            if (!\in_array($name, $this->viewOptions['enabled_filters'])) {
+            if (!\in_array($name, $this->viewOptions['enabled_filters'] ?? [])) {
                 $this->viewOptions['enabled_filters'][] = $name;
             }
         }
