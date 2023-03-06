@@ -194,7 +194,7 @@
  # A form to go to specific page
  #}
 {%- block pager_go_to -%}
-  <form method="GET" action="{{ calista_path(view.route) }}" class="pager-go-to">
+  <form method="GET" action="{{ calista_path(view.route, view.getRouteParameters) }}" class="pager-go-to">
     {% for name, value in view.getRouteParameters(query.all) %}
       <input name="{{ name }}" type="hidden" />
     {% endfor %}

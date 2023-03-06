@@ -27,7 +27,7 @@
 {% endblock %}
 
 {%- block pager_go_to -%}
-  <form method="GET" action="{{ calista_path(view.route) }}" class="pager-go-to form-inline h-100">
+  <form method="GET" action="{{ calista_path(view.route, view.getRouteParameters) }}" class="pager-go-to form-inline h-100">
     {% for name, value in view.getRouteParameters(query.all) %}
       <input name="{{ name }}" type="hidden" value="{{ value }}" />
     {% endfor %}
