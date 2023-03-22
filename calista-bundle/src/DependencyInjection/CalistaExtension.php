@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\RestController;
+use MakinaCorpus\Calista\Bridge\Symfony\ViewBuilderPlugin\RequestViewBuilderPlugin;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
 use MakinaCorpus\Calista\View\CustomViewBuilder;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
 use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
+use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry\ContainerViewBuilderPluginRegistry;
 use MakinaCorpus\Calista\View\ViewRendererRegistry\ContainerViewRendererRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -32,6 +35,7 @@ final class CalistaExtension extends Extension
 
         $this->registerThemeAndTemplates($container, $config['config'] ?? []);
         $this->registerPropertyRenderer($container);
+        $this->registerViewBuilderPluginRegistry($container);
         $this->registerViewRendererRegistry($container);
         $this->registerViewManager($container);
         $this->registerCustomViewBuilders($container);
@@ -152,6 +156,27 @@ final class CalistaExtension extends Extension
         $container->setDefinition('calista.twig.block_extension', $definition);
     }
 
+    private function registerViewBuilderPluginRegistry(ContainerBuilder $container): void
+    {
+        $definition = new Definition();
+        $definition->setClass(ContainerViewBuilderPluginRegistry::class);
+        // Will be populated using a compiler pass.
+        $definition->setArguments([[]]);
+        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
+        $definition->setPublic(false);
+
+        $container->setDefinition('calista.bundle.view_builder_plugin_registry.container', $definition);
+        $container->setAlias('calista.bundle.view_builder_plugin_registry', 'calista.bundle.view_builder_plugin_registry.container');
+        $container->setAlias(ViewBuilderPluginRegistry::class, 'calista.bundle.view_builder_plugin_registry');
+
+        // Register default implementations.
+        $definition = new Definition();
+        $definition->setClass(RequestViewBuilderPlugin::class);
+        $definition->setArgument(0, new Reference('request_stack'));
+        $definition->addTag('calista.view_builder_plugin', ['priority' => 100]);
+        $container->setDefinition('calista.bundle.view_builder_plugin.request', $definition);
+    }
+
     private function registerViewRendererRegistry(ContainerBuilder $container): void
     {
         $definition = new Definition();
@@ -174,6 +199,7 @@ final class CalistaExtension extends Extension
             new Reference('calista.view.renderer_registry'),
             new Reference('event_dispatcher'),
             new Reference('calista.bundle.custom_view_renderer_registry'),
+            new Reference('calista.bundle.view_builder_plugin_registry'),
         ]);
         $definition->setPublic(false);
 

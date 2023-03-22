@@ -270,6 +270,14 @@ class QueryBuilder
     }
 
     /**
+     * Get incomming request if set.
+     */
+    public function getRequest(): ?Request
+    {
+        return $this->request;
+    }
+
+    /**
      * @param iterable|callable|DatasourceInterface $data
      *
      * @return $this
