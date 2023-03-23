@@ -20,12 +20,19 @@ final class RequestViewBuilderPlugin implements ViewBuilderPlugin
     /**
      * {@inheritdoc}
      */
-    public function apply(ViewBuilder $builder, array $options = [], ?string $format = null): void
+    public function preBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void
     {
         if (null === $builder->getRequest()) {
             if ($request = $this->requestStack->getCurrentRequest()) {
                 $builder->request($request);
             }
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void
+    {
     }
 }

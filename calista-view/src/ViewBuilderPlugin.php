@@ -10,7 +10,7 @@ namespace MakinaCorpus\Calista\View;
 interface ViewBuilderPlugin
 {
     /**
-     * Interact on a view builder when creating it.
+     * Called before custom view builder is built.
      *
      * Parameters are propagated via ViewManager::createViewBuilder() and
      * CustomViewbuilder::build().
@@ -24,5 +24,12 @@ interface ViewBuilderPlugin
      * @see ViewManager::createViewBuilder()
      * @see CustomViewbuilder::build()
      */
-    public function apply(ViewBuilder $builder, array $options = [], ?string $format = null): void;
+    public function preBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void;
+
+    /**
+     * Called after custom view builder is built.
+     *
+     * See preBuild() for documentation.
+     */
+    public function postBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void;
 }

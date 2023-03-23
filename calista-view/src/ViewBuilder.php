@@ -25,6 +25,19 @@ final class ViewBuilder extends QueryBuilder
     private ?string $route = null;
     private array $routeParameters = [];
 
+    /**
+     * Incomming format has no business purpose for this API, and is purely
+     * information, you can use it in any way you wish.
+     */
+    private ?string $format = null;
+
+    /**
+     * This has business purpose for this API, but you can use this parameter
+     * to flag builder when they are doing file exports or handle their response
+     * themselves.
+     */
+    private bool $isExport = false;
+
     private ?ViewDefinition $builtViewDefinition = null;
     private ?View $builtView = null;
 
@@ -51,7 +64,72 @@ final class ViewBuilder extends QueryBuilder
     }
 
     /**
+     * Get default format.
+     *
+     * Format is purely informational, has already been passed to plugins and
+     * custom view builder before you access this field, still it can be useful
+     * to access within your controllers.
+     */
+    public function getFormat(): ?string
+    {
+        return $this->format;
+    }
+
+    /**
+     * Set default format.
+     *
+     * Format is incomming from ViewManager::createViewBuilder() method
+     * parameters or set by plugins.
+     *
+     * @return $this
+     */
+    public function format(?string $format): self
+    {
+        $this->dieIfLocked();
+
+        $this->format = $format;
+
+        return $this;
+    }
+
+    /**
+     * Is this builder a data export.
+     *
+     * This is purely informational, has already been passed to plugins and
+     * custom view builder before you access this field, still it can be useful
+     * to access within your controllers.
+     */
+    public function isExport(): bool
+    {
+        return $this->isExport;
+    }
+
+    /**
+     * Toggle this builder bgin a data export.
+     *
+     * @return $this
+     */
+    public function export(bool $toggle = true): self
+    {
+        $this->dieIfLocked();
+
+        $this->isExport = $toggle;
+
+        return $this;
+    }
+
+    /**
+     * Get extra option value.
+     */
+    public function getExtra(string $name): mixed
+    {
+        return $this->viewOptions['extra'][$name] ?? null;
+    }
+
+    /**
      * Add extra option value for view renderer.
+     *
+     * @return $this
      */
     public function extra(string $name, $value): self
     {
