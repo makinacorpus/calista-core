@@ -64,6 +64,24 @@ final class ViewBuilder extends QueryBuilder
     }
 
     /**
+     * Set filename for when sending file responses.
+     *
+     * File may or may not include an extension. If it doesn't, behavior of
+     * adding one is up to the renderer. All default renderer will add the
+     * correct file extension if none provided.
+     *
+     * @return $this
+     */
+    public function filename(?string $filename): self
+    {
+        $this->dieIfLocked();
+
+        $this->extra('filename', $filename);
+
+        return $this;
+    }
+
+    /**
      * Get default format.
      *
      * Format is purely informational, has already been passed to plugins and
