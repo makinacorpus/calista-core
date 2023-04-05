@@ -20,6 +20,7 @@ class DefaultFilter extends AbstractFilter
     private string $dateFormat = 'd/m/Y';
     private bool $isDate = false;
     private bool $isHidden = false;
+    private bool $isSafe = false;
     private ?string $noneOption = null;
 
     /**
