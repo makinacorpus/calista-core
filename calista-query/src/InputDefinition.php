@@ -9,8 +9,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Input query definition and sanitizer.
- *
- * @codeCoverageIgnore
  */
 class InputDefinition
 {
@@ -150,6 +148,9 @@ class InputDefinition
             'limit_max' => Query::LIMIT_MAX,
             'pager_enable' => true,
             'pager_param' => 'page',
+            // Allow user to show/hide arbitrary properties.
+            'property_enable' => true,
+            'property_param' => 'pr',
             // Keys are field names, values are labels.
             'sort_allowed_list' => [],
             'sort_default_field' => '',
@@ -165,6 +166,8 @@ class InputDefinition
         $resolver->setAllowedTypes('limit_param', ['string']);
         $resolver->setAllowedTypes('pager_enable', ['numeric', 'bool']);
         $resolver->setAllowedTypes('pager_param', ['string']);
+        $resolver->setAllowedTypes('property_enable', ['bool']);
+        $resolver->setAllowedTypes('property_param', ['string']);
         $resolver->setAllowedTypes('sort_allowed_list', ['array']);
         $resolver->setAllowedTypes('sort_default_field', ['string']);
         $resolver->setAllowedTypes('sort_default_order', ['string']);
@@ -257,6 +260,14 @@ class InputDefinition
     }
 
     /**
+     * Get the maximum limit.
+     */
+    public function getMaxLimit(): int
+    {
+        return $this->options['limit_max'];
+    }
+
+    /**
      * Get the limit parameter name.
      */
     public function getLimitParameter(): string
@@ -278,6 +289,22 @@ class InputDefinition
     public function getPagerParameter(): string
     {
         return $this->options['pager_param'];
+    }
+
+    /**
+     * Can user arbitrarily show/hide properties.
+     */
+    public function isPropertyEnabled(): bool
+    {
+        return $this->options['property_enable'];
+    }
+
+    /**
+     * Get user displayed property parameter.
+     */
+    public function getPropertyParameter(): string
+    {
+        return $this->options['property_param'];
     }
 
     /**

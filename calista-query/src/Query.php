@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Sanitized version of an incomming query.
- *
- * @todo support maximum limit
  */
 class Query
 {
@@ -21,6 +19,7 @@ class Query
 
     private array $filters = [];
     private array $others = [];
+    private array $properties = [];
     private InputDefinition $inputDefinition;
     private int $limit = self::LIMIT_DEFAULT;
     private int $page = 1;
@@ -41,6 +40,7 @@ class Query
         $this->filters = $filters;
         $this->others = $others;
 
+        $this->findProperties();
         $this->findRange();
         $this->findSort();
 
@@ -69,6 +69,7 @@ class Query
         $otherKeys = [
             $inputDefinition->getLimitParameter() => true,
             $inputDefinition->getPagerParameter() => true,
+            $inputDefinition->getPropertyParameter() => true,
             $inputDefinition->getSortFieldParameter() => true,
             $inputDefinition->getSortOrderParameter() => true,
         ];
@@ -111,18 +112,7 @@ class Query
      */
     public static function fromArbitraryArray(array $input): Query
     {
-        return self::fromArray(new InputDefinition([
-            'base_query' => [],
-            'limit_allowed' => true,
-            'limit_default' => Query::LIMIT_DEFAULT,
-            'limit_param' => 'limit',
-            'pager_enable' => true,
-            'pager_param' => 'page',
-            'sort_default_field' => '',
-            'sort_default_order' => Query::SORT_DESC,
-            'sort_field_param' => 'st',
-            'sort_order_param' => 'by',
-        ]), $input);
+        return self::fromArray(new InputDefinition(), $input);
     }
 
     /**
@@ -205,6 +195,38 @@ class Query
         }
 
         return $value;
+    }
+
+    /**
+     * Find range from query.
+     */
+    private function findProperties(): void
+    {
+        if (!$this->inputDefinition->isPropertyEnabled()) {
+            return;
+        }
+        $propertyParameter = $this->inputDefinition->getPropertyParameter();
+        if ($propertyParameter && ($input = ($this->others[$propertyParameter] ?? null))) {
+            // Parse value. Value is a comma separated list of names, each name
+            // can be prefixed by ! which means "hidden", otherwise it means
+            // displayed.
+            foreach (\explode(',', $input) as $candidate) {
+                $candidate = \trim($candidate);
+                if ('!' === $candidate || !$candidate) {
+                    // Invalid value.
+                    continue;
+                }
+                if ('!' === $candidate[0]) {
+                    // Prune values such as "! foo" with whitespace inside.
+                    $candidate = \trim(\substr($candidate, 1));
+                    if ($candidate) {
+                        $this->properties[$candidate] = false;
+                    }
+                } else {
+                    $this->properties[$candidate] = true;
+                }
+            }
+        }
     }
 
     /**
@@ -293,6 +315,33 @@ class Query
     }
 
     /**
+     * Is the given property name explicitely displayed by user.
+     *
+     * @return null|bool
+     *   Null value means using view default setting, false means the user
+     *   explicitely asks for it to be displayed, false means the user asks
+     *   for it to be explicitely hidden.
+     */
+    public function isPropertyDisplayed(string $name): ?bool
+    {
+        if (null !== ($value = ($this->properties[$name] ?? null))) {
+            return (bool) $value;
+        }
+        return null;
+    }
+
+    /**
+     * Is the given property name explicitely displayed by user.
+     *
+     * @return array<string,bool>
+     *   Keys are properties name, values are display status.
+     */
+    public function getDisplayedProperties(): array
+    {
+        return $this->properties;
+    }
+
+    /**
      * Is this query empty: being empty means there is no filter, but limit
      * and order information can be set.
      */
@@ -373,6 +422,9 @@ class Query
         return $this->filters;
     }
 
+    /**
+     * Get this query as array.
+     */
     public function toArray(): array
     {
         return $this->filters + $this->others;

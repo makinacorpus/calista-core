@@ -90,7 +90,7 @@ class TwigViewRenderer extends AbstractViewRenderer
                 $field = $filter->getField();
 
                 // Checks that the filter must be displayed.
-                if (!$viewDefinition->isFilterDisplayed($field)) {
+                if (!$viewDefinition->isFilterEnabled($field)) {
                     continue;
                 }
 

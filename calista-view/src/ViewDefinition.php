@@ -233,9 +233,13 @@ class ViewDefinition
     }
 
     /**
-     * Are filters enabled.
+     * Is given filter enabled.
+     *
+     * A filter can be either disabled, which means it cannot be displayed
+     * in any way, or hidden, case in which it can be displayed to use, but
+     * is hidden per default.
      */
-    public function isFilterDisplayed(string $name): bool
+    public function isFilterEnabled(string $name): bool
     {
         return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || \in_array($name, $this->options['enabled_filters']));
     }

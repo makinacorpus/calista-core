@@ -27,6 +27,42 @@ final class QueryTest extends TestCase
         self::assertSame('b', $query->getSortField());
     }
 
+    public function testProperties(): void
+    {
+        // Should give nothing.
+        $invalidEmpty = '   ';
+        $query = Query::fromArbitraryArray(['pr' => $invalidEmpty]);
+        self::assertSame([], $query->getDisplayedProperties());
+        self::assertNull($query->isPropertyDisplayed('non_existing'));
+
+        // Alone exclamation mark will be ignored.
+        $invalidAloneExclamation = '!,foo,   !  ';
+        $query = Query::fromArbitraryArray(['pr' => $invalidAloneExclamation]);
+        self::assertSame(['foo' => true], $query->getDisplayedProperties());
+        self::assertTrue($query->isPropertyDisplayed('foo'));
+        self::assertNull($query->isPropertyDisplayed('non_existing'));
+
+        // Whitespace everywhere
+        $whitespaceTrimmed = '!foo, bar , !  baz,fizz,    !buzz ';
+        $query = Query::fromArbitraryArray(['pr' => $whitespaceTrimmed]);
+        self::assertSame(
+            [
+                'foo' => false,
+                'bar' => true,
+                'baz' => false,
+                'fizz' => true,
+                'buzz' => false,
+            ],
+            $query->getDisplayedProperties()
+        );
+        self::assertFalse($query->isPropertyDisplayed('foo'));
+        self::assertTrue($query->isPropertyDisplayed('bar'));
+        self::assertFalse($query->isPropertyDisplayed('baz'));
+        self::assertTrue($query->isPropertyDisplayed('fizz'));
+        self::assertFalse($query->isPropertyDisplayed('buzz'));
+        self::assertNull($query->isPropertyDisplayed('non_existing'));
+    }
+
     public function testQueryBasics(): void
     {
         $request = new Request([
@@ -34,6 +70,7 @@ final class QueryTest extends TestCase
             'foo' => 'c|d|e',
             'test' => 'test',
             'bar' => 'baz',
+            '_pr' => 'foo,!bar',
             '_st' => 'toto',
             '_by' => 'asc',
             '_limit' => 12,
@@ -62,6 +99,8 @@ final class QueryTest extends TestCase
             'limit_param' => '_limit',
             'pager_enable' => true,
             'pager_param' => '_page',
+            'property_enable' => true,
+            'property_param' => '_pr',
             'sort_allowed_list' => ['toto'],
             'sort_field_param' => '_st',
             'sort_order_param' => '_by'
@@ -75,6 +114,11 @@ final class QueryTest extends TestCase
         // Pagination
         self::assertSame(3, $query->getCurrentPage());
         self::assertSame(24, $query->getOffset());
+        // Property display.
+        self::assertTrue($query->isPropertyDisplayed('foo'));
+        self::assertFalse($query->isPropertyDisplayed('bar'));
+        self::assertNull($query->isPropertyDisplayed('non_existing'));
+        self::assertSame('toto', $query->getSortField());
 
         // Route, get, set
         self::assertTrue($query->has('foo'));

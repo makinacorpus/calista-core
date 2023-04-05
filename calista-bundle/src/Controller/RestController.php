@@ -51,22 +51,24 @@ final class RestController
 
         return new JsonResponse([
             'allowedSortFields' => \array_keys($inputDefinition->getAllowedSorts()),
-            'defaultQuery' => $inputDefinition->getDefaultQuery(),
             'defaultLimit' => $inputDefinition->getDefaultLimit(),
+            'defaultQuery' => $inputDefinition->getDefaultQuery(),
             'defaultSortField' => $inputDefinition->getDefaultSortField(),
             'defaultSortOrder' => $inputDefinition->getDefaultSortOrder(),
+            'export' => $viewDefinition->getExtraOptionValue('export', null),
+            'exportUrl' => $this->urlGenerator->generate('calista_rest_export', ['_name' => $request->get('_name')]),
             'filters' => \array_map(fn ($filter) => $this->normalizeFilter($filter), $inputDefinition->getFilters()),
             'limitChangeAllowed' => $inputDefinition->isLimitAllowed(),
             'limitQueryParam' => $inputDefinition->getLimitParameter(),
-            'maximumLimit' => 1000, // @todo ?
+            'maximumLimit' => $inputDefinition->getMaxLimit(),
             'pagerEnabled' => $inputDefinition->isPagerEnabled(),
             'pagerQueryParam' => $inputDefinition->getPagerParameter(),
             'properties' => $this->normalizeProperties($view),
+            'propertyDisplayEnabled' => $inputDefinition->isPropertyEnabled(),
+            'propertyDisplayParam' => $inputDefinition->getPropertyParameter(),
             'sortFieldQueryParam' => $inputDefinition->getSortFieldParameter(),
             'sortOrderQueryParam' => $inputDefinition->getSortOrderParameter(),
             'url' => $this->urlGenerator->generate('calista_rest_query', ['_name' => $request->get('_name')]),
-            'exportUrl' => $this->urlGenerator->generate('calista_rest_export', ['_name' => $request->get('_name')]),
-            'export' => $viewDefinition->getExtraOptionValue('export', null),
         ]);
     }
 
