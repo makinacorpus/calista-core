@@ -96,7 +96,7 @@ class ScalarTypeRenderer implements TypeRenderer
 
     private function renderString($value, array $options): ?string
     {
-        if ($options['string_raw']) {
+        if ($options['string_raw'] ?? false) {
             return $value;
         }
 
