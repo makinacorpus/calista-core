@@ -7,14 +7,15 @@ namespace MakinaCorpus\Calista\Twig\Extension;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\PropertyValue;
 use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewBuilder;
 use MakinaCorpus\Calista\View\ViewManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use Twig\Extension\AbstractExtension;
 
 class PageExtension extends AbstractExtension
 {
@@ -131,7 +132,7 @@ class PageExtension extends AbstractExtension
      *
      * @return string
      */
-    public function renderItemProperty($item, $property = null, ?array $options = null)
+    public function renderItemProperty($item, $property = null, ?array $options = null): ?string
     {
         return $this->propertyRenderer->renderProperty($item, $property, $options);
     }
@@ -147,7 +148,7 @@ class PageExtension extends AbstractExtension
      *   Display options for the property, dropped if the $property parameter
      *   is an instance of PropertyView
      *
-     * @return string
+     * @return PropertyValue[]
      */
     public function computeItemRow(View $view, $item): array
     {
@@ -158,10 +159,8 @@ class PageExtension extends AbstractExtension
      * Flatten query param if array
      *
      * @param string|string[] $value
-     *
-     * @codeCoverageIgnore
      */
-    public function flattenQueryParam($value)
+    public function flattenQueryParam($value): string
     {
         return Query::valuesEncode($value);
     }

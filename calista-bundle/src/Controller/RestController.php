@@ -106,7 +106,7 @@ final class RestController
                     } else {
                         $first = false;
                     }
-                    $normalized = $this->propertyRenderer->computeItemRow($view, $item);
+                    $normalized = $this->propertyRenderer->computeItemRowValues($view, $item);
                     \fwrite($handle, \json_encode($normalized));
                 }
                 \fwrite($handle, ']}');

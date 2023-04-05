@@ -93,7 +93,7 @@ final class AbstractViewRendererTest extends TestCase
                 'a' => '12',
                 'b' => '2',
                 'c' => '1',
-                'd' => null,
+                'd' => '',
             ],
             $computedRow
         );
@@ -101,7 +101,7 @@ final class AbstractViewRendererTest extends TestCase
         // Just to be sure that assertSame() takes order into account.
         self::assertNotSame(
             [
-                'd' => null,
+                'd' => '',
                 'b' => '2',
                 'a' => '12',
                 'c' => '1',
