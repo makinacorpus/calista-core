@@ -37,11 +37,15 @@ interface Filter
 {
     /**
      * Set a single attribute value.
+     *
+     * @return $this
      */
     public function setAttribute(string $name, ?string $value): self;
 
     /**
      * Set arbitrary attributes over the widget.
+     *
+     * @return $this
      */
     public function setAttributes(array $attributes): self;
 
@@ -57,6 +61,8 @@ interface Filter
 
     /**
      * Set or unset the "multiple" flag, default is true.
+     *
+     * @return $this
      */
     public function setMultiple(bool $toggle = true): self;
 
@@ -67,6 +73,8 @@ interface Filter
 
     /**
      * Set or unset the mandatory flag.
+     *
+     * @return $this
      */
     public function setMandatory(bool $toggle = true): self;
 
