@@ -16,20 +16,22 @@ abstract class AbstractFilter implements Filter
     private bool $multiple = true;
     private ?string $queryParameter = null;
     private ?string $title = null;
+    private ?string $propertyName = null;
 
     public function __construct(string $queryParameter, ?string $title = null, ?string $description = null)
     {
         $this->description = $description;
         $this->queryParameter = $queryParameter;
         $this->title = $title;
+        $this->propertyName = $queryParameter;
     }
 
     /**
      * {@inheritdoc}
      */
-    final public function setAttribute(string $name, ?string $value): self
+    final public function setAttribute(string $attributeName, ?string $value): self
     {
-        $this->attributes[$name] = $value;
+        $this->attributes[$attributeName] = $value;
 
         return $this;
     }
@@ -47,9 +49,9 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function getAttribute(string $name, ?string $default = null): ?string
+    final public function getAttribute(string $attributeName, ?string $default = null): ?string
     {
-        return $this->attributes[$name] ?? $default;
+        return $this->attributes[$attributeName] ?? $default;
     }
 
     /**
@@ -143,9 +145,37 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
+    final public function getFilterName(): string
+    {
+        return $this->queryParameter ?? '';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated
+     */
     final public function getField(): string
     {
         return $this->queryParameter ?? '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function setPropertyName(string $propertyName): self
+    {
+        $this->propertyName = $propertyName;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function getPropertyName(): ?string
+    {
+        return $this->propertyName;
     }
 
     /**

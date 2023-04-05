@@ -12,5 +12,5 @@ interface CustomViewBuilderRegistry
      * @throws \InvalidArgumentException
      *   If custom view builder mathing the name does not exists.
      */
-    public function get(string $name): CustomViewBuilder;
+    public function get(string $builderName): CustomViewBuilder;
 }

@@ -87,16 +87,16 @@ class TwigViewRenderer extends AbstractViewRenderer
                     }
                 }
 
-                $field = $filter->getField();
+                $filterName = $filter->getFilterName();
 
                 // Checks that the filter must be displayed.
-                if (!$viewDefinition->isFilterEnabled($field)) {
+                if (!$viewDefinition->isFilterEnabled($filterName)) {
                     continue;
                 }
 
                 // If the value of the filter is fixed by the base query and is
                 // not multiple, it becomes useless to display the filter.
-                if (isset($baseQuery[$field]) && (!\is_array($baseQuery[$field]) || \count($baseQuery[$field]) < 2)) {
+                if (isset($baseQuery[$filterName]) && (!\is_array($baseQuery[$filterName]) || \count($baseQuery[$filterName]) < 2)) {
                     continue;
                 }
 
@@ -109,6 +109,7 @@ class TwigViewRenderer extends AbstractViewRenderer
                 'table_action' => $viewDefinition->getExtraOptionValue('table_action', null),
                 'table_sort' => (bool)$viewDefinition->getExtraOptionValue('table_sort', true),
             ],
+            'extended_headers' => $viewDefinition->getExtraOptionValue('table_extended_headers', true),
             'filters' => $enabledFilters,
             'hasPager' => $viewDefinition->isPagerEnabled(),
             'hasGoToPageForm' => $viewDefinition->isGoToPageFormEnabled(),

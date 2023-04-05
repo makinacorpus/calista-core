@@ -44,11 +44,11 @@ trait RouteHolderTrait /* implements RouteHolder */
 
         if ($additional) {
             foreach ($additional as $parameters) {
-                foreach ($parameters as $name => $value) {
+                foreach ($parameters as $parameterName => $value) {
                     // If key is present, this means that the parameter is protected
                     // and cannot be changed dynamically by calling code.
-                    if (!\array_key_exists($name, $ret)) {
-                        $ret[$name] = Query::valuesEncode($value);
+                    if (!\array_key_exists($parameterName, $ret)) {
+                        $ret[$parameterName] = Query::valuesEncode($value);
                     }
                 }
             }

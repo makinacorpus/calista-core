@@ -27,8 +27,8 @@ final class EmptyDatasource extends AbstractDatasource
     public function getFilters(): array
     {
         return \array_map(
-            function ($name) {
-                return new DefaultFilter($name);
+            function ($filterName) {
+                return new DefaultFilter($filterName);
             },
             $this->allowedFilters
         );

@@ -23,7 +23,7 @@ final class FilterTest extends TestCase
     {
         $filter = new DefaultFilter('foo', 'The foo filter');
 
-        self::assertSame('foo', $filter->getField());
+        self::assertSame('foo', $filter->getFilterName());
         self::assertSame('The foo filter', $filter->getTitle());
         self::assertFalse($filter->isSafe());
 
@@ -64,7 +64,7 @@ final class FilterTest extends TestCase
     }
 
     /**
-     * Very simple edge case: when no title, use the field name
+     * Very simple edge case: when no title, use the filter name
      */
     public function testTitleFallback(): void
     {

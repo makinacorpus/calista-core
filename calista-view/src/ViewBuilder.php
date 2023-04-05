@@ -53,11 +53,11 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function renderer(string $name, array $extraOptions = []): self
+    public function renderer(string $rendererName, array $extraOptions = []): self
     {
         $this->dieIfLocked();
 
-        $this->rendererName = $this->viewOptions['renderer'] = $name;
+        $this->rendererName = $this->viewOptions['renderer'] = $rendererName;
         $this->viewOptions['extra'] = $extraOptions + ($this->viewOptions['extra'] ?? []);
 
         return $this;
@@ -85,8 +85,8 @@ final class ViewBuilder extends QueryBuilder
      * Get default format.
      *
      * Format is purely informational, has already been passed to plugins and
-     * custom view builder before you access this field, still it can be useful
-     * to access within your controllers.
+     * custom view builder before you access this property, still it can be
+     * useful to access within your controllers.
      */
     public function getFormat(): ?string
     {
@@ -114,8 +114,8 @@ final class ViewBuilder extends QueryBuilder
      * Is this builder a data export.
      *
      * This is purely informational, has already been passed to plugins and
-     * custom view builder before you access this field, still it can be useful
-     * to access within your controllers.
+     * custom view builder before you access this property, still it can be
+     * useful to access within your controllers.
      */
     public function isExport(): bool
     {
@@ -174,16 +174,16 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function enableFilters(string ... $names): self
+    public function enableFilters(string ... $filterNames): self
     {
         $this->dieIfLocked();
 
-        foreach ($names as $name) {
+        foreach ($filterNames as $filterName) {
             // @todo Update ViewDefinition to handle a graylist were filters
             //   can be explicitely set to false, where defaults don't need
             //   to be added to the list.
-            if (!\in_array($name, $this->viewOptions['enabled_filters'] ?? [])) {
-                $this->viewOptions['enabled_filters'][] = $name;
+            if (!\in_array($filterName, $this->viewOptions['enabled_filters'] ?? [])) {
+                $this->viewOptions['enabled_filters'][] = $filterName;
             }
         }
 
@@ -193,7 +193,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function disableFilter(string $name): self
+    public function disableFilter(string $filterName): self
     {
         $this->dieIfLocked();
 
@@ -286,18 +286,18 @@ final class ViewBuilder extends QueryBuilder
      *   hence first callback parameter will be the object, second the property
      *   name.
      */
-    public function property(string $name, $property = [], ?string $label = null, bool $hidden = false): self
+    public function property(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): self
     {
         $this->dieIfLocked();
 
         if ($property instanceof PropertyView) {
-            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden]);
+            $this->properties[$propertyName] = $property->rename($propertyName, $label, ['hidden' => $hidden]);
         } else if ($property instanceof PropertyDescription) {
-            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden]);
+            $this->properties[$propertyName] = $property->rename($propertyName, $label, ['hidden' => $hidden]);
         } else if (\is_array($property)) {
-            $this->properties[$name] = new PropertyView($name, null, ['hidden' => $hidden] + $property + ['label' => $label] + $this->defaultPropertyView);
+            $this->properties[$propertyName] = new PropertyView($propertyName, null, ['hidden' => $hidden] + $property + ['label' => $label] + $this->defaultPropertyView);
         } else if (\is_callable($property)) {
-            $this->properties[$name] = new PropertyView($name, null, [
+            $this->properties[$propertyName] = new PropertyView($propertyName, null, [
                 'callback' => $property,
                 'hidden' => $hidden,
                 'label' => $label,
@@ -320,14 +320,14 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function propertyRaw(string $name, $property = [], ?string $label = null, bool $hidden = false): self
+    public function propertyRaw(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): self
     {
         $this->dieIfLocked();
 
         if ($property instanceof PropertyView) {
-            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden, 'string_raw' => true]);
+            $this->properties[$propertyName] = $property->rename($propertyName, $label, ['hidden' => $hidden, 'string_raw' => true]);
         } else if ($property instanceof PropertyDescription) {
-            $this->properties[$name] = $property->rename($name, $label, ['hidden' => $hidden, 'string_raw' => true]);
+            $this->properties[$propertyName] = $property->rename($propertyName, $label, ['hidden' => $hidden, 'string_raw' => true]);
         } else if (\is_array($property)) {
             $options = ['hidden' => $hidden, 'string_raw' => true];
             // Avoid crash where the user wouldn't expect it to crash.
@@ -335,9 +335,9 @@ final class ViewBuilder extends QueryBuilder
             if (isset($property['callback']) && !\array_key_exists('virtual', $property)) {
                 $options['virtual'] = true;
             }
-            $this->properties[$name] = new PropertyView($name, null, $options + $property + ['label' => $label] + $this->defaultPropertyView);
+            $this->properties[$propertyName] = new PropertyView($propertyName, null, $options + $property + ['label' => $label] + $this->defaultPropertyView);
         } else if (\is_callable($property)) {
-            $this->properties[$name] = new PropertyView($name, null, [
+            $this->properties[$propertyName] = new PropertyView($propertyName, null, [
                 'callback' => $property,
                 'hidden' => $hidden,
                 'label' => $label,
@@ -360,9 +360,9 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function hiddenProperty(string $name, $property = [], ?string $label = null): self
+    public function hiddenProperty(string $propertyName, $property = [], ?string $label = null): self
     {
-        $this->property($name, $property, $label, true);
+        $this->property($propertyName, $property, $label, true);
 
         return $this;
     }
@@ -372,11 +372,11 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function propertyLabel(string $name, string $label): self
+    public function propertyLabel(string $propertyName, string $label): self
     {
         $this->dieIfLocked();
 
-        $this->propertyLabels[$name] = $label;
+        $this->propertyLabels[$propertyName] = $label;
 
         return $this;
     }
@@ -397,11 +397,11 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function template(string $name): self
+    public function template(string $templateName): self
     {
         $this->dieIfLocked();
 
-        $this->viewOptions['extra']['template'] = $name;
+        $this->viewOptions['extra']['template'] = $templateName;
 
         return $this;
     }
@@ -442,14 +442,14 @@ final class ViewBuilder extends QueryBuilder
         $options['renderer'] = $this->rendererName;
 
         if ($this->properties) {
-            foreach ($this->properties as $name => $property) {
+            foreach ($this->properties as $propertyName => $property) {
                 \assert($property instanceof PropertyView || $property instanceof PropertyDescription);
 
-                $newLabel = $this->propertyLabels[$name] ?? null;
+                $newLabel = $this->propertyLabels[$propertyName] ?? null;
                 if ($newLabel) {
-                    $options['properties'][$name] = $property->rename($name, $newLabel);
+                    $options['properties'][$propertyName] = $property->rename($propertyName, $newLabel);
                 } else {
-                    $options['properties'][$name] = $property;
+                    $options['properties'][$propertyName] = $property;
                 }
             }
         }

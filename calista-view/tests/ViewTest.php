@@ -50,8 +50,8 @@ final class ViewTest extends TestCase
 
         // Trust the user, display everything
         foreach ($properties as $property) {
-            $name = $property->getName();
-            if ('foo' === $name) {
+            $propertyName = $property->getName();
+            if ('foo' === $propertyName) {
                 self::assertSame("The Foo property", $property->getLabel());
             } else {
                 self::assertSame($property->getName(), $property->getLabel());

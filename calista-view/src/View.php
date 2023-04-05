@@ -102,24 +102,24 @@ final class View implements RouteHolder
             return $this->normalizePropertiesUsingDatasource();
         }
 
-        foreach ($properties as $name) {
-            // $name can be numeric.
-            $name = (string)$name;
+        foreach ($properties as $propertyName) {
+            // $propertyName can be numeric.
+            $propertyName = (string)$propertyName;
 
-            if (!$this->definition->isPropertyDisplayed($name)) {
+            if (!$this->definition->isPropertyDisplayed($propertyName)) {
                 continue;
             }
 
-            $value = $this->definition->getProperty($name);
+            $value = $this->definition->getProperty($propertyName);
 
             if ($value instanceof PropertyDescription) {
                 $ret[] = $value;
             } else if ($value instanceof PropertyView) {
                 $ret[] = $value;
             } else if (\is_array($value)) {
-                $ret[] = new PropertyView($name, $value['type'] ?? null, $value);
+                $ret[] = new PropertyView($propertyName, $value['type'] ?? null, $value);
             } else {
-                $ret[] = new PropertyView($name);
+                $ret[] = new PropertyView($propertyName);
             }
         }
 
@@ -136,11 +136,11 @@ final class View implements RouteHolder
         foreach ($this->items->getProperties() as $description) {
             \assert($description instanceof PropertyDescription);
 
-            $name = $description->getName();
+            $propertyName = $description->getName();
 
-            $ret[$name] = PropertyView::fromDescription(
+            $ret[$propertyName] = PropertyView::fromDescription(
                 $description,
-                $this->definition->getPropertyDisplayOptions($name)
+                $this->definition->getPropertyDisplayOptions($propertyName)
             );
         }
 

@@ -14,6 +14,22 @@ namespace MakinaCorpus\Calista\Query;
  * Once you implemented a filter, you just extend AbstractFilter and let your
  * class empty, that's fine, you need to implement its template view.
  *
+ * Associating to properties:
+ *
+ * A filter can be associated to a specific property defined by the datasource
+ * or view definition. When associated to a property, the renderer can adapt
+ * the UI to visually link the filter to the associated property for the end
+ * user. It doesn't have any logic impact, in only drives the UI.
+ *
+ * Filter to property association that works as defined:
+ *  - if the filter has the same name as a property, it will be matched
+ *    automatically,
+ *  - the setPropertyName() method can be called, and the filter will be
+ *    associated to the given property and automatic name matching will be
+ *    ignored.
+ *
+ * Rendering:
+ *
  * A filter has a getTemplateBlockSuffix() method, which will result in your
  * widget being rendered using the {% calista_filter_SUFFIX %} twig block.
  * This block will inherit from all values that are being used at render time
@@ -28,7 +44,7 @@ namespace MakinaCorpus\Calista\Query;
  * Remember, when implementing a custom filter, that only one value can be
  * sent and will be dealt with the Query object using the InputDefinition
  * object: you may use any kind of HTML <input> type with the corresponding
- * name="{{ filter.getField() }}", this is the value that will be validated
+ * name="{{ filter.getFilterName() }}", this is the value that will be validated
  * against and set in the Query object. It can be pretty much everything
  * including <input type="hidden"/> types, so you're free here to do whatever
  * you want, including adding complex front code to populate this value.
@@ -40,7 +56,7 @@ interface Filter
      *
      * @return $this
      */
-    public function setAttribute(string $name, ?string $value): self;
+    public function setAttribute(string $attributeName, ?string $value): self;
 
     /**
      * Set arbitrary attributes over the widget.
@@ -52,7 +68,7 @@ interface Filter
     /**
      * Get a single attribute value.
      */
-    public function getAttribute(string $name, ?string $default = null): ?string;
+    public function getAttribute(string $attributeName, ?string $default = null): ?string;
 
     /**
      * Get arbitrary attributes.
@@ -109,9 +125,29 @@ interface Filter
     public function getDescription(): ?string;
 
     /**
-     * Get field.
+     * Get filter and HTTP parameter name.
+     */
+    public function getFilterName(): string;
+
+    /**
+     * Get filter and HTTP parameter name.
+     *
+     * @deprecated
+     *   Use getFilterName() instead.
      */
     public function getField(): string;
+
+    /**
+     * Linked filter to property.
+     *
+     * @return $this
+     */
+    public function setPropertyName(string $propertyName): self;
+
+    /**
+     * Get associated property.
+     */
+    public function getPropertyName(): ?string;
 
     /**
      * Get selected values from query.

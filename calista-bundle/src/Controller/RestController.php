@@ -176,10 +176,12 @@ final class RestController
             'attributes' => $filter->getAttributes(),
             'choicesMap' => $filter->getChoicesMap(),
             'description' => $filter->getDescription(),
-            'field' => $filter->getField(),
+            'field' => $filter->getFilterName(), // Deprecated.
+            'filterName' => $filter->getFilterName(),
             'mandatory' => $filter->isMandatory(),
             'multiple' => $filter->isMultiple(),
             'noneOption' => $filter->getNoneOption(),
+            'propertyName' => $filter->getPropertyName(),
             'title' => $filter->getTitle(),
             'type' => $filter->getTemplateBlockSuffix(),
         ];
@@ -187,16 +189,16 @@ final class RestController
 
     private function buildViewDefinition(Request $request): ViewBuilder
     {
-        $name = $request->get('_name');
+        $builderName = $request->get('_name');
         $options = $request->get('_options') ?? [];
         $format = $request->get('_format') ?? CustomViewBuilder::FORMAT_REST;
 
-        if (!$name) {
+        if (!$builderName) {
             throw new NotFoundHttpException('Not Found');
         }
 
         try {
-            $customViewBuilder = $this->customViewBuilderRegistry->get($name);
+            $customViewBuilder = $this->customViewBuilderRegistry->get($builderName);
         } catch (\InvalidArgumentException $e) {
             throw new NotFoundHttpException('Not Found');
         }

@@ -137,13 +137,8 @@ class ViewDefinition
 
     /**
      * Get extra option value.
-     *
-     * @param string $name
-     * @param mixed $default
-     *
-     * @return mixed
      */
-    public function getExtraOptionValue(string $name, $default = null)
+    public function getExtraOptionValue(string $name, $default = null): mixed
     {
         return \array_key_exists($name, $this->options['extra']) ? $this->options['extra'][$name] : $default;
     }
@@ -166,21 +161,21 @@ class ViewDefinition
     /**
      * @return null|bool|array|PropertyView
      */
-    public function getProperty(string $name)
+    public function getProperty(string $propertyName)
     {
-        return $this->options['properties'][$name] ?? null;
+        return $this->options['properties'][$propertyName] ?? null;
     }
 
     /**
      * Get property specific display options.
      */
-    public function getPropertyDisplayOptions(string $name): array
+    public function getPropertyDisplayOptions(string $propertyName): array
     {
-         if (isset($this->options['properties'][$name])) {
-              if (\is_string($this->options['properties'][$name])) {
-                  return ['type' => $this->options['properties'][$name]];
-              } else if (\is_array($this->options['properties'][$name])) {
-                  return $this->options['properties'][$name];
+         if (isset($this->options['properties'][$propertyName])) {
+              if (\is_string($this->options['properties'][$propertyName])) {
+                  return ['type' => $this->options['properties'][$propertyName]];
+              } else if (\is_array($this->options['properties'][$propertyName])) {
+                  return $this->options['properties'][$propertyName];
               }
          }
 
@@ -190,9 +185,9 @@ class ViewDefinition
     /**
      * Should this property be displayed.
      */
-    public function isPropertyDisplayed(string $name): bool
+    public function isPropertyDisplayed(string $propertyName): bool
     {
-        return null === $this->options['properties'] || ($this->options['properties'][$name] ?? false);
+        return null === $this->options['properties'] || ($this->options['properties'][$propertyName] ?? false);
     }
 
     /**
@@ -239,9 +234,9 @@ class ViewDefinition
      * in any way, or hidden, case in which it can be displayed to use, but
      * is hidden per default.
      */
-    public function isFilterEnabled(string $name): bool
+    public function isFilterEnabled(string $filterName): bool
     {
-        return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || \in_array($name, $this->options['enabled_filters']));
+        return $this->isFiltersEnabled() && (null === $this->options['enabled_filters'] || \in_array($filterName, $this->options['enabled_filters']));
     }
 
     /**

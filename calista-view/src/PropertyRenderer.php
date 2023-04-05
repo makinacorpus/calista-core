@@ -286,21 +286,21 @@ class PropertyRenderer
 
         $index = 0;
         foreach ($view->getNormalizedProperties() as $property) {
-            $name = $property->getName();
+            $propertyName = $property->getName();
             // For later sorting.
-            $order[$name] = ++$index;
+            $order[$propertyName] = ++$index;
 
-            if (\array_key_exists($name, $ret)) {
+            if (\array_key_exists($propertyName, $ret)) {
                 // Value was preloaded, pass value using a value_accessor.
-                $ret[$name] = $this
+                $ret[$propertyName] = $this
                     ->renderProperty(
                         $item,
                         $property,
-                        ['value_accessor' => fn () => $ret[$name]]
+                        ['value_accessor' => fn () => $ret[$propertyName]]
                     )
                 ;
             } else {
-                $ret[$name] = $this
+                $ret[$propertyName] = $this
                     ->renderProperty(
                         $item,
                         $property

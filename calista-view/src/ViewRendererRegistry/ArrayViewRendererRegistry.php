@@ -23,12 +23,12 @@ final class ArrayViewRendererRegistry implements ViewRendererRegistry
     /**
      * {@inheritdoc}
      */
-    public function getViewRenderer(string $name): ViewRenderer
+    public function getViewRenderer(string $rendererName): ViewRenderer
     {
-        $ret = $this->viewRenderers[$name] ?? null;
+        $ret = $this->viewRenderers[$rendererName] ?? null;
 
         if (!$ret) {
-            throw new \InvalidArgumentException(\sprintf("View renderer with name '%s' does not exist.", $name));
+            throw new \InvalidArgumentException(\sprintf("View renderer with name '%s' does not exist.", $rendererName));
         }
 
         return $ret;

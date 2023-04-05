@@ -57,7 +57,7 @@ class CsvStreamReader implements \Iterator, \Countable
     /**
      * Ensures that file exists, aggregates information about it
      */
-    private function checkFile()
+    private function checkFile(): void
     {
         if (!\file_exists($this->filename)) {
             throw new \InvalidArgumentException("File '" . $this->filename . "' does not exists");
@@ -78,20 +78,18 @@ class CsvStreamReader implements \Iterator, \Countable
 
     /**
      * Get current line position in file stream.
-     *
-     * @return int
      */
-    public function getCurrentFileIndex()
+    public function getCurrentFileIndex(): int
     {
         return $this->currentFileIndex;
     }
 
     /**
-     * Get CSV headers
+     * Get CSV headers.
      *
      * @return null|string[]
      */
-    public function getHeaders()
+    public function getHeaders(): ?array
     {
         $this->init();
 
@@ -99,33 +97,27 @@ class CsvStreamReader implements \Iterator, \Countable
     }
 
     /**
-     * Does CSV has given header
-     *
-     * @param string $name
-     *
-     * @return bool
+     * Does CSV has given header.
      */
-    public function hasHeader($name)
+    public function hasHeader(string $propertyName): bool
     {
-        return \in_array($name, $this->getHeaders());
+        return \in_array($propertyName, $this->getHeaders());
     }
 
     /**
-     * Unreliable count means that the total count will be an approximation
-     *
-     * @return bool
+     * Unreliable count means that the total count will be an approximation.
      */
-    public function isCountReliable()
+    public function isCountReliable(): bool
     {
         return $this->isCountReliable;
     }
 
-    private function handleIsValid()
+    private function handleIsValid(): bool
     {
         return isset($this->handle) && false !== $this->handle;
     }
 
-    private function fetchNextLine()
+    private function fetchNextLine(): void
     {
         $this->currentFileIndex = \ftell($this->handle);
 
@@ -159,7 +151,7 @@ class CsvStreamReader implements \Iterator, \Countable
         }
     }
 
-    private function init()
+    private function init(): void
     {
         if (!$this->handleIsValid()) {
 
@@ -193,7 +185,7 @@ class CsvStreamReader implements \Iterator, \Countable
         }
     }
 
-    private function close()
+    private function close(): void
     {
         if (isset($this->handle)) {
             fclose($this->handle);
@@ -201,7 +193,7 @@ class CsvStreamReader implements \Iterator, \Countable
         }
     }
 
-    private function reset()
+    private function reset(): void
     {
         $this->close();
         $this->eofReached = false;
@@ -210,7 +202,7 @@ class CsvStreamReader implements \Iterator, \Countable
         $this->headers = null;
     }
 
-    private function formatLine($line)
+    private function formatLine(array $line): array
     {
         $ret = [];
 
