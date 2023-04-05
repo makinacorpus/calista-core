@@ -7,7 +7,10 @@ namespace MakinaCorpus\Calista\Twig\Tests;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
+use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\Tests\PropertyRendererTest;
+use MakinaCorpus\Calista\View\ViewRendererRegistry\ArrayViewRendererRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use Twig\TwigFilter;
@@ -64,7 +67,16 @@ final class TestFactory
             return (string)$value;
         }));
 
-        $twigEnv->addExtension(new PageExtension(new RequestStack(), PropertyRendererTest::createPropertyRenderer()));
+        $twigEnv->addExtension(
+            new PageExtension(
+                new RequestStack(),
+                PropertyRendererTest::createPropertyRenderer(),
+                new ViewManager(
+                    new ArrayViewRendererRegistry([]),
+                    new EventDispatcher(),
+                )
+            )
+        );
 
         return $twigEnv;
     }

@@ -7,9 +7,12 @@ namespace MakinaCorpus\Calista\Twig\Tests;
 use MakinaCorpus\Calista\Twig\Extension\PageExtension;
 use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\PropertyView;
+use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\Tests\PropertyRendererTest;
 use MakinaCorpus\Calista\View\Tests\Mock\IntItem;
+use MakinaCorpus\Calista\View\ViewRendererRegistry\ArrayViewRendererRegistry;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 final class TwigExtensionTest extends TestCase
@@ -41,7 +44,14 @@ final class TwigExtensionTest extends TestCase
      */
     private function createExtension(): PageExtension
     {
-        return new PageExtension(new RequestStack(), PropertyRendererTest::createPropertyRenderer());
+        return new PageExtension(
+            new RequestStack(),
+            PropertyRendererTest::createPropertyRenderer(),
+            new ViewManager(
+                new ArrayViewRendererRegistry([]),
+                new EventDispatcher(),
+            )
+        );
     }
 
     /**
