@@ -212,19 +212,17 @@ class Query
      */
     private function findRange(): void
     {
-        if (!$this->inputDefinition->isLimitAllowed()) {
-            // Limit cannot be changed
-            $this->limit = $this->inputDefinition->getDefaultLimit();
-        } else {
+        $this->limit = $this->inputDefinition->getDefaultLimit();
+
+        if ($this->inputDefinition->isLimitAllowed()) {
             // Limit can be changed, we must find it from the parameters
             $limitParameter = $this->inputDefinition->getLimitParameter();
             if ($limitParameter && isset($this->others[$limitParameter])) {
                 $this->limit = (int)$this->others[$limitParameter];
-            }
-
-            // Additional security, do not allow negative or 0 limit
-            if ($this->limit <= 0) {
-                $this->limit = $this->inputDefinition->getDefaultLimit();
+                // Additional security, do not allow negative or 0 limit
+                if ($this->limit <= 0) {
+                    $this->limit = $this->inputDefinition->getDefaultLimit();
+                }
             }
         }
 
