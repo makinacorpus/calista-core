@@ -119,11 +119,11 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function sort(string $name, ?string $label = null): self
+    public function sort(string $propertyName, ?string $label = null): self
     {
         $this->dieIfLocked();
 
-        $this->inputOptions['sort_allowed_list'][$name] = $name ?? $label;
+        $this->inputOptions['sort_allowed_list'][$propertyName] = $propertyName ?? $label;
 
         return $this;
     }
@@ -137,8 +137,8 @@ class QueryBuilder
      */
     public function sorts(array $sorts): self
     {
-        foreach ($sorts as $name => $label) {
-            $this->sort($name, $label);
+        foreach ($sorts as $propertyName => $label) {
+            $this->sort($propertyName, $label);
         }
 
         return $this;
@@ -163,11 +163,11 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterArbitrary(string $name, ?string $title): self
+    public function filterArbitrary(string $filterName, ?string $title): self
     {
         $this->filter(
             $this
-                ->createFilter($name, $title)
+                ->createFilter($filterName, $title)
                 ->setArbitraryInput(true)
         );
 
@@ -179,11 +179,11 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterChoices(string $name, ?string $title, array $choices, ?string $noneOption = null): self
+    public function filterChoices(string $filterName, ?string $title, array $choices, ?string $noneOption = null): self
     {
         $this->filter(
             $this
-                ->createFilter($name, $title)
+                ->createFilter($filterName, $title)
                 ->setChoicesMap($choices)
                 ->setNoneOption($noneOption)
         );
@@ -196,11 +196,11 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterDate(string $name, ?string $title): self
+    public function filterDate(string $filterName, ?string $title): self
     {
         $this->filter(
             $this
-                ->createFilter($name, $title)
+                ->createFilter($filterName, $title)
                 ->setIsDate(true)
         );
 
@@ -359,8 +359,8 @@ class QueryBuilder
         // no sorts were specified. If sort were specified but the default is
         // not, keep the exceptions being raised.
         if (empty($options['sort_allowed_list']) && isset($options['sort_default_field'])) {
-            $name = $options['sort_default_field'];
-            $options['sort_allowed_list'][$name] = $name;
+            $propertyName = $options['sort_default_field'];
+            $options['sort_allowed_list'][$propertyName] = $propertyName;
         }
 
         if ($this->data instanceof DatasourceInterface) {
@@ -401,9 +401,9 @@ class QueryBuilder
     /**
      * Create a default filter.
      */
-    protected function createFilter(string $name, ?string $title = null, ?string $description = null): DefaultFilter
+    protected function createFilter(string $filterName, ?string $title = null, ?string $description = null): DefaultFilter
     {
-        return new DefaultFilter($name, $title, $description);
+        return new DefaultFilter($filterName, $title, $description);
     }
 
     /**

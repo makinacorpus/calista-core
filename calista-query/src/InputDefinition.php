@@ -9,8 +9,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Input query definition and sanitizer.
- *
- * @codeCoverageIgnore
  */
 class InputDefinition
 {
@@ -46,32 +44,33 @@ class InputDefinition
 
         // Normalize filters and sorts.
         foreach ($this->options['filter_list'] as $filter) {
-            $name = $filter->getField();
+            \assert($filter instanceof Filter);
+            $filterName = $filter->getFilterName();
             // Filter out non allowed (outside of base query) filter choices.
-            if (isset($this->options['base_query'][$name])) {
-                $choices = $this->options['base_query'][$name];
+            if (isset($this->options['base_query'][$filterName])) {
+                $choices = $this->options['base_query'][$filterName];
                 if (!\is_array($choices)) {
                     $choices = [$choices];
                 }
                 $filter->removeChoicesNotIn($choices);
             }
-            $this->filterLabels[$name] = $filter->getTitle();
+            $this->filterLabels[$filterName] = $filter->getTitle();
         }
 
-        // Ensure given base query only contains legitimate field names.
+        // Ensure given base query only contains legitimate filter names.
         if ($this->options['base_query']) {
-            foreach (\array_keys($this->options['base_query']) as $name) {
-                if (!$this->isFilterAllowed($name)) {
-                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $name));
+            foreach (\array_keys($this->options['base_query']) as $filterName) {
+                if (!$this->isFilterAllowed($filterName)) {
+                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $filterName));
                 }
             }
         }
 
-        // Ensure given default query only contains legitimate field names.
+        // Ensure given default query only contains legitimate filter names.
         if ($this->options['default_query']) {
-            foreach (\array_keys($this->options['default_query']) as $name) {
-                if (!$this->isFilterAllowed($name)) {
-                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $name));
+            foreach (\array_keys($this->options['default_query']) as $filterName) {
+                if (!$this->isFilterAllowed($filterName)) {
+                    throw new \InvalidArgumentException(\sprintf("'%s' base query filter is not an allowed filter", $filterName));
                 }
             }
         }
@@ -141,7 +140,7 @@ class InputDefinition
             'default_query' => [],
             'base_query' => [],
             // Must be a list of \MakinaCorpus\Calista\Query\Filter
-            //   or a list of Key/value pairs, each key is a field name
+            //   or a list of Key/value pairs, each key is a filter name
             //   and value is the human readable label.
             'filter_list' => [],
             'limit_allowed' => false,
@@ -150,7 +149,10 @@ class InputDefinition
             'limit_max' => Query::LIMIT_MAX,
             'pager_enable' => true,
             'pager_param' => 'page',
-            // Keys are field names, values are labels.
+            // Allow user to show/hide arbitrary properties.
+            'property_enable' => true,
+            'property_param' => 'pr',
+            // Keys are property names, values are labels.
             'sort_allowed_list' => [],
             'sort_default_field' => '',
             'sort_default_order' => Query::SORT_DESC,
@@ -165,6 +167,8 @@ class InputDefinition
         $resolver->setAllowedTypes('limit_param', ['string']);
         $resolver->setAllowedTypes('pager_enable', ['numeric', 'bool']);
         $resolver->setAllowedTypes('pager_param', ['string']);
+        $resolver->setAllowedTypes('property_enable', ['bool']);
+        $resolver->setAllowedTypes('property_param', ['string']);
         $resolver->setAllowedTypes('sort_allowed_list', ['array']);
         $resolver->setAllowedTypes('sort_default_field', ['string']);
         $resolver->setAllowedTypes('sort_default_order', ['string']);
@@ -193,10 +197,10 @@ class InputDefinition
     }
 
     /**
-     * Get allowed filterable field list.
+     * Get allowed filter list.
      *
      * @return string[]
-     *   Keys are field name, values are human readable labels.
+     *   Keys are filter name, values are human readable labels.
      */
     public function getAllowedFilters(): array
     {
@@ -214,18 +218,49 @@ class InputDefinition
     }
 
     /**
-     * Is the given filter field allowed.
+     * Is the given filter allowed.
      */
-    public function isFilterAllowed(string $name): bool
+    public function isFilterAllowed(string $filterName): bool
     {
-        return isset($this->filterLabels[$name]);
+        return isset($this->filterLabels[$filterName]);
     }
 
     /**
-     * Get allowed sort field list.
+     * Does filters exist for property.
+     */
+    public function hasPropertyFilter(string $propertyName): bool
+    {
+        foreach ($this->options['filter_list'] as $filter) {
+            \assert($filter instanceof Filter);
+            if ($filter->getPropertyName() === $propertyName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get filters for the given property.
+     *
+     * @return Filter[]
+     */
+    public function getPropertyFilters(string $propertyName): array
+    {
+        $ret = [];
+        foreach ($this->options['filter_list'] as $filter) {
+            \assert($filter instanceof Filter);
+            if ($filter->getPropertyName() === $propertyName) {
+                $ret[] = $filter;
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Get allowed sortable property list.
      *
      * @return string[]
-     *   Keys are field name, values are human readable labels.
+     *   Keys are property names, values are human readable labels.
      */
     public function getAllowedSorts(): array
     {
@@ -233,11 +268,11 @@ class InputDefinition
     }
 
     /**
-     * Is the given sort field allowed.
+     * Is the given property sortable.
      */
-    public function isSortAllowed(string $name): bool
+    public function isSortAllowed(string $propertyName): bool
     {
-        return isset($this->options['sort_allowed_list'][$name]);
+        return isset($this->options['sort_allowed_list'][$propertyName]);
     }
 
     /**
@@ -254,6 +289,14 @@ class InputDefinition
     public function getDefaultLimit(): int
     {
         return $this->options['limit_default'];
+    }
+
+    /**
+     * Get the maximum limit.
+     */
+    public function getMaxLimit(): int
+    {
+        return $this->options['limit_max'];
     }
 
     /**
@@ -281,7 +324,23 @@ class InputDefinition
     }
 
     /**
-     * Get sort field parameter.
+     * Can user arbitrarily show/hide properties.
+     */
+    public function isPropertyEnabled(): bool
+    {
+        return $this->options['property_enable'];
+    }
+
+    /**
+     * Get user displayed property parameter.
+     */
+    public function getPropertyParameter(): string
+    {
+        return $this->options['property_param'];
+    }
+
+    /**
+     * Get sortable property parameter name.
      */
     public function getSortFieldParameter(): ?string
     {
@@ -297,7 +356,7 @@ class InputDefinition
     }
 
     /**
-     * Get default sort field.
+     * Get default sorted property.
      */
     public function getDefaultSortField(): ?string
     {

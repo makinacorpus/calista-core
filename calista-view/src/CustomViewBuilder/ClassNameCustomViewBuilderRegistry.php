@@ -12,13 +12,13 @@ class ClassNameCustomViewBuilderRegistry implements CustomViewBuilderRegistry
     /**
      * {@inheritdoc}
      */
-    public function get(string $name): CustomViewBuilder
+    public function get(string $builderName): CustomViewBuilder
     {
         try {
-            $refClass = new \ReflectionClass($name);
+            $refClass = new \ReflectionClass($builderName);
 
             if (!$refClass->implementsInterface(CustomViewBuilder::class)) {
-                throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' does not implement '%s'.", $name, CustomViewBuilder::class));
+                throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' does not implement '%s'.", $builderName, CustomViewBuilder::class));
             }
 
             $refConstructor = $refClass->getConstructor();
@@ -31,14 +31,14 @@ class ClassNameCustomViewBuilderRegistry implements CustomViewBuilderRegistry
                 } else if ($parameter->allowsNull()) {
                     $args[] = null;
                 } else {
-                    throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' parameter '\$%s' has no default value and does not allows null.", $name, $parameter->getName()));
+                    throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' parameter '\$%s' has no default value and does not allows null.", $builderName, $parameter->getName()));
                 }
             }
 
             return $refClass->newInstance(...$args);
 
         } catch (\ReflectionException $e) {
-            throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' does not exist.", $name));
+            throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' does not exist.", $builderName));
         }
     }
 }

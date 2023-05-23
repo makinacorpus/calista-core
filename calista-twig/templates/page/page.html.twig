@@ -103,27 +103,68 @@
 {% endblock %}
 
 {%- block item_actions -%}
-{# Override that block to add arbitrary data into the last column #}
-{# From here, you have access to the "item" variable. #}
-{% if config.table_action is not null %}
-{{ calista_item_actions(item, config.table_action) }}
-{% endif %}
+  {# Override that block to add arbitrary data into the last column #}
+  {# From here, you have access to the "item" variable. #}
+  {% if config.table_action is not null %}
+    {{ calista_item_actions(item, config.table_action) }}
+  {% endif %}
+{%- endblock -%}
+
+{#
+ # Header cell and item data row cell attributes.
+ #
+ # Requires in context:
+ #  - 'active' (any)
+ #  - 'property' (PropertyView) or 'propertyName' (string)
+ #  - 'query' (Query)
+ #}
+{%- block item_attributes -%}
+  {% if property is defined %}
+    {% set propertyName = property.name %}
+  {% endif %}
+  {% if propertyName is defined %}
+    {% if active is defined and active %}
+      class="property-{{ propertyName }} active"
+    {% else %}
+      class="property-{{ propertyName }}"
+    {% endif %}
+    data-property="{{ propertyName }}"
+    {% set displayed = query.isPropertyDisplayed(propertyName) %}
+    {% if displayed is not null and not displayed %}
+      data-hidden
+    {% endif %}
+  {% endif %}
 {%- endblock -%}
 
 {%- block item -%}
-<tr>
-  {% for value in calista_item_row(view, item) %}
-  <td>
-    {{ value|raw }}
-  </td>
-  {% endfor %}
-  {% if config.table_action is not null %}
-  <td class="item-actions">
-    {{ block('item_actions') }}
-  </td>
-  {% endif %}
-</tr>
+  <tr>
+    {% for propertyName, value in calista_item_row(view, item) %}
+      <td {{ block('item_attributes')|raw }}>{{ value|raw }}</td>
+    {% endfor %}
+    {% if config.table_action is not null %}
+      <td class="item-actions">
+        {{ block('item_actions') }}
+      </td>
+    {% endif %}
+  </tr>
 {%- endblock -%}
+
+{#
+ # Extented options for table headers.
+ #
+ # Default implementation here will not add any real UI components, showing
+ # or hidden columns using a page refresh does not seem to be a good idea.
+ #
+ # There will be only simple indicators:
+ #   - one when a filter applies on that column,
+ #   - maybe others?
+ #
+ # This at least will help you finding the correct variables to use.
+ #
+ # Allow subthemes to change rendering.
+ #}
+{%- block item_list_table_header_extended -%}
+{%- endblock item_list_table_header_extended -%}
 
 {#
  # Single <th> tag for table headers.
@@ -132,39 +173,45 @@
  # @todo Allow configuring this using an extra option.
  #}
 {%- block item_list_table_header -%}
-{% set name = property.getName() %}
-{% if config.table_sort and input.isSortAllowed(name) %}
-<th class="property-{{ name }}{% if query.sortField == name %} active{% endif %}">
-  {% with {label: property.getLabel(), field: name} %}
-  {{ block('sort_link') }}
-  {% endwith %}
-</th>
-{% else %}
-<th class="property-{{ name }}">{{ property.getLabel() }}</th>
-{% endif %}
-{%- endblock -%}
+  {% set name = property.getName() %}
+  {% if query.sortField == name %}
+    {% set active = true %}
+  {% endif %}
+  {% if config.table_sort and input.isSortAllowed(name) %}
+    <th {{ block('item_attributes')|raw }}>
+      {% with {label: property.getLabel(), field: name} %}
+        {{ block('sort_link') }}
+      {% endwith %}
+      {% if extended_headers is defined and extended_headers %}
+        {{ block('item_list_table_header_extended') }}
+      {% endif %}
+    </th>
+  {% else %}
+    <th {{ block('item_attributes')|raw }}>{{ property.getLabel() }}</th>
+  {% endif %}
+{%- endblock item_list_table_header -%}
 
 {#
  # Items list, a table.
  #}
 {% block item_list %}
-<table class="table table-condensed">
-  <thead>
-    <tr>
-      {% for property in properties %}
-      {{ block('item_list_table_header') }}
+  <table class="table table-condensed">
+    <thead>
+      <tr>
+        {% for property in properties %}
+          {{ block('item_list_table_header') }}
+        {% endfor %}
+        {% if config.table_action is not null %}
+          <th class="item-actions"></th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        {{ block('item') }}
       {% endfor %}
-      {% if config.table_action is not null %}
-      <th class="item-actions"></th>
-      {% endif %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in items %}
-    {{ block('item') }}
-    {% endfor %}
-  </tbody>
-</table>
+    </tbody>
+  </table>
 {% endblock %}
 
 {#
@@ -318,7 +365,22 @@
   </div>
 {% endblock %}
 
+{#
+ # Introduces some CSS and JavaScript behaviors.
+ #
+ # If they interact with your own code, simply overwrite this block.
+ #}
+{%- block behavior -%}
+  <style>
+    [data-hidden] {
+      visibility: hidden;
+      display: none;
+    }
+  </style>
+{%- endblock behavior -%}
+
 {%- block page -%}
+  {{ block('behavior') }}
   <div class="calista-page {% block container_class %}{% endblock %}"
     {% if pageId %}data-page="{{ pageId|e }}"
     {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}

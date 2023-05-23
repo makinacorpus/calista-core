@@ -276,8 +276,21 @@ class PropertyRenderer
     }
 
     /**
+     * Same function as computeItemRow which does not embed values in
+     * PropertyValue instances.
+     *
+     * @return string[]
+     */
+    public function computeItemRowValues(View $view, $item): array
+    {
+        return \array_map('strval', $this->computeItemRow($view, $item));
+    }
+
+    /**
      * This is probably not the best place for this function, but it allows its
      * re-use in both view renderers and Twig extensions.
+     *
+     * @return PropertyValue[]
      */
     public function computeItemRow(View $view, $item): array
     {
@@ -286,27 +299,20 @@ class PropertyRenderer
 
         $index = 0;
         foreach ($view->getNormalizedProperties() as $property) {
-            $name = $property->getName();
-            // For later sorting.
-            $order[$name] = ++$index;
+            \assert($property instanceof PropertyView);
 
-            if (\array_key_exists($name, $ret)) {
+            $value = null;
+            $propertyName = $property->getName();
+            // For later sorting.
+            $order[$propertyName] = ++$index;
+
+            if (\array_key_exists($propertyName, $ret)) {
                 // Value was preloaded, pass value using a value_accessor.
-                $ret[$name] = $this
-                    ->renderProperty(
-                        $item,
-                        $property,
-                        ['value_accessor' => fn () => $ret[$name]]
-                    )
-                ;
+                $value = $this->renderProperty($item, $property, ['value_accessor' => fn () => $ret[$propertyName]]);
             } else {
-                $ret[$name] = $this
-                    ->renderProperty(
-                        $item,
-                        $property
-                    )
-                ;
+                $value = $this->renderProperty($item, $property);
             }
+            $ret[$propertyName] = new PropertyValue($value);
         }
 
         // $order contains we do really display.

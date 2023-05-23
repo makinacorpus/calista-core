@@ -35,4 +35,11 @@ final class RequestViewBuilderPlugin implements ViewBuilderPlugin
     public function postBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void
     {
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function preBuildView(ViewBuilder $builder): void
+    {
+    }
 }

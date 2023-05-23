@@ -7,14 +7,15 @@ namespace MakinaCorpus\Calista\Twig\Extension;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\Query\Query;
 use MakinaCorpus\Calista\View\PropertyRenderer;
+use MakinaCorpus\Calista\View\PropertyValue;
 use MakinaCorpus\Calista\View\View;
 use MakinaCorpus\Calista\View\ViewBuilder;
 use MakinaCorpus\Calista\View\ViewManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use Twig\Extension\AbstractExtension;
 
 class PageExtension extends AbstractExtension
 {
@@ -78,16 +79,16 @@ class PageExtension extends AbstractExtension
     /**
      * Render URL.
      */
-    public function renderPath(?string $name = null, array $parameters = [], bool $relative = false): string
+    public function renderPath(?string $route = null, array $parameters = [], bool $relative = false): string
     {
-        if (!$name) {
+        if (!$route) {
             return '#' . \http_build_query($parameters);
         }
         if (!$this->urlGenerator) {
-            return $name . '#' . \http_build_query($parameters);
+            return $route . '#' . \http_build_query($parameters);
         }
 
-        return $this->urlGenerator->generate($name, $parameters, $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH);
+        return $this->urlGenerator->generate($route, $parameters, $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH);
     }
 
     /**
@@ -131,7 +132,7 @@ class PageExtension extends AbstractExtension
      *
      * @return string
      */
-    public function renderItemProperty($item, $property = null, ?array $options = null)
+    public function renderItemProperty($item, $property = null, ?array $options = null): ?string
     {
         return $this->propertyRenderer->renderProperty($item, $property, $options);
     }
@@ -147,7 +148,7 @@ class PageExtension extends AbstractExtension
      *   Display options for the property, dropped if the $property parameter
      *   is an instance of PropertyView
      *
-     * @return string
+     * @return PropertyValue[]
      */
     public function computeItemRow(View $view, $item): array
     {
@@ -158,10 +159,8 @@ class PageExtension extends AbstractExtension
      * Flatten query param if array
      *
      * @param string|string[] $value
-     *
-     * @codeCoverageIgnore
      */
-    public function flattenQueryParam($value)
+    public function flattenQueryParam($value): string
     {
         return Query::valuesEncode($value);
     }
@@ -169,7 +168,7 @@ class PageExtension extends AbstractExtension
     /**
      * Return a JSON encoded representing the filter definition
      *
-     * @param \MakinaCorpus\Calista\Query\Filter[] $filters
+     * @param Filter[] $filters
      *
      * @codeCoverageIgnore
      */
@@ -177,11 +176,12 @@ class PageExtension extends AbstractExtension
     {
         $definition = [];
 
-        /** @var \MakinaCorpus\Calista\Query\Filter $filter */
         foreach ($filters as $filter) {
+            \assert($filter instanceof Filter);
+
             $definition[] = [
-                'value'   => $filter->getField(),
-                'label'   => $filter->getTitle(),
+                'value' => $filter->getFilterName(),
+                'label' => $filter->getTitle(),
                 'options' => !$filter->isSafe() ?: $filter->getChoicesMap(),
             ];
         }
@@ -204,9 +204,9 @@ class PageExtension extends AbstractExtension
         foreach ($filters as $filter) {
             \assert($filter instanceof Filter);
 
-            $field = $filter->getField();
-            if (isset($query[$field])) {
-                $filterQuery[$field] = $query[$field];
+            $filterName = $filter->getFilterName();
+            if (isset($query[$filterName])) {
+                $filterQuery[$filterName] = $query[$filterName];
             }
         }
 
@@ -237,12 +237,12 @@ class PageExtension extends AbstractExtension
         }
     }
 
-    public function computePage($name)
+    public function computePage($builderName)
     {
-        if ($name instanceof ViewBuilder) {
-            $builder = $name;
-        } elseif (\is_string($name)) {
-            $builder = $this->viewManager->createViewBuilder($name);
+        if ($builderName instanceof ViewBuilder) {
+            $builder = $builderName;
+        } elseif (\is_string($builderName)) {
+            $builder = $this->viewManager->createViewBuilder($builderName);
         } else {
             return "erreur";
         }

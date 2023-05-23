@@ -46,7 +46,7 @@ final class TwigViewRendererTest extends TestCase
 
         // Ensure filters etc
         $filters = $inputDefinition->getFilters();
-        self::assertSame('odd_or_even', \reset($filters)->getField());
+        self::assertSame('odd_or_even', \reset($filters)->getFilterName());
         self::assertSame('Odd or Even', \reset($filters)->getTitle());
 
         $query = Query::fromRequest($inputDefinition, $request);

@@ -9,5 +9,5 @@ interface ViewRendererRegistry
     /**
      * Get view renderer.
      */
-    public function getViewRenderer(string $name): ViewRenderer;
+    public function getViewRenderer(string $rendererName): ViewRenderer;
 }

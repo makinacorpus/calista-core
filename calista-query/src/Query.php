@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Sanitized version of an incomming query.
- *
- * @todo support maximum limit
  */
 class Query
 {
@@ -21,6 +19,7 @@ class Query
 
     private array $filters = [];
     private array $others = [];
+    private array $properties = [];
     private InputDefinition $inputDefinition;
     private int $limit = self::LIMIT_DEFAULT;
     private int $page = 1;
@@ -41,14 +40,15 @@ class Query
         $this->filters = $filters;
         $this->others = $others;
 
+        $this->findProperties();
         $this->findRange();
         $this->findSort();
 
         // Now for security, prevent anything that is not a filter from
         // existing into the filter array
-        foreach (\array_keys($this->filters) as $name) {
-            if (!$inputDefinition->isFilterAllowed($name)) {
-                unset($this->filters[$name]);
+        foreach (\array_keys($this->filters) as $filterName) {
+            if (!$inputDefinition->isFilterAllowed($filterName)) {
+                unset($this->filters[$filterName]);
             }
         }
     }
@@ -69,6 +69,7 @@ class Query
         $otherKeys = [
             $inputDefinition->getLimitParameter() => true,
             $inputDefinition->getPagerParameter() => true,
+            $inputDefinition->getPropertyParameter() => true,
             $inputDefinition->getSortFieldParameter() => true,
             $inputDefinition->getSortOrderParameter() => true,
         ];
@@ -76,17 +77,17 @@ class Query
         $baseQuery = $inputDefinition->getBaseQuery();
 
         $filters = $baseQuery;
-        foreach (\array_diff_key($input, $otherKeys) as $name => $value) {
-            $value = self::secureValue($name, $value, $baseQuery);
+        foreach (\array_diff_key($input, $otherKeys) as $filterName => $value) {
+            $value = self::secureValue($filterName, $value, $baseQuery);
             if (null !== $value) {
-                $filters[$name] = $value;
+                $filters[$filterName] = $value;
             }
         }
 
         // If user input is empty, apply default query instead.
         if (empty($input)) {
-            foreach ($inputDefinition->getDefaultQuery() as $name => $value) {
-                $filters[$name] = self::secureValue($name, $value, $baseQuery);
+            foreach ($inputDefinition->getDefaultQuery() as $filterName => $value) {
+                $filters[$filterName] = self::secureValue($filterName, $value, $baseQuery);
             }
         }
 
@@ -111,18 +112,7 @@ class Query
      */
     public static function fromArbitraryArray(array $input): Query
     {
-        return self::fromArray(new InputDefinition([
-            'base_query' => [],
-            'limit_allowed' => true,
-            'limit_default' => Query::LIMIT_DEFAULT,
-            'limit_param' => 'limit',
-            'pager_enable' => true,
-            'pager_param' => 'page',
-            'sort_default_field' => '',
-            'sort_default_order' => Query::SORT_DESC,
-            'sort_field_param' => 'st',
-            'sort_order_param' => 'by',
-        ]), $input);
+        return self::fromArray(new InputDefinition(), $input);
     }
 
     /**
@@ -184,10 +174,10 @@ class Query
     /**
      * Normalize then restrict filter values to base query.
      */
-    private static function secureValue(string $name, $value, array $baseQuery): ?array
+    private static function secureValue(string $filterName, $value, array $baseQuery): ?array
     {
         $value = self::expandValue($value);
-        $allowed = self::expandValue($baseQuery[$name] ?? null);
+        $allowed = self::expandValue($baseQuery[$filterName] ?? null);
 
         if (null === $value || [] === $value) {
             return $value;
@@ -205,6 +195,38 @@ class Query
         }
 
         return $value;
+    }
+
+    /**
+     * Find range from query.
+     */
+    private function findProperties(): void
+    {
+        if (!$this->inputDefinition->isPropertyEnabled()) {
+            return;
+        }
+        $propertyParameter = $this->inputDefinition->getPropertyParameter();
+        if ($propertyParameter && ($input = ($this->others[$propertyParameter] ?? null))) {
+            // Parse value. Value is a comma separated list of names, each name
+            // can be prefixed by ! which means "hidden", otherwise it means
+            // displayed.
+            foreach (\explode(',', $input) as $candidate) {
+                $candidate = \trim($candidate);
+                if ('!' === $candidate || !$candidate) {
+                    // Invalid value.
+                    continue;
+                }
+                if ('!' === $candidate[0]) {
+                    // Prune values such as "! foo" with whitespace inside.
+                    $candidate = \trim(\substr($candidate, 1));
+                    if ($candidate) {
+                        $this->properties[$candidate] = false;
+                    }
+                } else {
+                    $this->properties[$candidate] = true;
+                }
+            }
+        }
     }
 
     /**
@@ -267,13 +289,13 @@ class Query
      *
      * @return string|string[]
      */
-    public function get(string $name, $default = '')
+    public function get(string $filterName, mixed $default = ''): mixed
     {
-        if (!\array_key_exists($name, $this->filters)) {
+        if (!\array_key_exists($filterName, $this->filters)) {
             return $default;
         }
 
-        $values = $this->filters[$name];
+        $values = $this->filters[$filterName];
 
         if ($values && \is_array($values) && 1 === \count($values)) {
             return \reset($values);
@@ -285,9 +307,36 @@ class Query
     /**
      * Does the filter is set.
      */
-    public function has(string $name): bool
+    public function has(string $filterName): bool
     {
-        return \array_key_exists($name, $this->filters);
+        return \array_key_exists($filterName, $this->filters);
+    }
+
+    /**
+     * Is the given property name explicitely displayed by user.
+     *
+     * @return null|bool
+     *   Null value means using view default setting, false means the user
+     *   explicitely asks for it to be displayed, false means the user asks
+     *   for it to be explicitely hidden.
+     */
+    public function isPropertyDisplayed(string $propertyName): ?bool
+    {
+        if (null !== ($value = ($this->properties[$propertyName] ?? null))) {
+            return (bool) $value;
+        }
+        return null;
+    }
+
+    /**
+     * Is the given property name explicitely displayed by user.
+     *
+     * @return array<string,bool>
+     *   Keys are properties name, values are display status.
+     */
+    public function getDisplayedProperties(): array
+    {
+        return $this->properties;
     }
 
     /**
@@ -308,7 +357,7 @@ class Query
     }
 
     /**
-     * Is a sort field set.
+     * Is a sorted property name set.
      */
     public function hasSortField(): bool
     {
@@ -316,7 +365,7 @@ class Query
     }
 
     /**
-     * Get sort field.
+     * Get sorted property name.
      */
     public function getSortField(): ?string
     {
@@ -371,6 +420,9 @@ class Query
         return $this->filters;
     }
 
+    /**
+     * Get this query as array.
+     */
     public function toArray(): array
     {
         return $this->filters + $this->others;

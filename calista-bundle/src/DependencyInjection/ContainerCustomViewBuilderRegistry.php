@@ -33,12 +33,12 @@ final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilde
     /**
      * {@inheritdoc}
      */
-    public function get(string $name): CustomViewBuilder
+    public function get(string $builderName): CustomViewBuilder
     {
-        $serviceId = $this->serviceIdList[$name] ?? null;
+        $serviceId = $this->serviceIdList[$builderName] ?? null;
 
         if (!$serviceId) {
-            return parent::get($name);
+            return parent::get($builderName);
         }
 
         return $this->container->get($serviceId);

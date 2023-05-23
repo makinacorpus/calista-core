@@ -96,7 +96,7 @@ class DefaultFilter extends AbstractFilter
     }
 
     /**
-     * Is arbitrary input field.
+     * Is an arbitrary input.
      */
     public function isArbitraryInput(): bool
     {

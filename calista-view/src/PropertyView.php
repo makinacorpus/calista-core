@@ -79,7 +79,7 @@ class PropertyView
             // If value accessor is a string, it will be called as an object
             // method, if it is a callbable, it will just be called.
             'value_accessor' => null,
-            // A virtual fields means the value will be computed by the display
+            // A virtual property means the value will be computed by the display
             // callback without the need of fetching the value first, this can
             // only be set to true when the display callback knows how to fetch
             // the property by itself.
@@ -108,11 +108,11 @@ class PropertyView
     /**
      * Create clone with new name.
      */
-    public function rename(string $name, ?string $label = null, array $optionsOverrides = []): self
+    public function rename(string $newName, ?string $label = null, array $optionsOverrides = []): self
     {
         $ret = clone $this;
         $ret->options = $optionsOverrides ?? $this->options;
-        $ret->name = $name;
+        $ret->name = $newName;
         $ret->label = $label ?? $this->label;
 
         return $ret;

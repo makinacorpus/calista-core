@@ -33,7 +33,7 @@ abstract class AbstractViewRenderer implements ViewRenderer
      */
     protected function createItemRow(View $view, $item): array
     {
-        return $this->propertyRenderer->computeItemRow($view, $item);
+        return $this->propertyRenderer->computeItemRowValues($view, $item);
     }
 
     /**

@@ -27,8 +27,8 @@ final class ContainerViewRendererRegistry implements ViewRendererRegistry, Conta
     /**
      * {@inheritdoc}
      */
-    public function getViewRenderer(string $name): ViewRenderer
+    public function getViewRenderer(string $rendererName): ViewRenderer
     {
-        return $this->container->get($this->serviceMap[$name] ?? $name);
+        return $this->container->get($this->serviceMap[$rendererName] ?? $rendererName);
     }
 }

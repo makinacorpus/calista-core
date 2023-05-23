@@ -42,23 +42,23 @@
 {% endblock %}
 
 {% block item_list %}
-<table class="table table-bordered table-hover table-sm">
-  <thead>
-    <tr>
-      {% for property in properties %}
-      {{ block('item_list_table_header') }}
+  <table class="table table-bordered table-hover table-sm">
+    <thead>
+      <tr>
+        {% for property in properties %}
+          {{ block('item_list_table_header') }}
+        {% endfor %}
+        {% if config.table_action is not null %}
+          <th></th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        {{ block('item') }}
       {% endfor %}
-      {% if config.table_action is not null %}
-      <th></th>
-      {% endif %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in items %}
-    {{ block('item') }}
-    {% endfor %}
-  </tbody>
-</table>
+    </tbody>
+  </table>
 {% endblock %}
 
 {% block page_content %}
@@ -119,6 +119,7 @@
 {% endblock %}
 
 {%- block page -%}
+  {{ block('behavior') }}
   <div class="calista-page {% block container_class %}{% endblock %}"
     {% if pageId %}data-page="{{ pageId|e }}"
     {% if view.route %}data-page-route="{{ calista_path(view.route, view.getRouteParameters(query.all)) }}"{% endif %}

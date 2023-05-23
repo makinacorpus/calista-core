@@ -35,22 +35,22 @@ class ViewManager implements ViewRendererRegistry
     /**
      * {@inheritdoc}
      */
-    public function getViewRenderer(string $name): ViewRenderer
+    public function getViewRenderer(string $rendererName): ViewRenderer
     {
-        return $this->viewRendererRegistry->getViewRenderer($name);
+        return $this->viewRendererRegistry->getViewRenderer($rendererName);
     }
 
     /**
      * Create view builder.
      *
-     * @param null|string $name
+     * @param null|string $builderName
      *   Pass here the custom view builder name if you wish to use one existing.
      * @param array<string, null|bool|int|string> $options
      *   Key-value pairs of options for this custom view builder.
      */
-    public function createViewBuilder(?string $name = null, array $options = [], ?string $format = null): ViewBuilder
+    public function createViewBuilder(?string $builderName = null, array $options = [], ?string $format = null): ViewBuilder
     {
-        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
+        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher, $this->viewBuilderPluginRegistry);
         $builder->format($format);
 
         foreach ($this->viewBuilderPluginRegistry->all() as $plugin) {
@@ -58,8 +58,8 @@ class ViewManager implements ViewRendererRegistry
             $plugin->preBuild($builder, $options, $format);
         }
 
-        if ($name) {
-            $this->customViewBuilderRegistry->get($name)->build($builder, $options, $format);
+        if ($builderName) {
+            $this->customViewBuilderRegistry->get($builderName)->build($builder, $options, $format);
         }
 
         foreach ($this->viewBuilderPluginRegistry->all() as $plugin) {

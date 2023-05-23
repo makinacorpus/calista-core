@@ -20,10 +20,10 @@ interface DatasourceInterface
     public function getFilters(): array;
 
     /**
-     * Get sort fields.
+     * Get sortable properties.
      *
      * @return string
-     *   Keys are fields, values are human readable labels.
+     *   Keys are property names, values are human readable labels.
      */
     public function getSorts(): array;
 
