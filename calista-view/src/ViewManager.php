@@ -50,7 +50,7 @@ class ViewManager implements ViewRendererRegistry
      */
     public function createViewBuilder(?string $builderName = null, array $options = [], ?string $format = null): ViewBuilder
     {
-        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher);
+        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher, $this->viewBuilderPluginRegistry);
         $builder->format($format);
 
         foreach ($this->viewBuilderPluginRegistry->all() as $plugin) {

@@ -16,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 final class ViewBuilder extends QueryBuilder
 {
     private ViewRendererRegistry $viewRendererRegistry;
+    private ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null;
 
     private string $rendererName = 'twig';
     private array $viewOptions = [];
@@ -43,11 +44,13 @@ final class ViewBuilder extends QueryBuilder
 
     public function __construct(
         ViewRendererRegistry $viewRendererRegistry,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null
     ) {
         parent::__construct($eventDispatcher);
 
         $this->viewRendererRegistry = $viewRendererRegistry;
+        $this->viewBuilderPluginRegistry = $viewBuilderPluginRegistry;
     }
 
     /**
@@ -492,6 +495,13 @@ final class ViewBuilder extends QueryBuilder
     public function build(): ViewBuilderRenderer
     {
         $this->dieIfLocked();
+
+        if ($this->viewBuilderPluginRegistry) {
+            foreach ($this->viewBuilderPluginRegistry->all() as $plugin) {
+                \assert($plugin instanceof ViewBuilderPlugin);
+                $plugin->preBuildView($this);
+            }
+        }
 
         $this->eventDispatcher->dispatch(new ViewBuilderEvent($this), ViewBuilderEvent::EVENT_BUILD);
 

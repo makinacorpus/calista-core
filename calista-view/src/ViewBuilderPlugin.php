@@ -29,7 +29,15 @@ interface ViewBuilderPlugin
     /**
      * Called after custom view builder is built.
      *
-     * See preBuild() for documentation.
+     * @see self::preInit()
+     *   For documentation.
      */
     public function postBuild(ViewBuilder $builder, array $options = [], ?string $format = null): void;
+
+    /**
+     * Called during view builder is building.
+     *
+     * See preBuild() for documentation.
+     */
+    public function preBuildView(ViewBuilder $builder): void;
 }
