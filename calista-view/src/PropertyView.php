@@ -38,7 +38,7 @@ class PropertyView
     /**
      * Return a new instance with overriden options.
      */
-    public function withOptions(array $overrides): self
+    public function withOptions(array $overrides): static
     {
         if (!$overrides) {
             return $this;
@@ -108,12 +108,15 @@ class PropertyView
     /**
      * Create clone with new name.
      */
-    public function rename(string $newName, ?string $label = null, array $optionsOverrides = []): self
+    public function rename(string $newName, ?string $label = null, array $optionsOverrides = []): static
     {
+        if ($label) {
+            $optionsOverrides['label'] = $label;
+        }
+
         $ret = clone $this;
-        $ret->options = $optionsOverrides ?? $this->options;
+        $ret->options = $optionsOverrides + $this->options;
         $ret->name = $newName;
-        $ret->label = $label ?? $this->label;
 
         return $ret;
     }

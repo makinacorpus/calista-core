@@ -22,7 +22,7 @@ interface DatasourceInterface
     /**
      * Get sortable properties.
      *
-     * @return string
+     * @return string[]
      *   Keys are property names, values are human readable labels.
      */
     public function getSorts(): array;

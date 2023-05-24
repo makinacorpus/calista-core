@@ -52,7 +52,9 @@ class InputDefinition
                 if (!\is_array($choices)) {
                     $choices = [$choices];
                 }
-                $filter->removeChoicesNotIn($choices);
+                if ($filter instanceof DefaultFilter) {
+                    $filter->removeChoicesNotIn($choices);
+                }
             }
             $this->filterLabels[$filterName] = $filter->getTitle();
         }

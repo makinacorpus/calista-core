@@ -219,8 +219,8 @@ class ViewDefinition
     /**
      * Get enabled filters.
      *
-     * @return null|string[]
-     *   Null means enable everything.
+     * @return string[]
+     *   Empty means enable everything.
      */
     public function getEnabledFilters(): array
     {

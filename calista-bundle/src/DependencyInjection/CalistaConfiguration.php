@@ -17,7 +17,7 @@ final class CalistaConfiguration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('calista');
         $rootNode = $treeBuilder->getRootNode();
 
-        $rootNode
+        $rootNode /* @phpstan-ignore-line */
             ->children()
                 ->arrayNode('config')
                     ->children()

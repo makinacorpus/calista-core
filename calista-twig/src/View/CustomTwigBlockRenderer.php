@@ -19,6 +19,7 @@ final class CustomTwigBlockRenderer implements TwigBlockRenderer
     public function __construct(TwigBlockRenderer $blockRenderer, string $template)
     {
         $this->blockRenderer = $blockRenderer;
+        /* @phpstan-ignore-next-line */
         $this->loaded = $blockRenderer->getEnvironment()->load($template);
     }
 
@@ -35,6 +36,7 @@ final class CustomTwigBlockRenderer implements TwigBlockRenderer
      */
     public function renderBlock(string $blockName, array $arguments = []): string
     {
+        /* @phpstan-ignore-next-line */
         $arguments += $this->blockRenderer->getEnvironment()->getGlobals();
 
         if ($this->loaded->hasBlock($blockName, $arguments)) {

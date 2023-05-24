@@ -29,7 +29,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function setAttribute(string $attributeName, ?string $value): self
+    final public function setAttribute(string $attributeName, ?string $value): static
     {
         $this->attributes[$attributeName] = $value;
 
@@ -39,7 +39,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function setAttributes(array $attributes): self
+    final public function setAttributes(array $attributes): static
     {
         $this->attributes = $attributes;
 
@@ -65,7 +65,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function setMultiple(bool $toggle = true): self
+    final public function setMultiple(bool $toggle = true): static
     {
         $this->multiple = $toggle;
 
@@ -83,7 +83,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function setMandatory(bool $toggle = true): self
+    final public function setMandatory(bool $toggle = true): static
     {
         $this->mandatory = (bool)$toggle;
 
@@ -163,7 +163,7 @@ abstract class AbstractFilter implements Filter
     /**
      * {@inheritdoc}
      */
-    final public function setPropertyName(string $propertyName): self
+    final public function setPropertyName(string $propertyName): static
     {
         $this->propertyName = $propertyName;
 

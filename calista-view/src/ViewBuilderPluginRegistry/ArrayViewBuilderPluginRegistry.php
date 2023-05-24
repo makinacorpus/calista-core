@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
 
+use MakinaCorpus\Calista\View\ViewBuilderPlugin;
 use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
 
 final class ArrayViewBuilderPluginRegistry implements ViewBuilderPluginRegistry
 {
-    /** @param array<string,ViewBuilderPlugin */
+    /** @var array<string,ViewBuilderPlugin> */
     private array $viewBuilderPlugins = [];
 
     /**

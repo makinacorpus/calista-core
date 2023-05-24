@@ -1,0 +1,8 @@
+parameters:
+    level: 3 
+    paths:
+        - calista-bundle/src
+        - calista-datasource/src
+        - calista-query/src
+        - calista-twig/src
+        - calista-view/src

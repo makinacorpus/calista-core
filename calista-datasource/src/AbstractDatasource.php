@@ -37,7 +37,6 @@ abstract class AbstractDatasource implements DatasourceInterface
      * Create default result iterator with the provided information
      *
      * @param array|\Traversable $items
-     * @param null|int $totalCount
      *
      * @return DefaultDatasourceResult
      */

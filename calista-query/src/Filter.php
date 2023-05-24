@@ -56,14 +56,14 @@ interface Filter
      *
      * @return $this
      */
-    public function setAttribute(string $attributeName, ?string $value): self;
+    public function setAttribute(string $attributeName, ?string $value): static;
 
     /**
      * Set arbitrary attributes over the widget.
      *
      * @return $this
      */
-    public function setAttributes(array $attributes): self;
+    public function setAttributes(array $attributes): static;
 
     /**
      * Get a single attribute value.
@@ -80,7 +80,7 @@ interface Filter
      *
      * @return $this
      */
-    public function setMultiple(bool $toggle = true): self;
+    public function setMultiple(bool $toggle = true): static;
 
     /**
      * Does this filter allows multiple input.
@@ -92,7 +92,7 @@ interface Filter
      *
      * @return $this
      */
-    public function setMandatory(bool $toggle = true): self;
+    public function setMandatory(bool $toggle = true): static;
 
     /**
      * Is this filter mandatory.
@@ -142,7 +142,7 @@ interface Filter
      *
      * @return $this
      */
-    public function setPropertyName(string $propertyName): self;
+    public function setPropertyName(string $propertyName): static;
 
     /**
      * Get associated property.

@@ -26,7 +26,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set the "boolean" toggle.
      */
-    public function setBoolean(bool $toggle = true): self
+    public function setBoolean(bool $toggle = true): static
     {
         $this->boolean = (bool)$toggle;
 
@@ -44,7 +44,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set the "date" mode.
      */
-    public function setHidden(bool $toggle = true): self
+    public function setHidden(bool $toggle = true): static
     {
         $this->isHidden = $toggle;
 
@@ -62,7 +62,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set the "date" mode.
      */
-    public function setIsDate(bool $toggle = true): self
+    public function setIsDate(bool $toggle = true): static
     {
         $this->isDate = $toggle;
 
@@ -80,7 +80,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set the "None/All/N/A" option.
      */
-    public function setNoneOption(?string $value): self
+    public function setNoneOption(?string $value): static
     {
         $this->noneOption = $value;
 
@@ -106,7 +106,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * Set or unset the arbitrary input flag.
      */
-    public function setArbitraryInput(bool $toggle = true): self
+    public function setArbitraryInput(bool $toggle = true): static
     {
         $this->arbitraryInput = $toggle;
 
@@ -125,7 +125,7 @@ class DefaultFilter extends AbstractFilter
      *
      * @return $this
      */
-    public function setChoicesMap(array $choicesMap): self
+    public function setChoicesMap(array $choicesMap): static
     {
         $this->isSafe = true;
         $this->choicesMap = $choicesMap;
@@ -196,7 +196,7 @@ class DefaultFilter extends AbstractFilter
     /**
      * As facet like links instead of form checkbox.
      */
-    final public function setAsLinks(bool $toggle = true): self
+    final public function setAsLinks(bool $toggle = true): static
     {
         $this->asLinks = $toggle;
 

@@ -144,9 +144,6 @@ class PageExtension extends AbstractExtension
      *   The view object.
      * @param object $item
      *   Item on which to find the property
-     * @param mixed[] $options
-     *   Display options for the property, dropped if the $property parameter
-     *   is an instance of PropertyView
      *
      * @return PropertyValue[]
      */

@@ -56,7 +56,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function renderer(string $rendererName, array $extraOptions = []): self
+    public function renderer(string $rendererName, array $extraOptions = []): static
     {
         $this->dieIfLocked();
 
@@ -75,7 +75,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function filename(?string $filename): self
+    public function filename(?string $filename): static
     {
         $this->dieIfLocked();
 
@@ -104,7 +104,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function format(?string $format): self
+    public function format(?string $format): static
     {
         $this->dieIfLocked();
 
@@ -130,7 +130,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function export(bool $toggle = true): self
+    public function export(bool $toggle = true): static
     {
         $this->dieIfLocked();
 
@@ -152,7 +152,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function extra(string $name, $value): self
+    public function extra(string $name, $value): static
     {
         $this->dieIfLocked();
 
@@ -164,7 +164,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function enablePager(bool $enable = true, string $parameterName = 'page'): self
+    public function enablePager(bool $enable = true, string $parameterName = 'page'): static
     {
         $this->dieIfLocked();
 
@@ -177,7 +177,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function enableFilters(string ... $filterNames): self
+    public function enableFilters(string ... $filterNames): static
     {
         $this->dieIfLocked();
 
@@ -196,7 +196,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function disableFilter(string $filterName): self
+    public function disableFilter(string $filterName): static
     {
         $this->dieIfLocked();
 
@@ -214,7 +214,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function showPager(bool $enable = true): self
+    public function showPager(bool $enable = true): static
     {
         $this->dieIfLocked();
 
@@ -226,7 +226,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function showFilters(bool $enable = true): self
+    public function showFilters(bool $enable = true): static
     {
         $this->dieIfLocked();
 
@@ -238,7 +238,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function showSort(bool $enable = true): self
+    public function showSort(bool $enable = true): static
     {
         $this->dieIfLocked();
 
@@ -250,7 +250,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function defaultPropertyView(array $options): self
+    public function defaultPropertyView(array $options): static
     {
         $this->dieIfLocked();
 
@@ -268,7 +268,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function preload($callback): self
+    public function preload($callback): static
     {
         $this->dieIfLocked();
 
@@ -289,7 +289,7 @@ final class ViewBuilder extends QueryBuilder
      *   hence first callback parameter will be the object, second the property
      *   name.
      */
-    public function property(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): self
+    public function property(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): static
     {
         $this->dieIfLocked();
 
@@ -323,7 +323,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function propertyRaw(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): self
+    public function propertyRaw(string $propertyName, $property = [], ?string $label = null, bool $hidden = false): static
     {
         $this->dieIfLocked();
 
@@ -363,7 +363,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function hiddenProperty(string $propertyName, $property = [], ?string $label = null): self
+    public function hiddenProperty(string $propertyName, $property = [], ?string $label = null): static
     {
         $this->property($propertyName, $property, $label, true);
 
@@ -375,7 +375,7 @@ final class ViewBuilder extends QueryBuilder
      *
      * @return $this
      */
-    public function propertyLabel(string $propertyName, string $label): self
+    public function propertyLabel(string $propertyName, string $label): static
     {
         $this->dieIfLocked();
 
@@ -387,7 +387,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function viewOptions(array $options): self
+    public function viewOptions(array $options): static
     {
         $this->dieIfLocked();
 
@@ -400,7 +400,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function template(string $templateName): self
+    public function template(string $templateName): static
     {
         $this->dieIfLocked();
 
@@ -412,7 +412,7 @@ final class ViewBuilder extends QueryBuilder
     /**
      * @return $this
      */
-    public function route(string $route, array $parameters = []): self
+    public function route(string $route, array $parameters = []): static
     {
         $this->dieIfLocked();
 
@@ -425,6 +425,11 @@ final class ViewBuilder extends QueryBuilder
     public function getRoute(): ?string
     {
         return $this->route;
+    }
+
+    public function getRouteParameters(): array
+    {
+        return $this->routeParameters;
     }
 
     /**

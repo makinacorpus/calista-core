@@ -18,7 +18,7 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
      * Default constructor
      *
      * @param iterable|callable $items
-     * @param array PropertyDescription[]
+     * @param PropertyDescription[] $properties
      */
     public function __construct($items = [], array $properties = [])
     {

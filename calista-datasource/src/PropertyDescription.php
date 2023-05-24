@@ -35,7 +35,7 @@ class PropertyDescription
         $this->name = $name;
         $this->label = $label;
         $this->type = $type;
-        $this->defaultViewOptions = $defaultViewOptions ?? [];
+        $this->defaultViewOptions = $defaultViewOptions;
     }
 
     /**
@@ -44,10 +44,10 @@ class PropertyDescription
      * @param string $label
      *   If set to null, label will be unchanged.
      */
-    public function rename(string $newName, ?string $label = null): self
+    public function rename(string $newName, ?string $label = null, array $optionsOverrides = []): static
     {
         $ret = clone $this;
-        $ret->options = $this->options;
+        $ret->defaultViewOptions = $optionsOverrides + $this->defaultViewOptions;
         $ret->name = $newName;
         $ret->label = $label ?? $this->label;
 

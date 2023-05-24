@@ -13,7 +13,7 @@ final class ContainerViewRendererRegistry implements ViewRendererRegistry, Conta
 {
     use ContainerAwareTrait;
 
-    /** @param array<string,string> */
+    /** @var array<string,string> */
     private array $serviceMap = [];
 
     /**

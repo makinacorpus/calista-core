@@ -59,7 +59,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function defaultQuery(array $values): self
+    public function defaultQuery(array $values): static
     {
         $this->dieIfLocked();
 
@@ -73,7 +73,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function baseQuery(array $values): self
+    public function baseQuery(array $values): static
     {
         $this->dieIfLocked();
 
@@ -87,7 +87,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): self
+    public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): static
     {
         $this->dieIfLocked();
 
@@ -103,7 +103,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function limit(int $limit): self
+    public function limit(int $limit): static
     {
         $this->dieIfLocked();
 
@@ -119,11 +119,11 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function sort(string $propertyName, ?string $label = null): self
+    public function sort(string $propertyName, ?string $label = null): static
     {
         $this->dieIfLocked();
 
-        $this->inputOptions['sort_allowed_list'][$propertyName] = $propertyName ?? $label;
+        $this->inputOptions['sort_allowed_list'][$propertyName] = $label ?? $propertyName;
 
         return $this;
     }
@@ -135,7 +135,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function sorts(array $sorts): self
+    public function sorts(array $sorts): static
     {
         foreach ($sorts as $propertyName => $label) {
             $this->sort($propertyName, $label);
@@ -149,7 +149,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filter(Filter $filter): self
+    public function filter(Filter $filter): static
     {
         $this->dieIfLocked();
 
@@ -163,7 +163,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterArbitrary(string $filterName, ?string $title): self
+    public function filterArbitrary(string $filterName, ?string $title): static
     {
         $this->filter(
             $this
@@ -179,7 +179,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterChoices(string $filterName, ?string $title, array $choices, ?string $noneOption = null): self
+    public function filterChoices(string $filterName, ?string $title, array $choices, ?string $noneOption = null): static
     {
         $this->filter(
             $this
@@ -196,7 +196,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filterDate(string $filterName, ?string $title): self
+    public function filterDate(string $filterName, ?string $title): static
     {
         $this->filter(
             $this
@@ -212,7 +212,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function filters(iterable $filters): self
+    public function filters(iterable $filters): static
     {
         $this->dieIfLocked();
 
@@ -228,7 +228,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): self
+    public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): static
     {
         $this->dieIfLocked();
 
@@ -247,7 +247,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): self
+    public function defaultSortDesc(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by'): static
     {
         $this->defaultSort($propertyName, $propertyParameterName, $orderParameterName, Query::SORT_DESC);
 
@@ -259,7 +259,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function request(Request $request): self
+    public function request(Request $request): static
     {
         $this->dieIfLocked();
 
@@ -282,36 +282,12 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function data($data): self
+    public function data($data): static
     {
         $this->dieIfLocked();
 
         // Normalizing is done later, once all data is set.
         $this->data = $data;
-
-        return $this;
-    }
-
-    /**
-     * Set a preload callback.
-     *
-     * @param array|callable $callback
-     *   Either an arbitrary array of values that will override all items
-     *   values, or a callable whose first argument will be item, that will
-     *   be execute for each row, allowing you to precompute a set of values.
-     *   Callback return must be an array whose names are properties names.
-     *
-     * @return $this
-     */
-    public function preload($callback): self
-    {
-        $this->dieIfLocked();
-
-        if (!\is_array($callback) && !\is_callable($callback)) {
-            throw new \InvalidArgumentException("Preload \$callback must be an array or a callable.");
-        }
-
-        $this->viewOptions['preload'] = $callback;
 
         return $this;
     }

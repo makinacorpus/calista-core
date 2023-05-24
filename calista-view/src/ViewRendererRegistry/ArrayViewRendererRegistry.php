@@ -9,7 +9,7 @@ use MakinaCorpus\Calista\View\ViewRendererRegistry;
 
 final class ArrayViewRendererRegistry implements ViewRendererRegistry
 {
-    /** @param array<string,ViewRenderer> */
+    /** @var array<string,ViewRenderer> */
     private array $viewRenderers = [];
 
     /**

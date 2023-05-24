@@ -60,6 +60,7 @@ abstract class AbstractViewRenderer implements ViewRenderer
         if (\file_exists($filename) && 0 !== \filesize($filename)) {
             throw new \InvalidArgumentException(\sprintf("'%s' not overwrite existing file", $filename));
         }
+        $resource = null;
         try {
             if (!$resource = \fopen($filename, "wb+")) {
                 throw new \InvalidArgumentException(\sprintf("'%s' could not open file for writing", $filename));

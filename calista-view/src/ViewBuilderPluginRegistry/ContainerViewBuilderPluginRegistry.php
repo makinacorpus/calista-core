@@ -12,7 +12,7 @@ final class ContainerViewBuilderPluginRegistry implements ViewBuilderPluginRegis
 {
     use ContainerAwareTrait;
 
-    /** @param array<string,string> */
+    /** @var array<string,string> */
     private array $serviceMap = [];
 
     /**

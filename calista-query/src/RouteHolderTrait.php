@@ -25,7 +25,7 @@ trait RouteHolderTrait /* implements RouteHolder */
      *
      * @return $this
      */
-    public function setRoute(string $route, array $parameters = []): self
+    public function setRoute(string $route, array $parameters = []): static
     {
         $this->route = $route;
         $this->routeParameters = $parameters;
