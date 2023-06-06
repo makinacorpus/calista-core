@@ -224,7 +224,7 @@ class ViewDefinition
      */
     public function getEnabledFilters(): array
     {
-        return $this->isFiltersEnabled() ? $this->options['enabled_filters'] : [];
+        return $this->isFiltersEnabled() ? ($this->options['enabled_filters'] ?? []) : [];
     }
 
     /**
