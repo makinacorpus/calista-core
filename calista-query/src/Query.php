@@ -45,11 +45,17 @@ class Query
         $this->findSort();
 
         // Now for security, prevent anything that is not a filter from
-        // existing into the filter array
+        // existing into the filter array.
         foreach (\array_keys($this->filters) as $filterName) {
             if (!$inputDefinition->isFilterAllowed($filterName)) {
                 unset($this->filters[$filterName]);
             }
+        }
+
+        // If filter list is empty, nothing is set, simply set defaults
+        // instead, a null or empty filter must be explicitely set.
+        if (!$this->filters) {
+            $this->filters = $inputDefinition->getDefaultQuery();
         }
     }
 
