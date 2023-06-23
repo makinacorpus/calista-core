@@ -41,4 +41,12 @@ class ClassNameCustomViewBuilderRegistry implements CustomViewBuilderRegistry
             throw new \InvalidArgumentException(\sprintf("Custom view builder with class name '%s' does not exist.", $builderName));
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function list(): iterable
+    {
+        return [];
+    }
 }

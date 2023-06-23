@@ -1,5 +1,10 @@
 services:
 
+    calista.command.view_builder:
+        class: MakinaCorpus\Calista\Bridge\Symfony\Command\ViewBuilderCommand
+        arguments: ['@calista.bundle.custom_view_renderer_registry', '@calista.view.manager']
+        tags: ['console.command']
+
     calista.view.csv:
         public: true
         class: MakinaCorpus\Calista\View\ViewRenderer\CsvStreamViewRenderer

@@ -40,6 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
 class QueryBuilder
 {
     protected EventDispatcherInterface $eventDispatcher;
+    protected bool $requestConsumed = false;
     protected bool $locked = false;
     protected /* null|iterable|callable */ $data = null;
     protected ?Request $request = null;
@@ -61,7 +62,7 @@ class QueryBuilder
      */
     public function defaultQuery(array $values): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['default_query'] = $values;
 
@@ -75,7 +76,7 @@ class QueryBuilder
      */
     public function baseQuery(array $values): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['base_query'] = $values;
 
@@ -89,7 +90,7 @@ class QueryBuilder
      */
     public function allowLimitChange(int $max = Query::LIMIT_MAX, string $parameterName = 'limit'): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['limit_allowed'] = true;
         $this->inputOptions['limit_max'] = $max;
@@ -105,7 +106,7 @@ class QueryBuilder
      */
     public function limit(int $limit): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['limit_default'] = $limit;
 
@@ -121,7 +122,7 @@ class QueryBuilder
      */
     public function sort(string $propertyName, ?string $label = null): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['sort_allowed_list'][$propertyName] = $label ?? $propertyName;
 
@@ -151,7 +152,7 @@ class QueryBuilder
      */
     public function filter(Filter $filter): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['filter_list'][] = $filter;
 
@@ -214,7 +215,7 @@ class QueryBuilder
      */
     public function filters(iterable $filters): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         foreach ($filters as $filter) {
             $this->filter($filter);
@@ -230,7 +231,7 @@ class QueryBuilder
      */
     public function defaultSort(string $propertyName, string $propertyParameterName = 'st', string $orderParameterName = 'by', string $order = Query::SORT_ASC): static
     {
-        $this->dieIfLocked();
+        $this->dieIfInputDefinitionBuilt();
 
         $this->inputOptions['sort_default_field'] = $propertyName;
         $this->inputOptions['sort_default_order'] = $order;
@@ -261,7 +262,7 @@ class QueryBuilder
      */
     public function request(Request $request): static
     {
-        $this->dieIfLocked();
+        $this->dieIfRequestConsumed();
 
         // Normalizing is done later, once all data is set.
         $this->request = $request;
@@ -299,8 +300,8 @@ class QueryBuilder
      */
     public function getQuery(): Query
     {
-        if (!$this->locked) {
-            $this->locked = true;
+        if (!$this->requestConsumed) {
+            $this->requestConsumed = true;
         }
         if ($this->builtQuery) {
             return $this->builtQuery;
@@ -322,9 +323,6 @@ class QueryBuilder
      */
     public function getInputDefinition(): InputDefinition
     {
-        if (!$this->locked) {
-            $this->locked = true;
-        }
         if ($this->builtInputDefinition) {
             return $this->builtInputDefinition;
         }
@@ -359,6 +357,9 @@ class QueryBuilder
      */
     public function getItems(): iterable
     {
+        if (!$this->locked) {
+            $this->locked = true;
+        }
         if (null === $this->data) {
             throw new \BadMethodCallException("Data was not set, you cannot fetch items.");
         }
@@ -380,6 +381,26 @@ class QueryBuilder
     protected function createFilter(string $filterName, ?string $title = null, ?string $description = null): DefaultFilter
     {
         return new DefaultFilter($filterName, $title, $description);
+    }
+
+    /**
+     * Raise an exception if current builder is locked.
+     */
+    protected function dieIfInputDefinitionBuilt(): void
+    {
+        if ($this->builtInputDefinition) {
+            throw new \BadMethodCallException("You cannot modify an already consumed view builder.");
+        }
+    }
+
+    /**
+     * Raise an exception if current builder is locked.
+     */
+    protected function dieIfRequestConsumed(): void
+    {
+        if ($this->requestConsumed) {
+            throw new \BadMethodCallException("You cannot modify an already consumed view builder.");
+        }
     }
 
     /**

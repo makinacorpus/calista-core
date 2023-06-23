@@ -43,4 +43,12 @@ final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilde
 
         return $this->container->get($serviceId);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function list(): iterable
+    {
+        return \array_keys($this->serviceIdList);
+    }
 }
