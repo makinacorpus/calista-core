@@ -45,7 +45,7 @@ final class EmptyDatasource extends AbstractDatasource
     /**
      * {@inheritdoc}
      */
-    public function getItems(Query $query): DatasourceResultInterface
+    public function getItems(Query $query): DatasourceResult
     {
         return new DefaultDatasourceResult();
     }

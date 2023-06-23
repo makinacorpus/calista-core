@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View\Tests\Mock;
 
 use MakinaCorpus\Calista\Datasource\AbstractDatasource;
-use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
+use MakinaCorpus\Calista\Datasource\DatasourceResult;
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
 use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Query;
@@ -57,7 +57,7 @@ class IntArrayDatasource extends AbstractDatasource
     /**
      * {@inheritdoc}
      */
-    public function getItems(Query $query): DatasourceResultInterface
+    public function getItems(Query $query): DatasourceResult
     {
         $limit = $query->getLimit();
         $offset = $query->getOffset();

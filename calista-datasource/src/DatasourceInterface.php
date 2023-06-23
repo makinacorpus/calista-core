@@ -35,5 +35,5 @@ interface DatasourceInterface
      * instance will really display items, since it may change the display
      * depending upon current context
      */
-    public function getItems(Query $query): DatasourceResultInterface;
+    public function getItems(Query $query): DatasourceResult;
 }

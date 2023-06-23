@@ -7,7 +7,7 @@ namespace MakinaCorpus\Calista\Datasource;
 /**
  * Basics for result iterators
  */
-trait DatasourceResultTrait /* implements DatasourceResultInterface */
+trait DatasourceResultTrait /* implements DatasourceResult */
 {
     /** @var PropertyDescription[] */
     private array $properties = [];

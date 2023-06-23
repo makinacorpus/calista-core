@@ -7,7 +7,7 @@ namespace MakinaCorpus\Calista\Datasource;
 /**
  * Basics for the datasource result interface implementation.
  */
-class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInterface
+class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResult
 {
     use DatasourceResultTrait;
 
@@ -49,9 +49,9 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResultInt
     /**
      * Wrap incomming items.
      */
-    public static function wrap($items): DatasourceResultInterface
+    public static function wrap($items): DatasourceResult
     {
-        if ($items instanceof DatasourceResultInterface) {
+        if ($items instanceof DatasourceResult) {
             return $items;
         }
 

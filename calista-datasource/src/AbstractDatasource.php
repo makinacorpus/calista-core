@@ -28,7 +28,7 @@ abstract class AbstractDatasource implements DatasourceInterface
     /**
      * Create an empty result
      */
-    protected function createEmptyResult(): DatasourceResultInterface
+    protected function createEmptyResult(): DatasourceResult
     {
         return new DefaultDatasourceResult();
     }
@@ -40,7 +40,7 @@ abstract class AbstractDatasource implements DatasourceInterface
      *
      * @return DefaultDatasourceResult
      */
-    protected function createResult($items, int $limit = 0, int $total = 0, int $page = 1): DatasourceResultInterface
+    protected function createResult($items, int $limit = 0, int $total = 0, int $page = 1): DatasourceResult
     {
         if (!\is_array($items) && !$items instanceof \Traversable && !\is_callable($items)) {
             throw new \LogicException("given items are nor an array nor a \Traversable instance nor a callable");

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
-use MakinaCorpus\Calista\Datasource\DatasourceResultInterface;
+use MakinaCorpus\Calista\Datasource\DatasourceResult;
 use MakinaCorpus\Calista\Datasource\DefaultDatasourceResult;
 use MakinaCorpus\Calista\Datasource\PropertyDescription;
 use MakinaCorpus\Calista\Query\Query;
@@ -23,13 +23,13 @@ final class View implements RouteHolder
     use RouteHolderTrait;
 
     private ViewDefinition $definition;
-    private DatasourceResultInterface $items;
+    private DatasourceResult $items;
     private Query $query;
     private ?array $normalizedProperties = null;
 
     /**
      * @param null|array|ViewDefinition $definition
-     * @param iterable|callable|DatasourceResultInterface $items
+     * @param iterable|callable|DatasourceResult $items
      */
     public function __construct($definition, $items, ?Query $query = null)
     {
@@ -41,7 +41,7 @@ final class View implements RouteHolder
     /**
      * Create arbitrary instance from given items.
      *
-     * @param iterable|callable|DatasourceResultInterface $items
+     * @param iterable|callable|DatasourceResult $items
      */
     public static function createFromItems($items): self
     {
@@ -61,7 +61,7 @@ final class View implements RouteHolder
         return $this->definition;
     }
 
-    public function getResult(): DatasourceResultInterface
+    public function getResult(): DatasourceResult
     {
         return $this->items;
     }
