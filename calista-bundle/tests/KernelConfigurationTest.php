@@ -36,12 +36,10 @@ final class KernelConfigurationTest extends TestCase
         $propertyAccessorDefinition = new Definition();
         $propertyAccessorDefinition->setClass(PropertyAccessor::class);
         $propertyAccessorDefinition->setFactory(PropertyAccess::class . '::createPropertyAccessor');
-        $propertyAccessorDefinition->setPublic(false);
         $container->setDefinition('property_accessor', $propertyAccessorDefinition);
 
         $eventDispatcherDefinition = new Definition();
         $eventDispatcherDefinition->setClass(EventDispatcher::class);
-        $eventDispatcherDefinition->setPublic(false);
         $container->setDefinition('event_dispatcher', $eventDispatcherDefinition);
 
         $twigLoaderDefinition = new Definition();
@@ -51,7 +49,6 @@ final class KernelConfigurationTest extends TestCase
 
         $routerDefinition = new Definition();
         $routerDefinition->setClass(UrlGeneratorInterface::class);
-        $routerDefinition->setPublic(false);
         $container->setDefinition('router', $routerDefinition);
 
         // Define a minimal custom Twig service.

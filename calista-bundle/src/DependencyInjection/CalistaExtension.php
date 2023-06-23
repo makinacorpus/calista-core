@@ -15,6 +15,7 @@ use MakinaCorpus\Calista\View\PropertyRenderer;
 use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
 use MakinaCorpus\Calista\View\ViewManager;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
+use MakinaCorpus\Calista\View\CustomViewBuilder\ContainerCustomViewBuilderRegistry;
 use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry\ContainerViewBuilderPluginRegistry;
 use MakinaCorpus\Calista\View\ViewRendererRegistry\ContainerViewRendererRegistry;
 use Symfony\Component\Config\FileLocator;
@@ -69,9 +70,7 @@ final class CalistaExtension extends Extension
         $serviceId = 'calista.bundle.custom_view_renderer_registry';
         $definition = new Definition();
         $definition->setClass(ContainerCustomViewBuilderRegistry::class);
-        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
         $definition->setArguments([[]]);
-        $definition->setPublic(false);
         $container->setDefinition($serviceId, $definition);
         $container->setAlias(CustomViewBuilder::class, $serviceId);
     }
@@ -157,13 +156,11 @@ final class CalistaExtension extends Extension
         $definition = new Definition();
         $definition->setClass(DefaultTwigBlockRenderer::class);
         $definition->setArguments([new Reference('twig'), $defaultTemplates]);
-        $definition->setPublic(false);
         $container->setDefinition('calista.twig.default_block_renderer', $definition);
 
         $definition = new Definition();
         $definition->setClass(BlockExtension::class);
         $definition->setArguments([new Reference('calista.twig.default_block_renderer')]);
-        $definition->setPublic(false);
         $definition->addTag('twig.extension');
         $container->setDefinition('calista.twig.block_extension', $definition);
     }
@@ -174,8 +171,6 @@ final class CalistaExtension extends Extension
         $definition->setClass(ContainerViewBuilderPluginRegistry::class);
         // Will be populated using a compiler pass.
         $definition->setArguments([[]]);
-        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
-        $definition->setPublic(false);
 
         $container->setDefinition('calista.bundle.view_builder_plugin_registry.container', $definition);
         $container->setAlias('calista.bundle.view_builder_plugin_registry', 'calista.bundle.view_builder_plugin_registry.container');
@@ -195,8 +190,6 @@ final class CalistaExtension extends Extension
         $definition->setClass(ContainerViewRendererRegistry::class);
         // Will be populated using a compiler pass.
         $definition->setArguments([[]]);
-        $definition->addMethodCall('setContainer', [new Reference('service_container')]);
-        $definition->setPublic(false);
 
         $container->setDefinition('calista.view.renderer_registry.container', $definition);
         $container->setAlias('calista.view.renderer_registry', 'calista.view.renderer_registry.container');
@@ -214,7 +207,6 @@ final class CalistaExtension extends Extension
             new Reference('calista.bundle.view_builder_plugin_registry'),
             new Reference('calista.bundle.datasource_plugin_registry'),
         ]);
-        $definition->setPublic(false);
 
         $container->setDefinition('calista.view.manager', $definition);
         $container->setAlias(ViewManager::class, 'calista.view.manager');
@@ -225,7 +217,6 @@ final class CalistaExtension extends Extension
         $definition = new Definition();
         $definition->setClass(PropertyRenderer::class);
         $definition->setArguments([new Reference('property_accessor')]);
-        $definition->setPublic(false);
 
         $container->setDefinition('calista.property_renderer', $definition);
         $container->setAlias(PropertyRenderer::class, 'calista.property_renderer');

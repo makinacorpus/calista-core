@@ -6,7 +6,9 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler;
 
 use MakinaCorpus\Calista\View\CustomViewBuilder;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 
 /**
  * Registers custom view builders.
@@ -26,6 +28,7 @@ final class CustomViewBuilderRegisterPass implements CompilerPassInterface
         $containerRegistryDefinition = $container->getDefinition('calista.bundle.custom_view_renderer_registry');
 
         $serviceMap = [];
+        $locatorMap = [];
         foreach ($container->findTaggedServiceIds('calista.view_builder') as $id => $attributes) {
             $viewRendererDefinition = $container->getDefinition($id);
 
@@ -46,14 +49,12 @@ final class CustomViewBuilderRegisterPass implements CompilerPassInterface
                 $serviceMap[$typeId] = $id;
             }
             // Allow services to be found by their names.
-            $serviceMap[$refClass->getName()] = $id;
-
-            $viewRendererDefinition->setPublic(true);
-
-            $serviceMap[$typeId] = $id;
+            $serviceMap[$refClass->getName()] = $serviceMap[$typeId] = $id;
+            $locatorMap[$refClass->getName()] = $locatorMap[$typeId] = new Reference($id);
         }
 
         $containerRegistryDefinition->setArgument(0, $serviceMap);
+        $containerRegistryDefinition->setArgument(1, ServiceLocatorTagPass::register($container, $locatorMap));
     }
 
     private function findNameFromClassStaticProperties(string $className): ?string

@@ -27,8 +27,8 @@ final class ContainerViewRendererRegistryTest extends TestCase
     {
         $ret = new ContainerViewRendererRegistry([
             'foo' => 'foo_service_id',
+            $this->createContainer()
         ]);
-        $ret->setContainer($this->createContainer());
 
         return $ret;
     }

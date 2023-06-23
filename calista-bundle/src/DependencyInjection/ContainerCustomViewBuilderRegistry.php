@@ -2,33 +2,26 @@
 
 declare(strict_types=1);
 
-namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
+namespace MakinaCorpus\Calista\View\CustomViewBuilder;
 
 use MakinaCorpus\Calista\View\CustomViewBuilder;
-use MakinaCorpus\Calista\View\CustomViewBuilder\ClassNameCustomViewBuilderRegistry;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Psr\Container\ContainerInterface;
 
 /**
  * @todo switch using a container locator instead.
  */
-final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilderRegistry implements ContainerAwareInterface
+final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilderRegistry
 {
-    use ContainerAwareTrait;
-
-    /** @var array<string, string> */
-    private array $serviceIdList;
-
     /**
      * @param array $serviceIdList
      *   Keys are custom view builder names, values are service identifiers.
      *   For simplicity, names can be services names if you wish, you still
      *   need to set the value.
      */
-    public function __construct(array $serviceIdList)
-    {
-        $this->serviceIdList = $serviceIdList;
-    }
+    public function __construct(
+        private array $serviceIdList,
+        private ?ContainerInterface $container = null,
+    ) {}
 
     /**
      * {@inheritdoc}
@@ -39,6 +32,10 @@ final class ContainerCustomViewBuilderRegistry extends ClassNameCustomViewBuilde
 
         if (!$serviceId) {
             return parent::get($builderName);
+        }
+
+        if (!$this->container) {
+            throw new \LogicException("Uninitialized object, missing container.");
         }
 
         return $this->container->get($serviceId);

@@ -5,29 +5,27 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
 
 use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Psr\Container\ContainerInterface;
 
-final class ContainerViewBuilderPluginRegistry implements ViewBuilderPluginRegistry, ContainerAwareInterface
+final class ContainerViewBuilderPluginRegistry implements ViewBuilderPluginRegistry
 {
-    use ContainerAwareTrait;
-
-    /** @var array<string,string> */
-    private array $serviceMap = [];
-
     /**
      * @param array<string,string> $serviceMap
      */
-    public function __construct(array $serviceMap)
-    {
-        $this->serviceMap = $serviceMap;
-    }
+    public function __construct(
+        private array $serviceMap,
+        private ?ContainerInterface $container = null,
+    ) {}
 
     /**
      * {@inheritdoc}
      */
     public function all(): iterable
     {
+        if (!$this->container) {
+            throw new \LogicException("Uninitialized object, missing container.");
+        }
+
         return (
             function () {
                 foreach ($this->serviceMap as $serviceName) {

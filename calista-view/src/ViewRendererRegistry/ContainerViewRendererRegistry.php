@@ -6,29 +6,27 @@ namespace MakinaCorpus\Calista\View\ViewRendererRegistry;
 
 use MakinaCorpus\Calista\View\ViewRenderer;
 use MakinaCorpus\Calista\View\ViewRendererRegistry;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Psr\Container\ContainerInterface;
 
-final class ContainerViewRendererRegistry implements ViewRendererRegistry, ContainerAwareInterface
+final class ContainerViewRendererRegistry implements ViewRendererRegistry
 {
-    use ContainerAwareTrait;
-
-    /** @var array<string,string> */
-    private array $serviceMap = [];
-
     /**
      * @param array<string,string> $serviceMap
      */
-    public function __construct(array $serviceMap)
-    {
-        $this->serviceMap = $serviceMap;
-    }
+    public function __construct(
+        private array $serviceMap,
+        private ?ContainerInterface $container = null,
+    ) {}
 
     /**
      * {@inheritdoc}
      */
     public function getViewRenderer(string $rendererName): ViewRenderer
     {
+        if (!$this->container) {
+            throw new \LogicException("Uninitialized object, missing container.");
+        }
+
         return $this->container->get($this->serviceMap[$rendererName] ?? $rendererName);
     }
 }

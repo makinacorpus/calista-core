@@ -6,7 +6,9 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler;
 
 use MakinaCorpus\Calista\View\ViewRenderer;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 
 final class ViewRendererRegisterPass implements CompilerPassInterface
 {
@@ -23,6 +25,7 @@ final class ViewRendererRegisterPass implements CompilerPassInterface
         $containerRegistryDefinition = $container->getDefinition('calista.view.renderer_registry.container');
 
         $serviceMap = [];
+        $locatorMap = [];
         foreach ($container->findTaggedServiceIds('calista.view') as $id => $attributes) {
             $viewRendererDefinition = $container->getDefinition($id);
 
@@ -41,13 +44,11 @@ final class ViewRendererRegisterPass implements CompilerPassInterface
                 $typeId = $attributes[0]['id'];
             }
 
-            $viewRendererDefinition->setPublic(true);
-
-            $serviceMap[$typeId] = $id;
-            // Allow using the service identifier as name.
-            $serviceMap[$id] = $id;
+            $serviceMap[$typeId] = $serviceMap[$id] = $id;
+            $locatorMap[$typeId] = $locatorMap[$id] = new Reference($id);
         }
 
         $containerRegistryDefinition->setArgument(0, $serviceMap);
+        $containerRegistryDefinition->setArgument(1, ServiceLocatorTagPass::register($container, $locatorMap));
     }
 }
