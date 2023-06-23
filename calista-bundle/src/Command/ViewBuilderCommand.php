@@ -31,6 +31,7 @@ final class ViewBuilderCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('builder', InputArgument::OPTIONAL, "View builder name to query, if none provided, list all known view builders.");
+        $this->addOption('export', null, InputOption::VALUE_NONE, "Set the export status boolean in view builder.");
         $this->addOption('limit', 'l', InputOption::VALUE_REQUIRED, "Limit to apply to query, 0 means no limit.");
         $this->addOption('page', 'p', InputOption::VALUE_REQUIRED, "Page to apply to query, starts at 1.");
         $this->addOption('format', 'f', InputOption::VALUE_REQUIRED, "Format, can be anything such as json, xml, txt. It must be supported by the view builder.", 'csv');
@@ -52,12 +53,25 @@ final class ViewBuilderCommand extends Command
         return self::SUCCESS;
     }
 
+    private function getFormatRenderer(string $format): string
+    {
+        return match ($format) {
+            'csv' => 'csv',
+            'html' => 'twig',
+            'txt' => 'text',
+            default => $format,
+        };
+    }
+
     private function queryViewBuilder(InputInterface $input, OutputInterface $output, string $builderName): void
     {
         $format = $input->getOption('format') ?? 'csv';
 
         $builder = $this->viewManager->createViewBuilder($builderName, [], $format);
+        $builder->renderer($this->getFormatRenderer($format));
         $builder->request($this->createRequest($input, $output, $builder));
+
+        $builder->export((bool) $input->getOption('export'));
 
         $builder->build()->renderInStream(STDOUT);
     }
@@ -79,12 +93,7 @@ final class ViewBuilderCommand extends Command
             $query[$inputDefinition->getPagerParameter()] = $page;
         }
 
-        $attributes = [
-            '_route' => 'none',
-            '_route_params' => [],
-        ];
-
-        return new Request($query, [], $attributes);
+        return new Request($query);
     }
 
     private function parseInt(?string $value, int $min = 0, ?int $max = null): ?int

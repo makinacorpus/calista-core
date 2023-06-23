@@ -25,3 +25,15 @@ services:
         class: MakinaCorpus\Calista\Bridge\Symfony\View\ConsoleTableViewRenderer
         arguments: ['@calista.property_renderer']
         tags: [{name: calista.view, id: console_table}]
+
+    calista.view.text:
+        public: true
+        class: MakinaCorpus\Calista\View\ViewRenderer\TextStreamViewRenderer
+        arguments: ['@calista.property_renderer']
+        tags: [{name: calista.view, id: text}]
+
+    calista.view.txt:
+        public: true
+        class: MakinaCorpus\Calista\View\ViewRenderer\TextStreamViewRenderer
+        arguments: ['@calista.property_renderer']
+        tags: [{name: calista.view, id: txt}]

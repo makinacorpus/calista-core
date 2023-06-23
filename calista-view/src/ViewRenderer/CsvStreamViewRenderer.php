@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MakinaCorpus\Calista\View\ViewRenderer;
 
 use MakinaCorpus\Calista\View\View;
+use MakinaCorpus\Calista\View\Attribute\Renderer;
 
 /**
  * Turn your data stream to CSV file.
  */
+#[Renderer(name: 'csv')]
+#[Renderer(name: 'csv_stream')]
 class CsvStreamViewRenderer extends AbstractStreamViewRenderer
 {
     /**

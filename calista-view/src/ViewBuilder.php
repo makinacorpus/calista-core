@@ -493,8 +493,8 @@ final class ViewBuilder extends QueryBuilder
         $view = new View($this->getViewDefinition(), $items, $query);
         if ($this->route) {
             $view->setRoute($this->getRoute(), $this->getRouteParameters());
-        } else if ($this->request) {
-            $view->setRoute($this->request->attributes->get('_route'), $this->request->attributes->get('_route_params'));
+        } else if ($this->request && ($route = $this->request->attributes->get('_route'))) {
+            $view->setRoute($route, $this->request->attributes->get('_route_params'));
         }
 
         return $this->builtView = $view;

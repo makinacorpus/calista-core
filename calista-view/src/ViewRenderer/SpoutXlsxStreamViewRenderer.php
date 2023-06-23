@@ -7,6 +7,7 @@ namespace MakinaCorpus\Calista\View\ViewRenderer;
 use Box\Spout\Common\Entity\Row;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Writer\XLSX\Writer;
+use MakinaCorpus\Calista\View\Attribute\Renderer;
 use MakinaCorpus\Calista\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Turn your data stream to an XLSX (Excel) file
  */
+#[Renderer(name: 'spout_xslx')]
+#[Renderer(name: 'spout_xlsx_stream')]
 class SpoutXlsxStreamViewRenderer extends AbstractViewRenderer
 {
     /**

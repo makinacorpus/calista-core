@@ -7,6 +7,7 @@ namespace MakinaCorpus\Calista\Twig\View;
 use MakinaCorpus\Calista\Query\DefaultFilter;
 use MakinaCorpus\Calista\Query\Filter;
 use MakinaCorpus\Calista\View\View;
+use MakinaCorpus\Calista\View\Attribute\Renderer;
 use MakinaCorpus\Calista\View\Event\ViewEvent;
 use MakinaCorpus\Calista\View\ViewRenderer\AbstractViewRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -23,6 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
  *     as first and only parameter: it allows the user to write custom markup
  *     in the very last table column.
  */
+#[Renderer(name: 'twig')]
+#[Renderer(name: 'twig_page')]
 class TwigViewRenderer extends AbstractViewRenderer
 {
     private EventDispatcherInterface $dispatcher;
