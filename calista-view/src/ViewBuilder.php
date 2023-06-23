@@ -9,15 +9,15 @@ use MakinaCorpus\Calista\Query\QueryBuilder;
 use MakinaCorpus\Calista\View\Event\ViewBuilderEvent;
 use MakinaCorpus\Calista\View\ViewBuilder\ViewBuilderRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use MakinaCorpus\Calista\Datasource\DatasourceResult;
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourcePluginRegistry;
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourceResultConverter;
 
 /**
  * @todo unit test me seriously
  */
 final class ViewBuilder extends QueryBuilder
 {
-    private ViewRendererRegistry $viewRendererRegistry;
-    private ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null;
-
     private string $rendererName = 'twig';
     private array $viewOptions = [];
     private array $defaultPropertyView = [];
@@ -43,14 +43,12 @@ final class ViewBuilder extends QueryBuilder
     private ?View $builtView = null;
 
     public function __construct(
-        ViewRendererRegistry $viewRendererRegistry,
+        private ViewRendererRegistry $viewRendererRegistry,
         EventDispatcherInterface $eventDispatcher,
-        ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null
+        private ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null,
+        private ?DatasourcePluginRegistry $datasourcePluginRegistry = null,
     ) {
         parent::__construct($eventDispatcher);
-
-        $this->viewRendererRegistry = $viewRendererRegistry;
-        $this->viewBuilderPluginRegistry = $viewBuilderPluginRegistry;
     }
 
     /**
@@ -481,6 +479,16 @@ final class ViewBuilder extends QueryBuilder
 
         $query = $this->getQuery();
         $items = $this->getItems();
+
+        if (!$items instanceof DatasourceResult && $this->datasourcePluginRegistry) {
+            foreach ($this->datasourcePluginRegistry->getResultConverters() as $converter) {
+                \assert($converter instanceof DatasourceResultConverter);
+                if (null !== ($candidate = $converter->convert($items))) {
+                    $items = $candidate;
+                    break;
+                }
+            }
+        }
 
         $view = new View($this->getViewDefinition(), $items, $query);
         if ($this->route) {

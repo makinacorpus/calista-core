@@ -6,6 +6,8 @@ namespace MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection;
 
 use MakinaCorpus\Calista\Bridge\Symfony\Controller\RestController;
 use MakinaCorpus\Calista\Bridge\Symfony\ViewBuilderPlugin\RequestViewBuilderPlugin;
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourcePluginRegistry;
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourcePluginRegistry\ContainerDatasourcePluginRegistry;
 use MakinaCorpus\Calista\Twig\Extension\BlockExtension;
 use MakinaCorpus\Calista\Twig\View\DefaultTwigBlockRenderer;
 use MakinaCorpus\Calista\View\CustomViewBuilder;
@@ -39,6 +41,7 @@ final class CalistaExtension extends Extension
         $this->registerViewRendererRegistry($container);
         $this->registerViewManager($container);
         $this->registerCustomViewBuilders($container);
+        $this->registerDatasourcePlugins($container);
         $this->registerRestRenderer($container);
 
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
@@ -50,6 +53,15 @@ final class CalistaExtension extends Extension
         if (\class_exists('Box\\Spout\\Writer\\Common\\Creator\\WriterEntityFactory')) {
             $loader->load('spout.yml');
         }
+    }
+
+    private function registerDatasourcePlugins(ContainerBuilder $container): void
+    {
+        $serviceId = 'calista.bundle.datasource_plugin_registry';
+        $definition = new Definition();
+        $definition->setClass(ContainerDatasourcePluginRegistry::class);
+        $container->setDefinition($serviceId, $definition);
+        $container->setAlias(DatasourcePluginRegistry::class, $serviceId);
     }
 
     private function registerCustomViewBuilders(ContainerBuilder $container): void
@@ -200,6 +212,7 @@ final class CalistaExtension extends Extension
             new Reference('event_dispatcher'),
             new Reference('calista.bundle.custom_view_renderer_registry'),
             new Reference('calista.bundle.view_builder_plugin_registry'),
+            new Reference('calista.bundle.datasource_plugin_registry'),
         ]);
         $definition->setPublic(false);
 

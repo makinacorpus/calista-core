@@ -6,6 +6,7 @@ namespace MakinaCorpus\Calista\Bridge\Symfony;
 
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\CalistaExtension;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\CustomViewBuilderRegisterPass;
+use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\DatasourcePluginRegisterPass;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\RendererRegisterPass;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\TwigConfigurationPass;
 use MakinaCorpus\Calista\Bridge\Symfony\DependencyInjection\Compiler\ViewBuilderPluginRegisterPass;
@@ -32,6 +33,7 @@ final class CalistaBundle extends Bundle
         $container->addCompilerPass(new RendererRegisterPass());
         $container->addCompilerPass(new TwigConfigurationPass());
         $container->addCompilerPass(new CustomViewBuilderRegisterPass());
+        $container->addCompilerPass(new DatasourcePluginRegisterPass());
     }
 
     /**

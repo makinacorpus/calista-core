@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MakinaCorpus\Calista\View;
 
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourcePluginRegistry;
+use MakinaCorpus\Calista\Datasource\Plugin\DatasourcePluginRegistry\ArrayDatasourcePluginRegistry;
 use MakinaCorpus\Calista\View\CustomViewBuilder\ClassNameCustomViewBuilderRegistry;
 use MakinaCorpus\Calista\View\ViewBuilderPluginRegistry\ArrayViewBuilderPluginRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -19,17 +21,20 @@ class ViewManager implements ViewRendererRegistry
     private CustomViewBuilderRegistry $customViewBuilderRegistry;
     private EventDispatcherInterface $eventDispatcher;
     private ViewBuilderPluginRegistry $viewBuilderPluginRegistry;
+    private DatasourcePluginRegistry $datasourcePluginRegistry;
 
     public function __construct(
         ViewRendererRegistry $viewRendererRegistry,
         EventDispatcherInterface $eventDispatcher,
         ?CustomViewBuilderRegistry $customViewBuilderRegistry = null,
-        ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null
+        ?ViewBuilderPluginRegistry $viewBuilderPluginRegistry = null,
+        ?DatasourcePluginRegistry $datasourcePluginRegistry = null
     ) {
         $this->viewRendererRegistry = $viewRendererRegistry;
         $this->customViewBuilderRegistry = $customViewBuilderRegistry ?? new ClassNameCustomViewBuilderRegistry();
         $this->eventDispatcher = $eventDispatcher;
         $this->viewBuilderPluginRegistry = $viewBuilderPluginRegistry ?? new ArrayViewBuilderPluginRegistry([]);
+        $this->datasourcePluginRegistry = $datasourcePluginRegistry ?? new ArrayDatasourcePluginRegistry([]);
     }
 
     /**
@@ -50,7 +55,13 @@ class ViewManager implements ViewRendererRegistry
      */
     public function createViewBuilder(?string $builderName = null, array $options = [], ?string $format = null): ViewBuilder
     {
-        $builder = new ViewBuilder($this->viewRendererRegistry, $this->eventDispatcher, $this->viewBuilderPluginRegistry);
+        $builder = new ViewBuilder(
+            $this->viewRendererRegistry,
+            $this->eventDispatcher,
+            $this->viewBuilderPluginRegistry,
+            $this->datasourcePluginRegistry,
+        );
+
         $builder->format($format);
 
         foreach ($this->viewBuilderPluginRegistry->all() as $plugin) {
