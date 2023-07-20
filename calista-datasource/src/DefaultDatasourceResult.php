@@ -91,6 +91,14 @@ class DefaultDatasourceResult implements \IteratorAggregate, DatasourceResult
             return $this->count = \count($this->items);
         }
 
+        if ($this->getTotalCount()) {
+            if ($this->getCurrentPage() < $this->getPageCount()) {
+                return $this->count = $this->getLimit();
+            }
+
+            return $this->count = ($this->getTotalCount() - ($this->getLimit() * ($this->getPageCount() - 1)));
+        }
+
         return $this->count = 0;
     }
 }
